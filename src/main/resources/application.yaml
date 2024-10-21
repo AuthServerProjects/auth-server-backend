@@ -1,0 +1,38 @@
+server:
+  port: 9090
+
+spring:
+  application:
+    name: authServer
+  #  Database Configuration
+  datasource:
+    url: jdbc:mysql://172.16.170.161:3306/oauth_server
+    username: sekehdb
+    password: sekehdb
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.MySQL5Dialect
+    show-sql: true
+
+
+logging:
+  level:
+    root: info
+    web: info
+    org:
+      springframework:
+        security: info
+
+#Swagger Configuration
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+  show-actuator: true
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
