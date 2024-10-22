@@ -1,4 +1,4 @@
-package com.behpardakht.side_pay.auth.security.token;
+package com.behpardakht.side_pay.auth.security.authorizationServer;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;

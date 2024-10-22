@@ -1,6 +1,5 @@
-package com.behpardakht.side_pay.auth.security;
+package com.behpardakht.side_pay.auth.security.authorizationServer.otp;
 
-import com.behpardakht.side_pay.auth.security.token.OtpJwtAuthenticationToken;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationConverter;

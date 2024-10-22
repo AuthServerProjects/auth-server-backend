@@ -1,6 +1,5 @@
-package com.behpardakht.side_pay.auth.security;
+package com.behpardakht.side_pay.auth.security.authorizationServer.otp;
 
-import com.behpardakht.side_pay.auth.security.provider.OTPAuthenticationProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;

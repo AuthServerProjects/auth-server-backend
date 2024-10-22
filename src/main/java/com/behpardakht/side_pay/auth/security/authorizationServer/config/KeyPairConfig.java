@@ -1,4 +1,4 @@
-package com.behpardakht.side_pay.auth.security.config;
+package com.behpardakht.side_pay.auth.security.authorizationServer.config;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;

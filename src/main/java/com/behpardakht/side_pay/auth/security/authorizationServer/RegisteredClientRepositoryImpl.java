@@ -1,4 +1,4 @@
-package com.behpardakht.side_pay.auth.security;
+package com.behpardakht.side_pay.auth.security.authorizationServer;
 
 import com.behpardakht.side_pay.auth.model.entity.Client;
 import com.behpardakht.side_pay.auth.model.mapper.ClientMapper;

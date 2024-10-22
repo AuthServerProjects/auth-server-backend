@@ -1,4 +1,4 @@
-package com.behpardakht.side_pay.auth.security;
+package com.behpardakht.side_pay.auth.security.common;
 
 import com.behpardakht.side_pay.auth.model.entity.Role;
 import com.behpardakht.side_pay.auth.model.entity.Users;

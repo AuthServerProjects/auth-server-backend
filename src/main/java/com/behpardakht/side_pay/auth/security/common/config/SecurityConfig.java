@@ -1,9 +1,9 @@
-package com.behpardakht.side_pay.auth.security.config;
+package com.behpardakht.side_pay.auth.security.common.config;
 
-import com.behpardakht.side_pay.auth.security.OtpAuthenticationFilter;
-import com.behpardakht.side_pay.auth.security.OtpJwtAuthenticationConverter;
-import com.behpardakht.side_pay.auth.security.provider.OTPAuthenticationProvider;
-import com.behpardakht.side_pay.auth.security.token.JwtAuthenticationConverter;
+import com.behpardakht.side_pay.auth.security.authorizationServer.otp.OtpAuthenticationFilter;
+import com.behpardakht.side_pay.auth.security.authorizationServer.otp.OtpJwtAuthenticationConverter;
+import com.behpardakht.side_pay.auth.security.authorizationServer.otp.OTPAuthenticationProvider;
+import com.behpardakht.side_pay.auth.security.resourceServer.JwtAuthenticationConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +16,6 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientCredentialsAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.web.SecurityFilterChain;

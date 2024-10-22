@@ -1,4 +1,4 @@
-package com.behpardakht.side_pay.auth.security.token;
+package com.behpardakht.side_pay.auth.security.authorizationServer.otp;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

@@ -1,5 +1,6 @@
-package com.behpardakht.side_pay.auth.security.token;
+package com.behpardakht.side_pay.auth.security.resourceServer;
 
+import com.behpardakht.side_pay.auth.security.resourceServer.CustomJwtAuthenticationToken;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;

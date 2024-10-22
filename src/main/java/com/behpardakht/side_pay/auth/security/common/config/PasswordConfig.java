@@ -1,4 +1,4 @@
-package com.behpardakht.side_pay.auth.security.config;
+package com.behpardakht.side_pay.auth.security.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

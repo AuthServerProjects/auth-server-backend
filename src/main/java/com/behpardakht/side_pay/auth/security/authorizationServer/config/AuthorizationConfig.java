@@ -1,4 +1,4 @@
-package com.behpardakht.side_pay.auth.security.config;
+package com.behpardakht.side_pay.auth.security.authorizationServer.config;
 
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;

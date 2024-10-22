@@ -1,8 +1,7 @@
-package com.behpardakht.side_pay.auth.security.provider;
+package com.behpardakht.side_pay.auth.security.authorizationServer.otp;
 
 import com.behpardakht.side_pay.auth.exception.ExceptionWrapper.IncorrectException;
 import com.behpardakht.side_pay.auth.model.dto.UsersDto;
-import com.behpardakht.side_pay.auth.security.token.OtpJwtAuthenticationToken;
 import com.behpardakht.side_pay.auth.service.OtpService;
 import com.behpardakht.side_pay.auth.service.UserService;
 import lombok.AllArgsConstructor;
