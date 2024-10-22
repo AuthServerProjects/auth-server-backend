@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
+import org.springframework.security.oauth2.server.authorization.token.JwtGenerator;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -50,5 +51,10 @@ public class KeyPairConfig {
     @Bean
     public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
         return new NimbusJwtEncoder(jwkSource);
+    }
+
+    @Bean
+    public JwtGenerator jwtGenerator(JwtEncoder jwtEncoder) {
+        return new JwtGenerator(jwtEncoder);
     }
 }
