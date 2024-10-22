@@ -7,7 +7,12 @@ import java.util.Optional;
 
 public interface AuthorizationRepository extends JpaRepository<Authorizations, String> {
 
+    Optional<Authorizations> findByAuthorizationId(String authorizationId);
+
     Optional<Authorizations> findByAccessToken(String accessToken);
 
     Optional<Authorizations> findByRefreshToken(String refreshToken);
+
+    Optional<Authorizations> findByAuthorizationCode(String authorizationCode);
+
 }

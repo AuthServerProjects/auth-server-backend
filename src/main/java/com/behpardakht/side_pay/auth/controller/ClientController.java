@@ -34,7 +34,7 @@ public class ClientController {
         return ResponseEntity.ok("Client registered Successfully : " + client.getClientId());
     }
 
-    @PreAuthorize("hasRole('Admin')")
+//    @PreAuthorize("hasRole('Admin')")
     @PostMapping(path = "/defaultRegister")
     public ResponseEntity<String> register() {
         ClientDto clientDto = new ClientDto();
@@ -46,6 +46,7 @@ public class ClientController {
                 AuthenticationMethodTypes.CLIENT_SECRET_POST,
                 AuthenticationMethodTypes.CLIENT_SECRET_BASIC));
         clientDto.setAuthorizationGrantTypes(Set.of(
+                AuthorizationGrantTypes.OTP,
                 AuthorizationGrantTypes.AUTHORIZATION_CODE,
                 AuthorizationGrantTypes.CLIENT_CREDENTIALS,
                 AuthorizationGrantTypes.REFRESH_TOKEN));

@@ -177,7 +177,7 @@ public class ClientMapper {
                 .clientId(dto.getClientId())
                 .clientSecret(dto.getClientSecret())
                 .clientAuthenticationMethods(
-                        authMethods -> dto.getAuthorizationGrantTypes().stream().filter(Objects::nonNull)
+                        authMethods -> dto.getClientAuthenticationMethods().stream().filter(Objects::nonNull)
                                 .map(method -> new ClientAuthenticationMethod(method.getValue())).forEach(authMethods::add))
                 .authorizationGrantTypes(
                         grantTypes -> dto.getAuthorizationGrantTypes().stream().filter(Objects::nonNull)

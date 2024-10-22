@@ -17,7 +17,7 @@ public class RoleController {
     private final RoleService roleService;
 
     @PostMapping
-    @PreAuthorize("hasRole('Admin')")
+//    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<String> save(@RequestBody Role role) {
         roleService.save(role);
         return ResponseEntity.ok("Role Added Successfully");
