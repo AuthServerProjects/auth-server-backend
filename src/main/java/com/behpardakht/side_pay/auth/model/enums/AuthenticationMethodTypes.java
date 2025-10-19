@@ -1,5 +1,10 @@
-package com.behpardakht.side_pay.auth.enums;
+package com.behpardakht.side_pay.auth.model.enums;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum AuthenticationMethodTypes {
 
     CLIENT_SECRET_BASIC("client_secret_basic"),
@@ -10,14 +15,5 @@ public enum AuthenticationMethodTypes {
     TLS_CLIENT_AUTH("tls_client_auth"),
     SELF_SIGNED_TLS_CLIENT_AUTH("self_signed_tls_client_auth");
 
-
     private final String value;
-
-    AuthenticationMethodTypes(String value) {
-        this.value = value;
-    }
-
-    public String getValue() {
-        return value;
-    }
 }

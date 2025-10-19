@@ -1,5 +1,10 @@
-package com.behpardakht.side_pay.auth.enums;
+package com.behpardakht.side_pay.auth.model.enums;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum ScopeTypes {
 
     OPENID("openid"),
@@ -9,12 +14,4 @@ public enum ScopeTypes {
     PHONE("phone");
 
     private final String value;
-
-    ScopeTypes(String value) {
-        this.value = value;
-    }
-
-    public String getValue() {
-        return value;
-    }
 }
