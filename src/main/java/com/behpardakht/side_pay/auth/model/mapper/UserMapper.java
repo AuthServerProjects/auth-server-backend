@@ -18,16 +18,17 @@ public class UserMapper {
 
     public UsersDto toDto(Users entity) {
         if (entity != null) {
-            UsersDto dto = new UsersDto();
-            dto.setId(entity.getId());
-            dto.setUsername(entity.getUsername());
-            dto.setPassword(entity.getPassword());
-            dto.setIsAccountNonExpired(entity.getIsAccountNonExpired());
-            dto.setIsAccountNonLocked(entity.getIsAccountNonLocked());
-            dto.setIsCredentialsNonExpired(entity.getIsCredentialsNonExpired());
-            dto.setIsEnabled(entity.getIsEnabled());
-            dto.setRoles(roleMapper.toDtoList(entity.getRoles()));
-            return dto;
+            return UsersDto.builder()
+                    .id(entity.getId())
+                    .username(entity.getUsername())
+                    .password(entity.getPassword())
+                    .phoneNumber(entity.getPhoneNumber())
+                    .isAccountNonExpired(entity.getIsAccountNonExpired())
+                    .isAccountNonLocked(entity.getIsAccountNonLocked())
+                    .isCredentialsNonExpired(entity.getIsCredentialsNonExpired())
+                    .isEnabled(entity.getIsEnabled())
+                    .roles(roleMapper.toDtoList(entity.getRoles()))
+                    .build();
         }
         return null;
     }
@@ -41,15 +42,16 @@ public class UserMapper {
 
     public Users toEntity(UsersDto dto) {
         if (dto != null) {
-            Users entity = new Users();
-            entity.setUsername(dto.getUsername());
-            entity.setPassword(dto.getPassword());
-            entity.setIsAccountNonExpired(dto.getIsAccountNonExpired());
-            entity.setIsAccountNonLocked(dto.getIsAccountNonLocked());
-            entity.setIsCredentialsNonExpired(dto.getIsCredentialsNonExpired());
-            entity.setIsEnabled(dto.getIsEnabled());
-            entity.setRoles(roleMapper.loadEntityList(dto.getRoles()));
-            return entity;
+            return Users.builder()
+                    .username(dto.getUsername())
+                    .password(dto.getPassword())
+                    .phoneNumber(dto.getPhoneNumber())
+                    .isAccountNonExpired(dto.getIsAccountNonExpired())
+                    .isAccountNonLocked(dto.getIsAccountNonLocked())
+                    .isCredentialsNonExpired(dto.getIsCredentialsNonExpired())
+                    .isEnabled(dto.getIsEnabled())
+                    .roles(roleMapper.loadEntityList(dto.getRoles()))
+                    .build();
         }
         return null;
     }

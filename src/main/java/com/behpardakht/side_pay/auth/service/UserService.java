@@ -7,12 +7,16 @@ import com.behpardakht.side_pay.auth.model.entity.Users;
 import com.behpardakht.side_pay.auth.model.mapper.UserMapper;
 import com.behpardakht.side_pay.auth.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import static com.behpardakht.side_pay.auth.util.GeneralUtil.maskPhoneNumber;
+
+@Slf4j
 @Service
 @AllArgsConstructor
 public class UserService {
@@ -35,8 +39,22 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
+    public void createUserByPhoneNumber(String phoneNumber) {
+        UsersDto usersDto = UsersDto.builder()
+                .username(phoneNumber)
+                .password("otp_user")
+                .phoneNumber(phoneNumber)
+                .isAccountNonExpired(true)
+                .isAccountNonLocked(true)
+                .isCredentialsNonExpired(true)
+                .isEnabled(true)
+                .build();
+        registerUser(usersDto);
+        log.info("New user account created for phone: {}", maskPhoneNumber(phoneNumber));
+    }
+
     public void registerUser(UsersDto usersDto) {
-        if (userExists(usersDto.getUsername())) {
+        if (existUserWithUsername(usersDto.getUsername())) {
             throw new AlreadyExistException("Username", usersDto.getUsername());
         } else {
             usersDto.setPassword(passwordEncoder.encode(usersDto.getPassword()));
@@ -44,7 +62,7 @@ public class UserService {
         }
     }
 
-    @PreAuthorize(value = "")
+    @PreAuthorize(value = "Admin")
     public void changeUsername(String oldUsername, String newUsername) {
         if (oldUsername.equals(newUsername)) {
             throw new IllegalArgumentException("New username can not be the same as old one");
@@ -58,7 +76,7 @@ public class UserService {
         userRepository.save(userMapper.toEntity(users));
     }
 
-    @PreAuthorize(value = "")
+    @PreAuthorize(value = "Admin")
     public void changePassword(String oldPassword, String newPassword) {
         String encodeNewPassword = passwordEncoder.encode(newPassword);
         if (passwordEncoder.matches(oldPassword, encodeNewPassword)) {
@@ -73,7 +91,7 @@ public class UserService {
         userRepository.save(userMapper.toEntity(users));
     }
 
-    @PreAuthorize(value = "")
+    @PreAuthorize(value = "Admin")
     public void addRoleToUser(String username, String roleName) {
         Users user = findByUsername(username);
         Role role = roleService.findByName(roleName);
@@ -90,7 +108,11 @@ public class UserService {
         }
     }
 
-    public boolean userExists(String username) {
+    public boolean existUserWithUsername(String username) {
         return userRepository.findByUsername(username).isPresent();
+    }
+
+    public boolean existUserWithPhoneNumber(String phoneNumber) {
+        return userRepository.findByPhoneNumber(phoneNumber).isPresent();
     }
 }

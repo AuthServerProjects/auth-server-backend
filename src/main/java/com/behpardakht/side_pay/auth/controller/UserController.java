@@ -18,9 +18,14 @@ public class UserController {
         return userService.findUserByUsername(username);
     }
 
-    @GetMapping(path = "/exist")
-    public Boolean userExists(@RequestParam String username) {
-        return userService.userExists(username);
+    @GetMapping(path = "/existUsername")
+    public Boolean existUsername(@RequestParam String username) {
+        return userService.existUserWithUsername(username);
+    }
+
+    @GetMapping(path = "/existPhoneNumber")
+    public Boolean existPhoneNumber(@RequestParam String phoneNumber) {
+        return userService.existUserWithPhoneNumber(phoneNumber);
     }
 
     @PostMapping(path = "/register")

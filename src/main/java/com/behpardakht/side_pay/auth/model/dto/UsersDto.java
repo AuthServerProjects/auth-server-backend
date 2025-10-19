@@ -1,6 +1,9 @@
 package com.behpardakht.side_pay.auth.model.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
@@ -8,6 +11,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UsersDto {
     private Long id;
     private String username;
