@@ -1,8 +1,8 @@
 package com.behpardakht.side_pay.auth.model.dto;
 
-import com.behpardakht.side_pay.auth.enums.AuthenticationMethodTypes;
-import com.behpardakht.side_pay.auth.enums.AuthorizationGrantTypes;
-import com.behpardakht.side_pay.auth.enums.ScopeTypes;
+import com.behpardakht.side_pay.auth.model.enums.AuthenticationMethodTypes;
+import com.behpardakht.side_pay.auth.model.enums.AuthorizationGrantTypes;
+import com.behpardakht.side_pay.auth.model.enums.ScopeTypes;
 import lombok.Data;
 
 import java.util.Set;
