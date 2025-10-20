@@ -1,9 +1,8 @@
 package com.behpardakht.side_pay.auth.security.authorizationServer;
 
 import com.behpardakht.side_pay.auth.model.entity.Authorizations;
-import com.behpardakht.side_pay.auth.model.mapper.ClientMapper;
 import com.behpardakht.side_pay.auth.repository.AuthorizationRepository;
-import com.behpardakht.side_pay.auth.repository.ClientRepository;
+import com.behpardakht.side_pay.auth.service.ClientService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,8 +26,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
 
-    private final ClientMapper clientMapper;
-    private final ClientRepository clientRepository;
+    private final ClientService clientService;
     private final AuthorizationRepository authorizationRepository;
 
     @Override
@@ -127,10 +125,7 @@ public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
     }
 
     private OAuth2Authorization buildOAuth2Authorization(Authorizations entity) {
-        RegisteredClient registeredClient = clientRepository.findByRegisteredClientId(entity.getRegisteredClientId())
-                .map(clientMapper::toRegisteredClient)
-                .orElseThrow(() -> new IllegalArgumentException("Registered client not found"));
-
+        RegisteredClient registeredClient = clientService.findRegisteredClientByClientId(entity.getRegisteredClientId());
         OAuth2Authorization.Builder authorizationBuilder = OAuth2Authorization.withRegisteredClient(registeredClient)
                 .principalName(entity.getPrincipalName());
 

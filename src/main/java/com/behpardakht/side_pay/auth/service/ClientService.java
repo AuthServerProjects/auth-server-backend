@@ -35,10 +35,18 @@ public class ClientService {
     }
 
     public ClientDto findByClientId(String clientId) {
-        RegisteredClient registeredClient = registeredClientRepository.findByClientId(clientId);
+        RegisteredClient registeredClient = registeredClientRepository.findByClientId(clientId); //TODO change repo and add mapper
         if (registeredClient == null) {
             throw new NotFoundException("Client", "ClientId", clientId);
         }
         return clientMapper.toDto(registeredClient);
+    }
+
+    public RegisteredClient findRegisteredClientByClientId(String clientId) {
+        RegisteredClient registeredClient = registeredClientRepository.findByClientId(clientId);
+        if (registeredClient == null) {
+            throw new NotFoundException("Client", "ClientId", clientId);
+        }
+        return registeredClient;
     }
 }
