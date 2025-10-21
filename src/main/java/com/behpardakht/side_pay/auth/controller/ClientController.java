@@ -38,7 +38,7 @@ public class ClientController {
     @PostMapping(path = "/defaultRegister")
     public ResponseEntity<String> register() {
         ClientDto clientDto = new ClientDto();
-        clientDto.setClientId("android");
+        clientDto.setClientId("web");
         clientDto.setClientSecret("secret");
         clientDto.setClientAuthenticationMethods(Set.of(
                 AuthenticationMethodTypes.NONE,
@@ -55,7 +55,7 @@ public class ClientController {
                 ScopeTypes.ADDRESS,
                 ScopeTypes.EMAIL,
                 ScopeTypes.PHONE));
-        clientDto.setRedirectUris(Set.of("http://127.0.0.1:9000"));
+        clientDto.setRedirectUris(Set.of("http://localhost:9090/otp/welcome"));
         TokenAndClientSettingDto settingDto = new TokenAndClientSettingDto();
         settingDto.setRequireProofKey(false);
         settingDto.setAccessTokenTimeToLive(30L);
