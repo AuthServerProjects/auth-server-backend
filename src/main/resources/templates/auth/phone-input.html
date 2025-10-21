@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Number Verification - Side Pay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            direction: ltr;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c33;
+        }
+
+        .help-text {
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        .security-note {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        @media (max-width: 480px) {
+            .auth-container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="auth-container">
+    <div class="logo">SP</div>
+
+    <h1>Phone Verification</h1>
+    <p class="subtitle">Enter your phone number to receive an OTP code for secure authentication</p>
+
+    <div th:if="${error}" class="error" th:text="${error}"></div>
+
+    <form id="phoneForm">
+        <div class="form-group">
+            <label for="phoneNumber">Phone Number</label>
+            <input type="text"
+                   id="phoneNumber"
+                   name="phoneNumber"
+                   placeholder="98XXXXXXXXXX"
+                   pattern="^98\d{10}$"
+                   maxlength="12"
+                   required>
+            <div class="help-text">Enter your Iranian mobile number starting with 98</div>
+        </div>
+
+        <button type="submit" class="submit-btn">Send OTP Code</button>
+    </form>
+
+    <div class="security-note">
+        <strong>🔒 Secure Authentication</strong><br>
+        Your phone number will be used only for authentication. We'll send you a one-time password via SMS.
+    </div>
+</div>
+
+<script>
+    // Auto-format phone number input
+    document.getElementById('phoneNumber').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 0 && !value.startsWith('98')) {
+            if (value.startsWith('9')) {
+                value = '98' + value;
+            } else if (!value.startsWith('98')) {
+                value = '98' + value;
+            }
+        }
+        if (value.length > 12) {
+            value = value.substring(0, 12);
+        }
+        e.target.value = value;
+    });
+
+    // Handle form submission - calls sendOtp endpoint
+    document.getElementById('phoneForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const phoneNumber = document.getElementById('phoneNumber').value;
+
+        fetch('/otp/sendOtp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                phoneNumber: phoneNumber
+            })
+        })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else if (response.ok) {
+                    // Handle success redirect manually if needed
+                    window.location.href = '/otp/enterOtp';
+                } else {
+                    throw new Error('Failed to send OTP');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to send OTP. Please try again.');
+            });
+    });
+
+    // Focus on phone input when page loads
+    window.addEventListener('load', function() {
+        document.getElementById('phoneNumber').focus();
+    });
+</script>
+</body>
+</html>
