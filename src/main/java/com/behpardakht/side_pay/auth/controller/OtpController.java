@@ -56,7 +56,7 @@ public class OtpController {
             OtpResponse otpResponse = otpService.sendOtp(phoneNumber);
             if (otpResponse.isSuccess()) {
                 String sessionId = UUID.randomUUID().toString();
-                otpSessionService.storePhoneNumberAndSessionId(sessionId, phoneNumber, session);
+                otpSessionService.storePhoneNumberAndAuthSessionId(sessionId, phoneNumber, session);
                 otpStorageService.storeAuthSessionId(sessionId, phoneNumber, 10);
                 log.info("OTP sent successfully for phone: {}", maskPhoneNumber(phoneNumber));
                 return "redirect:/otp/enterOtp";
@@ -88,7 +88,7 @@ public class OtpController {
                             HttpSession session,
                             RedirectAttributes redirectAttributes) {
         try {
-            SessionValidationDto sessionValidation = otpSessionService.validateOtpRequestData(session);
+            SessionValidationDto sessionValidation = otpSessionService.validatePhoneNumberAndAuthSessionId(session);
             if (!sessionValidation.isValid()) {
                 redirectAttributes.addAttribute("error", sessionValidation.getErrorMessage());
                 return "redirect:/otp/enterPhoneNumber";
@@ -109,7 +109,7 @@ public class OtpController {
                             .createAuthorization(authorizationCode, sessionDto);
                     otpStorageService.storeAuthCode(authorizationCode, sessionDto.phoneNumber(), 5); // 5 minutes
                     otpStorageService.removeAuthSessionId(sessionDto.authSessionId());
-                    otpSessionService.removePhoneNumberAndSessionId(session);
+                    otpSessionService.removePhoneNumberAndAuthSessionId(session);
                     return "redirect:" + buildRedirectUrl(sessionDto, authorizationCode, redirectUrl);
                 } catch (Exception e) {
                     log.error("Error completing authorization", e);
