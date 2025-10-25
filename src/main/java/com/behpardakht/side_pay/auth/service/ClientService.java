@@ -49,4 +49,11 @@ public class ClientService {
         }
         return registeredClient;
     }
+
+    public RegisteredClient findRegisteredClientByRegisterClientId(String registerClientId) {
+        return clientRepository.findByRegisteredClientId(registerClientId)
+                .map(clientMapper::toRegisteredClient)
+                .orElseThrow(() -> new NotFoundException("Client", "RegisterClientId", registerClientId));
+
+    }
 }

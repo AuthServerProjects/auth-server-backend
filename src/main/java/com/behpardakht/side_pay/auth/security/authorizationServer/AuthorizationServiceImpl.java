@@ -125,7 +125,7 @@ public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
     }
 
     private OAuth2Authorization buildOAuth2Authorization(Authorizations entity) {
-        RegisteredClient registeredClient = clientService.findRegisteredClientByClientId(entity.getRegisteredClientId());
+        RegisteredClient registeredClient = clientService.findRegisteredClientByRegisterClientId(entity.getRegisteredClientId());
         OAuth2Authorization.Builder authorizationBuilder = OAuth2Authorization.withRegisteredClient(registeredClient)
                 .principalName(entity.getPrincipalName());
 
