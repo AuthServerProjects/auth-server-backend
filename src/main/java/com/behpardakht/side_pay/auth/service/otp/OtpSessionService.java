@@ -2,7 +2,6 @@ package com.behpardakht.side_pay.auth.service.otp;
 
 import com.behpardakht.side_pay.auth.model.dto.otp.SessionValidationDto;
 import jakarta.servlet.http.HttpSession;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,9 +15,15 @@ public class OtpSessionService {
 
     private final OtpStorageService otpStorageService;
 
-    public void storeClientIdAndState(HttpSession session, String client_id, String state) {
-        session.setAttribute("client_id", client_id);
+    public void storeOAuth2Parameters(HttpSession session, String clientId, String state,
+                                      String redirectUri, String codeChallenge,
+                                      String codeChallengeMethod, String scope) {
+        session.setAttribute("client_id", clientId);
         session.setAttribute("state", state);
+        session.setAttribute("redirect_uri", redirectUri);
+        session.setAttribute("code_challenge", codeChallenge);
+        session.setAttribute("code_challenge_method", codeChallengeMethod);
+        session.setAttribute("scope", scope);
     }
 
     public void storePhoneNumberAndSessionId(String authSessionId, String phoneNumber, HttpSession session) {
@@ -32,12 +37,16 @@ public class OtpSessionService {
     }
 
     public SessionDto getSessionDto(HttpSession session) {
-        return SessionDto.builder()
-                .clientId((String) session.getAttribute("client_id"))
-                .state((String) session.getAttribute("state"))
-                .phoneNumber((String) session.getAttribute("phoneNumber"))
-                .authSessionId((String) session.getAttribute("authSessionId"))
-                .build();
+        return new SessionDto(
+                (String) session.getAttribute("client_id"),
+                (String) session.getAttribute("state"),
+                (String) session.getAttribute("redirect_uri"),
+                (String) session.getAttribute("code_challenge"),
+                (String) session.getAttribute("code_challenge_method"),
+                (String) session.getAttribute("scope"),
+                (String) session.getAttribute("phoneNumber"),
+                (String) session.getAttribute("authSessionId")
+        );
     }
 
     public SessionValidationDto validateOtpRequestData(HttpSession session) {
@@ -55,7 +64,8 @@ public class OtpSessionService {
         return SessionValidationDto.success(sessionDto.phoneNumber());
     }
 
-    @Builder
-    public record SessionDto(String clientId, String state, String phoneNumber, String authSessionId) {
+    public record SessionDto(String clientId, String state, String redirectUri, String codeChallenge,
+                             String codeChallengeMethod, String scope, String phoneNumber, String authSessionId
+    ) {
     }
 }

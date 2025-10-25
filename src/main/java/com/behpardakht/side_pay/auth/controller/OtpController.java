@@ -38,8 +38,13 @@ public class OtpController {
     @GetMapping("enterPhoneNumber")
     public String showPhoneInputPage(@RequestParam(required = false) String client_id,
                                      @RequestParam(required = false) String state,
+                                     @RequestParam(required = false) String redirect_uri,
+                                     @RequestParam(required = false) String code_challenge,
+                                     @RequestParam(required = false) String code_challenge_method,
+                                     @RequestParam(required = false) String scope,
                                      HttpSession session) {
-        otpSessionService.storeClientIdAndState(session, client_id, state);
+        otpSessionService.storeOAuth2Parameters(session, client_id, state, redirect_uri,
+                code_challenge, code_challenge_method, scope);
         return "auth/phone-input";
     }
 
@@ -101,7 +106,7 @@ public class OtpController {
                     }
                     String authorizationCode = "auth_code_" + UUID.randomUUID().toString().replace("-", "");
                     String redirectUrl = otpAuthorizationService
-                            .createAuthorization(authorizationCode, sessionDto.clientId(), sessionDto.phoneNumber());
+                            .createAuthorization(authorizationCode, sessionDto);
                     otpStorageService.storeAuthCode(authorizationCode, sessionDto.phoneNumber(), 5); // 5 minutes
                     otpStorageService.removeAuthSessionId(sessionDto.authSessionId());
                     otpSessionService.removePhoneNumberAndSessionId(session);
