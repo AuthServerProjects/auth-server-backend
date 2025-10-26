@@ -5,11 +5,14 @@ import com.behpardakht.side_pay.auth.model.enums.PkceMethod;
 import com.behpardakht.side_pay.auth.service.ClientService;
 import com.behpardakht.side_pay.auth.service.UserService;
 import com.behpardakht.side_pay.auth.service.otp.OtpSessionService.SessionDto;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationCode;
@@ -17,18 +20,24 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.behpardakht.side_pay.auth.util.GeneralUtil.maskPhoneNumber;
 
-@Service
-@AllArgsConstructor
 @Slf4j
+@Service
+@RequiredArgsConstructor
 public class OtpAuthorizationService {
+
+    @Value("${spring.security.oauth2.authorization-server.issuer-uri}")
+    private String issuerUri;
 
     private final UserService userService;
     private final ClientService clientService;
@@ -43,24 +52,20 @@ public class OtpAuthorizationService {
 
             RegisteredClient registeredClient = clientService.findRegisteredClientByClientId(sessionDto.clientId());
             String redirectUrl = getValidatedRedirectUrl(registeredClient.getRedirectUris(), sessionDto.redirectUri());
+            Set<String> authorizedScopes = getAuthorizedScopes(sessionDto, registeredClient);
+            OAuth2AuthorizationRequest authorizationRequest = getOAuth2AuthorizationRequest(sessionDto, redirectUrl, authorizedScopes);
 
-            OAuth2Authorization.Builder authorization =
+            OAuth2Authorization authorization =
                     OAuth2Authorization.withRegisteredClient(registeredClient)
                             .id(UUID.randomUUID().toString())
                             .principalName(phoneNumber)
                             .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                            .authorizedScopes(getAuthorizedScopes(sessionDto, registeredClient))
+                            .authorizedScopes(authorizedScopes)
                             .token(getAuthCode(authorizationCode))
-                            .attribute("Principal", principal);
-
-            if (sessionDto.codeChallenge() != null) {
-                validatePkceParameters(sessionDto.codeChallenge(), sessionDto.codeChallengeMethod());
-                authorization = authorization
-                        .attribute("code_challenge", sessionDto.codeChallenge())
-                        .attribute("code_challenge_method", sessionDto.codeChallengeMethod()); // Store both!
-            }
-            authorizationService.save(authorization.build());
-
+                            .attribute(Principal.class.getName(), principal)
+                            .attribute(OAuth2AuthorizationRequest.class.getName(), authorizationRequest)
+                            .build();
+            authorizationService.save(authorization);
             log.info("OAuth2Authorization created for phone: {} with code: {}", maskPhoneNumber(phoneNumber), authorizationCode);
             return redirectUrl;
         } catch (Exception e) {
@@ -90,10 +95,24 @@ public class OtpAuthorizationService {
         return requestedScopes.stream().filter(registeredClient.getScopes()::contains).collect(Collectors.toSet());
     }
 
-    private static OAuth2AuthorizationCode getAuthCode(String authorizationCode) {
-        Instant issuedAt = Instant.now();
-        Instant expiresAt = issuedAt.plus(5, ChronoUnit.MINUTES);
-        return new OAuth2AuthorizationCode(authorizationCode, issuedAt, expiresAt);
+    private OAuth2AuthorizationRequest getOAuth2AuthorizationRequest(SessionDto sessionDto, String redirectUrl, Set<String> authorizedScopes) {
+        OAuth2AuthorizationRequest.Builder authRequestBuilder =
+                OAuth2AuthorizationRequest.authorizationCode()
+                        .clientId(sessionDto.clientId())
+                        .authorizationUri(issuerUri + "/oauth2/authorize")
+                        .redirectUri(redirectUrl)
+                        .scopes(authorizedScopes)
+                        .state(sessionDto.state() != null ? sessionDto.state() : UUID.randomUUID().toString());
+        Map<String, Object> additionalParameters = new HashMap<>();
+        if (sessionDto.codeChallenge() != null) {
+            validatePkceParameters(sessionDto.codeChallenge(), sessionDto.codeChallengeMethod());
+            additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, sessionDto.codeChallenge());
+            additionalParameters.put(PkceParameterNames.CODE_CHALLENGE_METHOD, sessionDto.codeChallengeMethod());
+        }
+        if (!additionalParameters.isEmpty()) {
+            authRequestBuilder.additionalParameters(additionalParameters);
+        }
+        return authRequestBuilder.build();
     }
 
     private void validatePkceParameters(String codeChallenge, String codeChallengeMethod) {
@@ -117,5 +136,11 @@ public class OtpAuthorizationService {
             }
         }
         log.debug("PKCE validation successful for method: {}", pkceMethod.getValue());
+    }
+
+    private static OAuth2AuthorizationCode getAuthCode(String authorizationCode) {
+        Instant issuedAt = Instant.now();
+        Instant expiresAt = issuedAt.plus(5, ChronoUnit.MINUTES);
+        return new OAuth2AuthorizationCode(authorizationCode, issuedAt, expiresAt);
     }
 }

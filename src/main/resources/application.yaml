@@ -11,7 +11,7 @@ spring:
     username: admin
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -22,6 +22,8 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://localhost:9090/oauth2/jwks
+      authorization-server:
+        issuer-uri: http://localhost:9090
 
   # Redis Configuration
   data:
