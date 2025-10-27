@@ -47,7 +47,7 @@ public class OtpStorageService {
         OtpData otpData = new OtpData(otp, Instant.now().plusSeconds(expirationMinutes * 60L));
         redisTemplate.opsForValue().set(key, otpData, Duration.ofMinutes(expirationMinutes));
         log.debug("OTP stored for phone: {}, expires in {} minutes", maskPhoneNumber(phoneNumber), expirationMinutes);
-//        setRateLimit(phoneNumber, rateLimitMinutes);
+        setRateLimit(phoneNumber, rateLimitMinutes);
     }
 
     public void setRateLimit(String phoneNumber, int minutes) {
