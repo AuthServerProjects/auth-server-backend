@@ -44,9 +44,9 @@ public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
                 .orElse(new Authorizations());
 
         entity.setAuthorizationId(authorization.getId());
+        entity.setRegisteredClientId(authorization.getRegisteredClientId());
 
         if (authorization.getPrincipalName() != null) {
-            entity.setRegisteredClientId(authorization.getRegisteredClientId());
             entity.setPrincipalName(authorization.getPrincipalName());
         }
 
@@ -57,14 +57,14 @@ public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
             entity.setAuthorizationCodeExpiresAt(authorizationCode.getToken().getExpiresAt());
         }
 
-        OAuth2Authorization.Token<OAuth2AccessToken> accessToken = authorization.getToken(OAuth2AccessToken.class);
+        OAuth2Authorization.Token<OAuth2AccessToken> accessToken = authorization.getAccessToken();
         if (accessToken != null) {
             entity.setAccessToken(accessToken.getToken().getTokenValue());
             entity.setAccessTokenIssuedAt(accessToken.getToken().getIssuedAt());
             entity.setAccessTokenExpiresAt(accessToken.getToken().getExpiresAt());
         }
 
-        OAuth2Authorization.Token<OAuth2RefreshToken> refreshToken = authorization.getToken(OAuth2RefreshToken.class);
+        OAuth2Authorization.Token<OAuth2RefreshToken> refreshToken = authorization.getRefreshToken();
         if (refreshToken != null) {
             entity.setRefreshToken(refreshToken.getToken().getTokenValue());
             entity.setRefreshTokenIssuedAt(refreshToken.getToken().getIssuedAt());
