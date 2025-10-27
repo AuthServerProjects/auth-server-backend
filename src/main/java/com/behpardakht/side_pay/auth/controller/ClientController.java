@@ -60,6 +60,7 @@ public class ClientController {
         settingDto.setRequireProofKey(false);
         settingDto.setAccessTokenTimeToLive(30L);
         settingDto.setRefreshTokenTimeToLive(30L);
+        settingDto.setReuseRefreshTokens(false);
         clientDto.setSetting(settingDto);
         clientService.insertClient(clientDto);
         return ResponseEntity.ok("Client registered Successfully : " + clientDto.getClientId());

@@ -5,39 +5,25 @@ import com.behpardakht.side_pay.auth.model.enums.AuthorizationGrantTypes;
 import com.behpardakht.side_pay.auth.model.enums.ScopeTypes;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class GeneralService {
 
     public List<String> loadAuthenticationMethodType() {
-        List<String> typeList = new ArrayList<>();
-        typeList.add(AuthenticationMethodTypes.CLIENT_SECRET_BASIC.getValue());
-        typeList.add(AuthenticationMethodTypes.CLIENT_SECRET_POST.getValue());
-        typeList.add(AuthenticationMethodTypes.CLIENT_SECRET_JWT.getValue());
-        typeList.add(AuthenticationMethodTypes.PRIVATE_KEY_JWT.getValue());
-        typeList.add(AuthenticationMethodTypes.NONE.getValue());
-        typeList.add(AuthenticationMethodTypes.TLS_CLIENT_AUTH.getValue());
-        typeList.add(AuthenticationMethodTypes.SELF_SIGNED_TLS_CLIENT_AUTH.getValue());
-        return typeList;
+        return Arrays.stream(AuthenticationMethodTypes.values())
+                .map(AuthenticationMethodTypes::getValue).collect(Collectors.toList());
     }
 
     public List<String> loadAuthorizationGrantType() {
-        List<String> typeList = new ArrayList<>();
-        typeList.add(AuthorizationGrantTypes.AUTHORIZATION_CODE.getValue());
-        typeList.add(AuthorizationGrantTypes.REFRESH_TOKEN.getValue());
-        typeList.add(AuthorizationGrantTypes.CLIENT_CREDENTIALS.getValue());
-        return typeList;
+        return Arrays.stream(AuthorizationGrantTypes.values())
+                .map(AuthorizationGrantTypes::getValue).collect(Collectors.toList());
     }
 
     public List<String> loadScopeType() {
-        List<String> typeList = new ArrayList<>();
-        typeList.add(ScopeTypes.OPENID.getValue());
-        typeList.add(ScopeTypes.PROFILE.getValue());
-        typeList.add(ScopeTypes.EMAIL.getValue());
-        typeList.add(ScopeTypes.ADDRESS.getValue());
-        typeList.add(ScopeTypes.PHONE.getValue());
-        return typeList;
+        return Arrays.stream(ScopeTypes.values())
+                .map(ScopeTypes::getValue).collect(Collectors.toList());
     }
 }
