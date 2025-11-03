@@ -1,4 +1,4 @@
-package com.behpardakht.oauth_server.authorization.model.dto.otp;
+package com.behpardakht.oauth_server.authorization.model.dto.otp.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

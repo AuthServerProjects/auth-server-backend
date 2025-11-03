@@ -1,10 +1,10 @@
 package com.behpardakht.oauth_server.authorization.controller;
 
+import com.behpardakht.oauth_server.authorization.model.dto.ClientDto;
+import com.behpardakht.oauth_server.authorization.model.dto.TokenAndClientSettingDto;
 import com.behpardakht.oauth_server.authorization.model.enums.AuthenticationMethodTypes;
 import com.behpardakht.oauth_server.authorization.model.enums.AuthorizationGrantTypes;
 import com.behpardakht.oauth_server.authorization.model.enums.ScopeTypes;
-import com.behpardakht.oauth_server.authorization.model.dto.ClientDto;
-import com.behpardakht.oauth_server.authorization.model.dto.TokenAndClientSettingDto;
 import com.behpardakht.oauth_server.authorization.service.ClientService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;

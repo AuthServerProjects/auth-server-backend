@@ -29,8 +29,7 @@ public class Authorizations {
     @Column(name = "authorization_code_expires_at")
     private Instant authorizationCodeExpiresAt;
 
-    @Lob
-    @Column(name = "access_token")
+    @Column(name = "access_token", length = 1000)
     private String accessToken;
 
     @Column(name = "access_token_issued_at")
@@ -39,8 +38,7 @@ public class Authorizations {
     @Column(name = "access_token_expires_at")
     private Instant accessTokenExpiresAt;
 
-    @Lob
-    @Column(name = "refresh_token")
+    @Column(name = "refresh_token", length = 1000)
     private String refreshToken;
 
     @Column(name = "refresh_token_issued_at")
@@ -55,7 +53,6 @@ public class Authorizations {
     @Column(name = "registered_client_id")
     private String registeredClientId;
 
-    @Lob
-    @Column(name = "authorization_attributes")
+    @Column(name = "authorization_attributes", length = 1000)
     private String authorizationAttributes;
 }

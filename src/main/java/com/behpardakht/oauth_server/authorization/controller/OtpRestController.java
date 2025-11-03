@@ -1,13 +1,15 @@
 package com.behpardakht.oauth_server.authorization.controller;
 
 import com.behpardakht.oauth_server.authorization.model.dto.ResponseDto;
-import com.behpardakht.oauth_server.authorization.model.dto.otp.*;
+import com.behpardakht.oauth_server.authorization.model.dto.otp.request.InitOtpRequestDto;
+import com.behpardakht.oauth_server.authorization.model.dto.otp.request.SendOtpRequestDto;
+import com.behpardakht.oauth_server.authorization.model.dto.otp.request.VerifyOtpRequestDto;
+import com.behpardakht.oauth_server.authorization.model.dto.otp.response.OtpResponse;
+import com.behpardakht.oauth_server.authorization.model.dto.otp.response.VerifyOtpResponseDto;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpAuthorizationService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpService;
-import com.behpardakht.oauth_server.authorization.service.otp.OtpSessionService;
-import com.behpardakht.oauth_server.authorization.service.otp.OtpSessionService.SessionDto;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService;
-import jakarta.servlet.http.HttpSession;
+import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService.SessionDto;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,51 +30,39 @@ import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.maskPh
 public class OtpRestController {
 
     private final OtpService otpService;
-    private final OtpSessionService otpSessionService;
     private final OtpStorageService otpStorageService;
     private final OtpAuthorizationService otpAuthorizationService;
 
     @PostMapping("initOtp")
-    public ResponseEntity<ResponseDto<String>> initOtpSession(@RequestBody @Valid InitOtpRequestDto request,
-                                                              HttpSession session) {
-        otpSessionService.storeOAuth2Parameters(
-                session, request.getClientId(), request.getState(), request.getRedirectUri(),
+    public ResponseEntity<ResponseDto<String>> initOtpSession(@RequestBody @Valid InitOtpRequestDto request) {
+        otpStorageService.storeOAuth2Parameters(request.getClientId(), request.getState(), request.getRedirectUri(),
                 request.getCodeChallenge(), request.getCodeChallengeMethod().getValue(), request.getScope());
         log.info("OTP session initialized for client: {}", request.getClientId());
-        return ResponseEntity.ok(ResponseDto.success(session.getId()));
+        return ResponseEntity.ok(ResponseDto.success(null));
     }
 
     @PostMapping("sendOtp")
-    public ResponseEntity<ResponseDto<String>> sendOtp(@RequestBody @Valid SendOtpRequestDto request,
-                                                       HttpSession session) {
+    public ResponseEntity<ResponseDto<String>> sendOtp(@RequestBody @Valid SendOtpRequestDto request) {
         String phoneNumber = request.getPhoneNumber();
         OtpResponse otpResponse = otpService.sendOtp(phoneNumber);
-        String maskedPhoneNumber = maskPhoneNumber(phoneNumber);
         if (otpResponse.isSuccess()) {
-            String authSessionId = UUID.randomUUID().toString();
-            otpSessionService.storePhoneNumberAndAuthSessionId(authSessionId, phoneNumber, session);
-            otpStorageService.storeAuthSessionId(authSessionId, phoneNumber, 10);
-            return ResponseEntity.ok(ResponseDto.success(maskedPhoneNumber));
+            otpStorageService.storePhoneNumber(request.getState(), phoneNumber, 10);
+            return ResponseEntity.ok(ResponseDto.success(otpResponse.getMessage()));
         } else {
-            return ResponseEntity.badRequest().body(ResponseDto.failed(otpResponse.getMessage(), maskedPhoneNumber));
+            return ResponseEntity.badRequest().body(ResponseDto.failed(otpResponse.getMessage(), maskPhoneNumber(phoneNumber)));
         }
     }
 
     @PostMapping("verifyOtp")
-    public ResponseEntity<ResponseDto<VerifyOtpResponseDto>> verifyOtp(@RequestBody @Valid VerifyOtpRequestDto request,
-                                                                       HttpSession session) {
-        SessionValidationDto sessionValidation = otpSessionService.validatePhoneNumberAndAuthSessionId(session);
-        String phoneNumber = sessionValidation.getPhoneNumber();
+    public ResponseEntity<ResponseDto<VerifyOtpResponseDto>> verifyOtp(@RequestBody @Valid VerifyOtpRequestDto request) {
+        String state = request.getState();
+        String phoneNumber = otpStorageService.getPhoneNumber(state);
         String maskedPhoneNumber = maskPhoneNumber(phoneNumber);
         VerifyOtpResponseDto.VerifyOtpResponseDtoBuilder responseBuilder =
                 VerifyOtpResponseDto.builder().phoneNumber(phoneNumber);
-        if (!sessionValidation.isValid()) {
-            return ResponseEntity.badRequest().body(
-                    ResponseDto.failed(sessionValidation.getErrorMessage(), responseBuilder.build()));
-        }
         boolean isValid = otpStorageService.validateAndConsumeOtp(phoneNumber, request.getOtp());
         if (isValid) {
-            SessionDto sessionDto = otpSessionService.getSessionDto(session);
+            SessionDto sessionDto = otpStorageService.getSessionDto(state);
             if (sessionDto.clientId() == null) {
                 return ResponseEntity.badRequest().body(
                         ResponseDto.failed("Client Id not Found", responseBuilder.build()));
@@ -80,10 +70,9 @@ public class OtpRestController {
             String authorizationCode = "auth_code_" + UUID.randomUUID().toString().replace("-", "");
             String redirectUrl = otpAuthorizationService.createAuthorization(authorizationCode, sessionDto);
             otpStorageService.storeAuthCode(authorizationCode, sessionDto.phoneNumber(), 5);
-            otpStorageService.removeAuthSessionId(sessionDto.authSessionId());
-            otpSessionService.removePhoneNumberAndAuthSessionId(session);
+            otpStorageService.removePhoneNumberByAuthSessionId(state);
             return ResponseEntity.ok(ResponseDto.success(responseBuilder
-                    .state(sessionDto.state())
+                    .state(state)
                     .redirectUri(redirectUrl)
                     .authorizationCode(authorizationCode)
                     .build()));

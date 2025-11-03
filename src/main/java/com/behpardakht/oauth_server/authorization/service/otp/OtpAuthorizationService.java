@@ -4,7 +4,7 @@ import com.behpardakht.oauth_server.authorization.model.dto.UsersDto;
 import com.behpardakht.oauth_server.authorization.model.enums.PkceMethod;
 import com.behpardakht.oauth_server.authorization.service.ClientService;
 import com.behpardakht.oauth_server.authorization.service.UserService;
-import com.behpardakht.oauth_server.authorization.service.otp.OtpSessionService.SessionDto;
+import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService.SessionDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

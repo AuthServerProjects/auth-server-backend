@@ -1,12 +1,12 @@
 package com.behpardakht.oauth_server.authorization.model.mapper;
 
-import com.behpardakht.oauth_server.authorization.model.enums.AuthenticationMethodTypes;
-import com.behpardakht.oauth_server.authorization.model.enums.AuthorizationGrantTypes;
-import com.behpardakht.oauth_server.authorization.model.enums.ScopeTypes;
 import com.behpardakht.oauth_server.authorization.model.dto.ClientDto;
 import com.behpardakht.oauth_server.authorization.model.dto.TokenAndClientSettingDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Client;
 import com.behpardakht.oauth_server.authorization.model.entity.TokenAndClientSetting;
+import com.behpardakht.oauth_server.authorization.model.enums.AuthenticationMethodTypes;
+import com.behpardakht.oauth_server.authorization.model.enums.AuthorizationGrantTypes;
+import com.behpardakht.oauth_server.authorization.model.enums.ScopeTypes;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
