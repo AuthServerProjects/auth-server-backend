@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ISmsService {
 
-    public void send(String phoneNumber, String otp, int otpExpirationMinutes) {
+    public void send(String phoneNumber, String otp) {
         log.info("Sending OTP : {} to {}", otp, phoneNumber);
     }
 }

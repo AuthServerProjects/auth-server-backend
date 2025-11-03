@@ -1,8 +1,9 @@
 package com.behpardakht.oauth_server.authorization.service.otp;
 
+import com.behpardakht.oauth_server.authorization.config.Properties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -14,10 +15,11 @@ import java.util.concurrent.TimeUnit;
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.maskPhoneNumber;
 
 @Service
-@AllArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
 public class OtpStorageService {
 
+    private final Properties properties;
     private final RedisTemplate<String, Object> redisTemplate;
 
     private static final String OTP_PREFIX = "otp:";
@@ -36,7 +38,7 @@ public class OtpStorageService {
 
     public boolean isRateLimited(String phoneNumber) {
         String key = OTP_RATE_LIMIT_PREFIX + phoneNumber;
-        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+        return redisTemplate.hasKey(key);
     }
 
     public boolean hasValidOtp(String phoneNumber) {
@@ -48,12 +50,13 @@ public class OtpStorageService {
         return Instant.now().isBefore(otpData.expirationTime());
     }
 
-    public void storeOtp(String phoneNumber, String otp, int expirationMinutes, int rateLimitMinutes) {
+    public void storeOtp(String phoneNumber, String otp) {
+        int otpTime = properties.expirationTime.getOtp();
         String key = OTP_PREFIX + phoneNumber;
-        OtpData otpData = new OtpData(otp, Instant.now().plusSeconds(expirationMinutes * 60L));
-        redisTemplate.opsForValue().set(key, otpData, Duration.ofMinutes(expirationMinutes));
-        log.debug("OTP stored for phone: {}, expires in {} minutes", maskPhoneNumber(phoneNumber), expirationMinutes);
-        setRateLimit(phoneNumber, rateLimitMinutes);
+        OtpData otpData = new OtpData(otp, Instant.now().plusSeconds(otpTime * 60L));
+        redisTemplate.opsForValue().set(key, otpData, Duration.ofMinutes(otpTime));
+        log.debug("OTP stored for phone: {}, expires in {} minutes", maskPhoneNumber(phoneNumber), otpTime);
+        setRateLimit(phoneNumber, properties.expirationTime.getRateLimit());
     }
 
     public void setRateLimit(String phoneNumber, int minutes) {
@@ -105,10 +108,10 @@ public class OtpStorageService {
     private void incrementFailedAttempts(String phoneNumber) {
         String key = OTP_ATTEMPT_PREFIX + phoneNumber;
         Long attempts = redisTemplate.opsForValue().increment(key);
-        redisTemplate.expire(key, 15, TimeUnit.MINUTES);
+        redisTemplate.expire(key, properties.expirationTime.getLockAccount(), TimeUnit.MINUTES);
 
-        if (attempts != null && attempts >= 3) {
-            setRateLimit(phoneNumber, 15); // Block for 15 minutes after 3 failed attempts
+        if (attempts != null && attempts >= properties.expirationTime.getFailedAttempts()) {
+            setRateLimit(phoneNumber, properties.expirationTime.getLockAccount());
             log.warn("Phone {} blocked due to {} failed OTP attempts", maskPhoneNumber(phoneNumber), attempts);
         }
     }
@@ -117,16 +120,17 @@ public class OtpStorageService {
 
     public void storeOAuth2Parameters(String clientId, String state, String redirectUri,
                                       String codeChallenge, String codeChallengeMethod, String scope) {
-        redisTemplate.opsForValue().set(CLIENT_ID_PREFIX + state, clientId);
-        redisTemplate.opsForValue().set(REDIRECT_URI_PREFIX + state, redirectUri);
-        redisTemplate.opsForValue().set(CODE_CHALLENGE_PREFIX + state, codeChallenge);
-        redisTemplate.opsForValue().set(CODE_CHALLENGE_METHOD_PREFIX + state, codeChallengeMethod);
-        redisTemplate.opsForValue().set(SCOPE_PREFIX + state, scope);
+        Duration expiration = Duration.ofMinutes(properties.expirationTime.getInitialize());
+        redisTemplate.opsForValue().set(CLIENT_ID_PREFIX + state, clientId, expiration);
+        redisTemplate.opsForValue().set(REDIRECT_URI_PREFIX + state, redirectUri, expiration);
+        redisTemplate.opsForValue().set(CODE_CHALLENGE_PREFIX + state, codeChallenge, expiration);
+        redisTemplate.opsForValue().set(CODE_CHALLENGE_METHOD_PREFIX + state, codeChallengeMethod, expiration);
+        redisTemplate.opsForValue().set(SCOPE_PREFIX + state, scope, expiration);
     }
 
-    public void storePhoneNumber(String state, String phoneNumber, int expirationMinutes) {
+    public void storePhoneNumber(String state, String phoneNumber) {
         String key = PHONE_NUMBER_PREFIX + state;
-        redisTemplate.opsForValue().set(key, phoneNumber, Duration.ofMinutes(expirationMinutes));
+        redisTemplate.opsForValue().set(key, phoneNumber, Duration.ofMinutes(properties.expirationTime.getPhoneNumber()));
         log.debug("Phone Number stored: {}", state);
     }
 
@@ -135,9 +139,9 @@ public class OtpStorageService {
         redisTemplate.delete(key);
     }
 
-    public void storeAuthCode(String authCode, String phoneNumber, int expirationMinutes) {
+    public void storeAuthCode(String authCode, String phoneNumber) {
         String key = AUTH_CODE_PREFIX + authCode;
-        redisTemplate.opsForValue().set(key, phoneNumber, Duration.ofMinutes(expirationMinutes));
+        redisTemplate.opsForValue().set(key, phoneNumber, Duration.ofMinutes(properties.expirationTime.getAuthCode()));
         log.debug("Auth Code stored: {}", authCode);
     }
 

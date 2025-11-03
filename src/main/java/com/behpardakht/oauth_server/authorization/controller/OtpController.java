@@ -1,8 +1,8 @@
 package com.behpardakht.oauth_server.authorization.controller;
 
-import com.behpardakht.oauth_server.authorization.model.dto.otp.response.OtpResponse;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.request.SendOtpRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.request.VerifyOtpRequestDto;
+import com.behpardakht.oauth_server.authorization.model.dto.otp.response.OtpResponse;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpAuthorizationService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService;
@@ -43,13 +43,12 @@ public class OtpController {
     }
 
     @PostMapping("sendOtp")
-    public String sendOtp(@Valid @RequestBody SendOtpRequestDto otpRequestDto, RedirectAttributes redirectAttributes) {
+    public String sendOtp(@Valid @ModelAttribute SendOtpRequestDto otpRequestDto, RedirectAttributes redirectAttributes) {
         String phoneNumber = otpRequestDto.getPhoneNumber();
         try {
             OtpResponse otpResponse = otpService.sendOtp(phoneNumber);
             if (otpResponse.isSuccess()) {
-                String sessionId = UUID.randomUUID().toString();
-                otpStorageService.storePhoneNumber(sessionId, phoneNumber, 10);
+                otpStorageService.storePhoneNumber(otpRequestDto.getState(), phoneNumber);
                 log.info("OTP sent successfully for phone: {}", maskPhoneNumber(phoneNumber));
                 return "redirect:/otp/enterOtp";
             } else {
@@ -76,7 +75,7 @@ public class OtpController {
     }
 
     @PostMapping("verifyOtp")
-    public String verifyOtp(@Valid @RequestBody VerifyOtpRequestDto request, RedirectAttributes redirectAttributes) {
+    public String verifyOtp(@Valid @ModelAttribute VerifyOtpRequestDto request, RedirectAttributes redirectAttributes) {
         String state = request.getState();
         try {
             String phoneNumber = otpStorageService.getPhoneNumber(state);
@@ -92,7 +91,7 @@ public class OtpController {
                     }
                     String authorizationCode = "auth_code_" + UUID.randomUUID().toString().replace("-", "");
                     String redirectUrl = otpAuthorizationService.createAuthorization(authorizationCode, sessionDto);
-                    otpStorageService.storeAuthCode(authorizationCode, sessionDto.phoneNumber(), 5); // 5 minutes
+                    otpStorageService.storeAuthCode(authorizationCode, sessionDto.phoneNumber());
                     otpStorageService.removePhoneNumberByAuthSessionId(state);
                     return "redirect:" + buildRedirectUrl(sessionDto, authorizationCode, redirectUrl);
                 } catch (Exception e) {

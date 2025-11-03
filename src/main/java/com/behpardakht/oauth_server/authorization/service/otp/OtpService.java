@@ -21,12 +21,6 @@ public class OtpService {
     private final ISmsService iSmsService;
     private final OtpStorageService otpStorageService;
 
-    @Value("${sms.otp.expiration-minutes:5}")
-    private int otpExpirationMinutes;
-
-    @Value("${sms.otp.rate-limit-minutes:1}")
-    private int rateLimitMinutes;
-
     private final SecureRandom secureRandom = new SecureRandom();
 
     public OtpResponse sendOtp(String phoneNumber) {
@@ -43,8 +37,8 @@ public class OtpService {
                 userService.createUserByPhoneNumber(phoneNumber);
             }
             String otp = String.valueOf(10000 + secureRandom.nextInt(90000)); // Generates number between 10000-99999
-            sendSms(phoneNumber, otp, otpExpirationMinutes);
-            otpStorageService.storeOtp(phoneNumber, otp, otpExpirationMinutes, rateLimitMinutes);
+            sendSms(phoneNumber, otp);
+            otpStorageService.storeOtp(phoneNumber, otp);
             log.info("OTP generated and sent successfully to: {}", maskPhoneNumber(phoneNumber));
             return OtpResponse.success("OTP sent successfully to " + maskPhoneNumber(phoneNumber));
         } catch (Exception e) {
@@ -54,9 +48,9 @@ public class OtpService {
     }
 
 
-    public void sendSms(String phoneNumber, String otp, int otpExpirationMinutes) {
+    public void sendSms(String phoneNumber, String otp) {
         try {
-            iSmsService.send(phoneNumber, otp, otpExpirationMinutes);
+            iSmsService.send(phoneNumber, otp);
             log.info("OTP SMS sent successfully. To: {}", maskPhoneNumber(phoneNumber));
         } catch (Exception e) {
             log.error("Failed to send OTP SMS to {}: {}", maskPhoneNumber(phoneNumber), e.getMessage(), e);

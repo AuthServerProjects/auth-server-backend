@@ -42,7 +42,7 @@ public class UserService {
     public void createUserByPhoneNumber(String phoneNumber) {
         UsersDto usersDto = UsersDto.builder()
                 .username(phoneNumber)
-                .password("otp_user")
+                .password(null)
                 .phoneNumber(phoneNumber)
                 .isAccountNonExpired(true)
                 .isAccountNonLocked(true)

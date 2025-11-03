@@ -46,7 +46,7 @@ public class OtpRestController {
         String phoneNumber = request.getPhoneNumber();
         OtpResponse otpResponse = otpService.sendOtp(phoneNumber);
         if (otpResponse.isSuccess()) {
-            otpStorageService.storePhoneNumber(request.getState(), phoneNumber, 10);
+            otpStorageService.storePhoneNumber(request.getState(), phoneNumber);
             return ResponseEntity.ok(ResponseDto.success(otpResponse.getMessage()));
         } else {
             return ResponseEntity.badRequest().body(ResponseDto.failed(otpResponse.getMessage(), maskPhoneNumber(phoneNumber)));
@@ -69,7 +69,7 @@ public class OtpRestController {
             }
             String authorizationCode = "auth_code_" + UUID.randomUUID().toString().replace("-", "");
             String redirectUrl = otpAuthorizationService.createAuthorization(authorizationCode, sessionDto);
-            otpStorageService.storeAuthCode(authorizationCode, sessionDto.phoneNumber(), 5);
+            otpStorageService.storeAuthCode(authorizationCode, sessionDto.phoneNumber());
             otpStorageService.removePhoneNumberByAuthSessionId(state);
             return ResponseEntity.ok(ResponseDto.success(responseBuilder
                     .state(state)
