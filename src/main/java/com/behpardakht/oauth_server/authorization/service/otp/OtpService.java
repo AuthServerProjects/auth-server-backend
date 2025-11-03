@@ -1,8 +1,8 @@
 package com.behpardakht.oauth_server.authorization.service.otp;
 
-import com.behpardakht.oauth_server.authorization.model.dto.otp.OtpResponse;
-import com.behpardakht.oauth_server.authorization.service.SmsService;
+import com.behpardakht.oauth_server.authorization.model.dto.otp.response.OtpResponse;
 import com.behpardakht.oauth_server.authorization.service.UserService;
+import com.behpardakht.oauth_server.authorization.sms.ISmsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,8 +17,8 @@ import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.maskPh
 @RequiredArgsConstructor
 public class OtpService {
 
-    private final SmsService smsService;
     private final UserService userService;
+    private final ISmsService iSmsService;
     private final OtpStorageService otpStorageService;
 
     @Value("${sms.otp.expiration-minutes:5}")
@@ -42,7 +42,9 @@ public class OtpService {
             if (!userService.existUserWithUsername(phoneNumber)) {
                 userService.createUserByPhoneNumber(phoneNumber);
             }
-            generateOTp(phoneNumber);
+            String otp = String.valueOf(10000 + secureRandom.nextInt(90000)); // Generates number between 10000-99999
+            sendSms(phoneNumber, otp, otpExpirationMinutes);
+            otpStorageService.storeOtp(phoneNumber, otp, otpExpirationMinutes, rateLimitMinutes);
             log.info("OTP generated and sent successfully to: {}", maskPhoneNumber(phoneNumber));
             return OtpResponse.success("OTP sent successfully to " + maskPhoneNumber(phoneNumber));
         } catch (Exception e) {
@@ -51,9 +53,14 @@ public class OtpService {
         }
     }
 
-    private void generateOTp(String phoneNumber) {
-        String otp = String.valueOf(10000 + secureRandom.nextInt(90000)); // Generates number between 10000-99999
-        smsService.sendOtp(phoneNumber, otp);
-        otpStorageService.storeOtp(phoneNumber, otp, otpExpirationMinutes, rateLimitMinutes);
+
+    public void sendSms(String phoneNumber, String otp, int otpExpirationMinutes) {
+        try {
+            iSmsService.send(phoneNumber, otp, otpExpirationMinutes);
+            log.info("OTP SMS sent successfully. To: {}", maskPhoneNumber(phoneNumber));
+        } catch (Exception e) {
+            log.error("Failed to send OTP SMS to {}: {}", maskPhoneNumber(phoneNumber), e.getMessage(), e);
+            throw new RuntimeException("Failed to send OTP SMS", e);
+        }
     }
 }

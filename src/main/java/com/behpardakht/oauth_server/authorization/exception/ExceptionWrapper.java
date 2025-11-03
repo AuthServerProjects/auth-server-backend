@@ -1,35 +1,42 @@
 package com.behpardakht.oauth_server.authorization.exception;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 public class ExceptionWrapper {
 
+    @Getter
+    @Setter
+    public static class CustomException extends RuntimeException {
+        private final ExceptionMessages exceptionMessage;
+        private final Object[] params;
+        private Exception cause;
+
+        public CustomException(ExceptionMessages exceptionMessage, Exception e, Object... params) {
+            this.exceptionMessage = exceptionMessage;
+            this.params = params;
+            this.cause = e;
+        }
+
+        public CustomException(ExceptionMessages exceptionMessage, Object... params) {
+            this.exceptionMessage = exceptionMessage;
+            this.params = params;
+        }
+    }
+
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    public static class NotFoundException extends RuntimeException {
+    public static class NotFoundException extends CustomException {
         public NotFoundException(String resourceName, String fieldName, String fieldValue) {
-            super(String.format("%s not found with %s : %s", resourceName, fieldName, fieldValue));
+            super(ExceptionMessages.NOT_FOUND_WITH, resourceName, fieldName, fieldValue);
         }
     }
 
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public static class AlreadyExistException extends RuntimeException {
+    public static class AlreadyExistException extends CustomException {
         public AlreadyExistException(String resourceName, String fieldValue) {
-            super(String.format("%s is already exist : %s", resourceName, fieldValue));
-        }
-    }
-
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public static class IncorrectException extends RuntimeException {
-        public IncorrectException(String resourceName) {
-            super(String.format("%s is Incorrect", resourceName));
-        }
-    }
-
-    @ResponseStatus(value = HttpStatus.REQUEST_TIMEOUT)
-    public static class ExpireException extends RuntimeException {
-        public ExpireException(String resourceName) {
-            super(String.format("%s is Expired", resourceName));
+            super(ExceptionMessages.IS_ALREADY_EXIST, resourceName, fieldValue);
         }
     }
 }

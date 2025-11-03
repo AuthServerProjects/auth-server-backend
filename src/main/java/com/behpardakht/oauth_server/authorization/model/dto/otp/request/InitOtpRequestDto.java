@@ -1,20 +1,18 @@
-package com.behpardakht.oauth_server.authorization.model.dto.otp;
+package com.behpardakht.oauth_server.authorization.model.dto.otp.request;
 
 import com.behpardakht.oauth_server.authorization.model.enums.PkceMethod;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
-public class InitOtpRequestDto {
+@EqualsAndHashCode(callSuper = true)
+public class InitOtpRequestDto extends BaseOtpRequestDto {
     @NotBlank(message = "Client ID is required")
     @Pattern(regexp = "^[a-zA-Z0-9_-]+$", message = "Client ID can only contain letters, numbers, underscores and hyphens")
     private String clientId;
-
-    @Size(max = 500, message = "State must not exceed 500 characters")
-    @Pattern(regexp = "^[a-zA-Z0-9_.-]*$", message = "State can only contain letters, numbers, underscores, dots and hyphens")
-    private String state;
 
     @Pattern(regexp = "^(https?://.*|[a-zA-Z][a-zA-Z0-9+.-]*://.*)?$",
             message = "Redirect URI must be a valid URL (http, https) or custom scheme")

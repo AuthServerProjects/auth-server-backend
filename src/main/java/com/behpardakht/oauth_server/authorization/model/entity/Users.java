@@ -31,7 +31,7 @@ public class Users implements UserDetails {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "phoneNumber")
+    @Column(name = "phone_number")
     private String phoneNumber;
 
     @Column(name = "is_account_non_expired")
@@ -63,21 +63,21 @@ public class Users implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return this.isAccountNonExpired;
+        return this.isAccountNonExpired != null ? this.isAccountNonExpired : true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return this.isAccountNonLocked;
+        return this.isAccountNonLocked != null ? this.isAccountNonLocked : true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return this.isCredentialsNonExpired;
+        return this.isCredentialsNonExpired != null ? this.isCredentialsNonExpired : true;
     }
 
     @Override
     public boolean isEnabled() {
-        return this.isEnabled;
+        return this.isEnabled != null ? this.isEnabled : true;
     }
 }

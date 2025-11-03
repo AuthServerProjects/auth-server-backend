@@ -1,67 +1,67 @@
 package com.behpardakht.oauth_server.authorization.exception;
 
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.AlreadyExistException;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
-import lombok.AllArgsConstructor;
-import org.springframework.http.HttpHeaders;
+import com.behpardakht.oauth_server.authorization.model.dto.ResponseDto;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
+@Slf4j
 @ControllerAdvice
-@AllArgsConstructor
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ResponseDto<?>> handleCustomException(CustomException exception) {
+        ResponseDto<?> responseDto = getResponseDto(exception);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
+    }
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ExceptionDetailsDto> handleNotFoundException(NotFoundException notFoundException,
-                                                                       WebRequest webRequest) {
-        ExceptionDetailsDto errorDetails = new ExceptionDetailsDto(
-                HttpStatus.NOT_FOUND,
-                HttpStatus.NOT_FOUND.value(),
-                LocalDate.now(),
-                notFoundException.getMessage(),
-                webRequest.getDescription(false)
-        );
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
+    public ResponseEntity<ResponseDto<?>> handleNotFoundException(NotFoundException exception) {
+        ResponseDto<?> responseDto = getResponseDto(exception);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseDto);
     }
 
     @ExceptionHandler(AlreadyExistException.class)
-    public ResponseEntity<ExceptionDetailsDto> handleAlreadyExistException(AlreadyExistException alreadyExistException,
-                                                                           WebRequest webRequest) {
-        ExceptionDetailsDto errorDetails = new ExceptionDetailsDto(
-                HttpStatus.BAD_REQUEST,
-                HttpStatus.BAD_REQUEST.value(),
-                LocalDate.now(),
-                alreadyExistException.getMessage(),
-                webRequest.getDescription(false)
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    public ResponseEntity<ResponseDto<?>> handleAlreadyExistException(AlreadyExistException exception) {
+        ResponseDto<?> responseDto = getResponseDto(exception);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
     }
 
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-                                                                  HttpHeaders headers,
-                                                                  HttpStatusCode status,
-                                                                  WebRequest request) {
-        Map<String, String> errors = new HashMap<>();
-        List<ObjectError> errorList = ex.getBindingResult().getAllErrors();
-        errorList.forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String message = error.getDefaultMessage();
-            errors.put(fieldName, message);
-        });
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    private ResponseDto<?> getResponseDto(CustomException exception) {
+        log.error("thrown exception with message: {}",
+                exception.getCause() != null ? exception.getCause().getMessage() : exception.getMessage());
+        return ResponseDto.failed(exception.getExceptionMessage().getMessage(), null);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ResponseDto<?>> handleGeneralException(Exception exception) {
+        String message = exception.getCause() != null ? exception.getCause().getMessage() : exception.getMessage();
+        log.error("thrown exception with message: {}", message);
+        ResponseDto<?> responseDto = ResponseDto.failed(message, null);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ResponseDto<?>> handleValidationException(MethodArgumentNotValidException ex) {
+        log.error("Validation exception: {}", ex.getMessage());
+
+        List<String> errorMessages = ex.getBindingResult().getAllErrors().stream().filter(Objects::nonNull)
+                .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList());
+        ResponseDto<?> responseDto =
+                ResponseDto.failed(
+                        ExceptionMessages.INPUTS_ARE_NOT_VALID.getMessage(),
+                        errorMessages);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
     }
 }

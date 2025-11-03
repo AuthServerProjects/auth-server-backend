@@ -69,9 +69,10 @@ public class SecurityConfig {
                                                 "/",
                                                 "/user/register",
                                                 "/otp/**",
+                                                "api/otp/**",
                                                 "/swagger-ui/**",
                                                 "/v3/api-docs/**").permitAll()
-                                        .anyRequest().permitAll())
+                                        .anyRequest().authenticated())
                 .formLogin(Customizer.withDefaults())
                 .authenticationManager(authenticationManager)
                 .oauth2ResourceServer(oauth2 ->

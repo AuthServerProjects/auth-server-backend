@@ -22,15 +22,21 @@ public class OtpStorageService {
 
     private static final String OTP_PREFIX = "otp:";
     private static final String OTP_ATTEMPT_PREFIX = "otp_attempt:";
-    private static final String AUTH_CODE_PREFIX = "auth_code:";
-    private static final String AUTH_SESSION_PREFIX = "auth_session:";
     private static final String OTP_RATE_LIMIT_PREFIX = "otp_rate_limit:";
+    private static final String AUTH_CODE_PREFIX = "auth_code:";
+
+    private static final String CLIENT_ID_PREFIX = "client_id:";
+    private static final String REDIRECT_URI_PREFIX = "redirect_uri:";
+    private static final String CODE_CHALLENGE_PREFIX = "code_challenge:";
+    private static final String CODE_CHALLENGE_METHOD_PREFIX = "code_challenge_method:";
+    private static final String SCOPE_PREFIX = "scope:";
+    private static final String PHONE_NUMBER_PREFIX = "phone_number:";
 
     private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     public boolean isRateLimited(String phoneNumber) {
         String key = OTP_RATE_LIMIT_PREFIX + phoneNumber;
-        return redisTemplate.hasKey(key);
+        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
 
     public boolean hasValidOtp(String phoneNumber) {
@@ -58,7 +64,7 @@ public class OtpStorageService {
 
     public boolean validateAndConsumeOtp(String phoneNumber, String otp) {
         String key = OTP_PREFIX + phoneNumber;
-        if (validateOtp(phoneNumber, otp, key)) {
+        if (!validateOtp(phoneNumber, otp, key)) {
             return false;
         }
         redisTemplate.delete(key);
@@ -71,19 +77,29 @@ public class OtpStorageService {
         OtpData otpData = deserializeOtpData(redisTemplate.opsForValue().get(key));
         if (otpData == null) {
             log.warn("No OTP found for phone: {}", maskPhoneNumber(phoneNumber));
-            return true;
+            return false;
         }
         if (Instant.now().isAfter(otpData.expirationTime())) {
             redisTemplate.delete(key);
             log.warn("Expired OTP attempted for phone: {}", maskPhoneNumber(phoneNumber));
-            return true;
+            return false;
         }
         if (!otp.equals(otpData.otpCode())) {
             incrementFailedAttempts(phoneNumber);
             log.warn("Invalid OTP attempted for phone: {}", maskPhoneNumber(phoneNumber));
-            return true;
+            return false;
         }
-        return false;
+        return true;
+    }
+
+    private OtpData deserializeOtpData(Object rawData) {
+        if (rawData == null) return null;
+        try {
+            return objectMapper.convertValue(rawData, OtpData.class);
+        } catch (Exception e) {
+            log.error("Failed to deserialize OtpData: {}", e.getMessage());
+            return null;
+        }
     }
 
     private void incrementFailedAttempts(String phoneNumber) {
@@ -97,10 +113,26 @@ public class OtpStorageService {
         }
     }
 
-    public void storeAuthSessionId(String authSessionId, String phoneNumber, int expirationMinutes) {
-        String key = AUTH_SESSION_PREFIX + authSessionId;
+    //--------------------------------------------------------------------------
+
+    public void storeOAuth2Parameters(String clientId, String state, String redirectUri,
+                                      String codeChallenge, String codeChallengeMethod, String scope) {
+        redisTemplate.opsForValue().set(CLIENT_ID_PREFIX + state, clientId);
+        redisTemplate.opsForValue().set(REDIRECT_URI_PREFIX + state, redirectUri);
+        redisTemplate.opsForValue().set(CODE_CHALLENGE_PREFIX + state, codeChallenge);
+        redisTemplate.opsForValue().set(CODE_CHALLENGE_METHOD_PREFIX + state, codeChallengeMethod);
+        redisTemplate.opsForValue().set(SCOPE_PREFIX + state, scope);
+    }
+
+    public void storePhoneNumber(String state, String phoneNumber, int expirationMinutes) {
+        String key = PHONE_NUMBER_PREFIX + state;
         redisTemplate.opsForValue().set(key, phoneNumber, Duration.ofMinutes(expirationMinutes));
-        log.debug("Auth Session stored: {}", authSessionId);
+        log.debug("Phone Number stored: {}", state);
+    }
+
+    public void removePhoneNumberByAuthSessionId(String state) {
+        String key = PHONE_NUMBER_PREFIX + state;
+        redisTemplate.delete(key);
     }
 
     public void storeAuthCode(String authCode, String phoneNumber, int expirationMinutes) {
@@ -109,36 +141,27 @@ public class OtpStorageService {
         log.debug("Auth Code stored: {}", authCode);
     }
 
-    public String getPhoneNumberByAuthSessionId(String authSessionId) {
-        String key = AUTH_SESSION_PREFIX + authSessionId;
-        return (String) redisTemplate.opsForValue().get(key);
+
+    public String getPhoneNumber(String state) {
+        return (String) redisTemplate.opsForValue().get(PHONE_NUMBER_PREFIX + state);
     }
 
-    public String getPhoneNumberByAuthCodeId(String authCode) {
-        String key = AUTH_CODE_PREFIX + authCode;
-        return (String) redisTemplate.opsForValue().get(key);
-    }
-
-    public void removeAuthSessionId(String authSessionId) {
-        String key = AUTH_SESSION_PREFIX + authSessionId;
-        redisTemplate.delete(key);
-    }
-
-    public void removeAuthCode(String authCode) {
-        String key = AUTH_CODE_PREFIX + authCode;
-        redisTemplate.delete(key);
-    }
-
-    private OtpData deserializeOtpData(Object rawData) {
-        if (rawData == null) return null;
-        try {
-            return objectMapper.convertValue(rawData, OtpData.class);
-        } catch (Exception e) {
-            log.error("Failed to deserialize OtpData: {}", e.getMessage());
-            return null;
-        }
+    public SessionDto getSessionDto(String state) {
+        return new SessionDto(
+                (String) redisTemplate.opsForValue().get(CLIENT_ID_PREFIX + state),
+                (String) redisTemplate.opsForValue().get(REDIRECT_URI_PREFIX + state),
+                (String) redisTemplate.opsForValue().get(CODE_CHALLENGE_PREFIX + state),
+                (String) redisTemplate.opsForValue().get(CODE_CHALLENGE_METHOD_PREFIX + state),
+                (String) redisTemplate.opsForValue().get(SCOPE_PREFIX + state),
+                (String) redisTemplate.opsForValue().get(PHONE_NUMBER_PREFIX + state),
+                state
+        );
     }
 
     public record OtpData(String otpCode, Instant expirationTime) {
+    }
+
+    public record SessionDto(String clientId, String redirectUri, String codeChallenge,
+                             String codeChallengeMethod, String scope, String phoneNumber, String state) {
     }
 }

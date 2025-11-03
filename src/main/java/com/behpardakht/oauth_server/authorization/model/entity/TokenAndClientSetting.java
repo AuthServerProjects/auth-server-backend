@@ -37,6 +37,6 @@ public class TokenAndClientSetting {
     @Column(name = "authorization_code_time_to_live")
     private Long authorizationCodeTimeToLive;
 
-    @Column(name = "devicecode_time_to_live")
+    @Column(name = "device_code_time_to_live")
     private Long deviceCodeTimeToLive;
 }

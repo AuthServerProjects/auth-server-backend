@@ -1,6 +1,5 @@
 package com.behpardakht.oauth_server.authorization.security.resourceServer;
 
-import com.behpardakht.oauth_server.authorization.security.resourceServer.CustomJwtAuthenticationToken;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
