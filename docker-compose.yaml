@@ -27,6 +27,23 @@ services:
     restart: unless-stopped
     command: redis-server --appendonly yes
 
+  vault:
+    container_name: vault-server
+    image: hashicorp/vault:1.15
+    ports:
+      - "8200:8200"
+    cap_add:
+      - IPC_LOCK
+    networks:
+      - db
+    command: server -dev
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=myroot
+      - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+      -
+#unseal key :     84AHRMB7LUK+x+j1XXMH5jzBobhD5+Pizse8h3bQOns=
+#health : http://localhost:8200/v1/sys/health
+
 networks:
   db:
     driver: bridge

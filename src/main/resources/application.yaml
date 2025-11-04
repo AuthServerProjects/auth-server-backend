@@ -2,8 +2,10 @@ server:
   port: 9090
 
 spring:
+
   application:
     name: authServer
+
   #  Database Configuration
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres-db
@@ -17,6 +19,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
 
+  #Security Configuration
   security:
     oauth2:
       resourceserver:
@@ -38,11 +41,40 @@ spring:
           max-idle: 8
           min-idle: 0
 
-# SMS Configuration (Twilio)
-sms:
-  otp:
-    expiration-minutes: 5
-    rate-limit-minutes: 1
+  # Cloud Configuration
+  cloud:
+    vault:
+      enabled: true
+      uri: http://localhost:8200
+      token: myroot
+      authentication: TOKEN
+      kv:
+        enabled: false
+        backend: secret
+        default-context: ${spring.application.name}
+        kv-version: 2
+      generic:
+        enabled: false
+
+vault:
+  enabled: false
+
+# OAuth2 JWT Configuration
+oauth2:
+  jwt:
+    key-id: authserver-key-2025
+    vault-path: secret/data/oauth2/jwt-keys
+
+# Expiration Time Configuration
+storage:
+  expiration-time:
+    initialize: 15
+    phone-number: 10
+    otp: 5
+    rate-limit: 1
+    lock-account: 15
+    failed-attempts: 3
+    auth-code: 10
 
 logging:
   level:
@@ -52,7 +84,7 @@ logging:
       springframework:
         security: debug
 
-#Swagger Configuration
+# Swagger Configuration
 springdoc:
   swagger-ui:
     enabled: true
@@ -62,6 +94,6 @@ springdoc:
     enabled: true
     path: /v3/api-docs
 
-#Bunlde Configuration
+# Bundle Configuration
 config:
   language: fa
