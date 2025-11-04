@@ -29,6 +29,12 @@ public class Authorizations {
     @Column(name = "authorization_code_expires_at")
     private Instant authorizationCodeExpiresAt;
 
+    @Column(name = "authorization_code_consumed")
+    private Boolean authorizationCodeConsumed;
+
+    @Column(name = "authorization_code_consumed_at")
+    private Instant authorizationCodeConsumedAt;
+
     @Column(name = "access_token", length = 1000)
     private String accessToken;
 

@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,6 +37,7 @@ public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
 
     private final ClientService clientService;
     private final AuthorizationRepository authorizationRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     @Transactional
@@ -62,6 +64,8 @@ public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
             entity.setAccessToken(accessToken.getToken().getTokenValue());
             entity.setAccessTokenIssuedAt(accessToken.getToken().getIssuedAt());
             entity.setAccessTokenExpiresAt(accessToken.getToken().getExpiresAt());
+            entity.setAuthorizationCodeConsumed(true);
+            entity.setAuthorizationCodeConsumedAt(Instant.now());
         }
 
         OAuth2Authorization.Token<OAuth2RefreshToken> refreshToken = authorization.getRefreshToken();
@@ -80,7 +84,6 @@ public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
 
     private String serializeAttributes(Map<String, Object> attributes) {
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.writeValueAsString(attributes);
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("Unable to serialize attributes", e);
@@ -89,7 +92,6 @@ public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
 
     private Map<String, Object> deserializeAttributes(String data) {
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readValue(data, new TypeReference<>() {
             });
         } catch (IOException e) {
@@ -100,19 +102,25 @@ public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
     @Override
     @Transactional
     public void remove(OAuth2Authorization authorization) {
-        authorizationRepository.deleteById(authorization.getId());
+        String id = authorization.getId();
+        if (authorizationRepository.existsById(id)) {
+            authorizationRepository.deleteById(id);
+            log.debug("Removed authorization: {}", id);
+        } else {
+            log.warn("Attempted to remove non-existent authorization: {}", id);
+        }
     }
 
     @Override
     @Transactional(readOnly = true)
     public OAuth2Authorization findById(String id) {
-        Authorizations entity = authorizationRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Authorization not found"));
-        return buildOAuth2Authorization(entity);
+        return authorizationRepository.findById(id)
+                .map(this::buildOAuth2Authorization)
+                .orElse(null);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public OAuth2Authorization findByToken(String token, OAuth2TokenType tokenType) {
         if (tokenType != null) {
             if (tokenType.equals(OAuth2TokenType.ACCESS_TOKEN)) {
@@ -125,7 +133,14 @@ public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
                         .orElse(null);
             } else if (tokenType.getValue().equals(OAuth2ParameterNames.CODE)) {
                 return authorizationRepository.findByAuthorizationCode(token)
-                        .map(this::buildOAuth2Authorization)
+                        .map(auth -> {
+                            if (Boolean.TRUE.equals(auth.getAuthorizationCodeConsumed())) {
+                                log.warn("Authorization code already consumed at: {}",
+                                        auth.getAuthorizationCodeConsumedAt());
+                                return null;
+                            }
+                            return buildOAuth2Authorization(auth);
+                        })
                         .orElse(null);
             }
         }
