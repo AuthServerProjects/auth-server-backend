@@ -69,8 +69,7 @@ public class OtpRestController {
             }
             String authorizationCode = "auth_code_" + UUID.randomUUID().toString().replace("-", "");
             String redirectUrl = otpAuthorizationService.createAuthorization(authorizationCode, sessionDto);
-            otpStorageService.storeAuthCode(authorizationCode, sessionDto.phoneNumber());
-            otpStorageService.removePhoneNumberByAuthSessionId(state);
+            otpStorageService.removePhoneNumberByState(state);
             return ResponseEntity.ok(ResponseDto.success(responseBuilder
                     .state(state)
                     .redirectUri(redirectUrl)

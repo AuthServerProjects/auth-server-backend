@@ -1,5 +1,6 @@
 package com.behpardakht.oauth_server.authorization.service.otp;
 
+import com.behpardakht.oauth_server.authorization.config.Properties;
 import com.behpardakht.oauth_server.authorization.model.dto.UsersDto;
 import com.behpardakht.oauth_server.authorization.model.enums.PkceMethod;
 import com.behpardakht.oauth_server.authorization.service.ClientService;
@@ -38,6 +39,7 @@ public class OtpAuthorizationService {
 
     @Value("${spring.security.oauth2.authorization-server.issuer-uri}")
     private String issuerUri;
+    private final Properties properties;
 
     private final UserService userService;
     private final ClientService clientService;
@@ -138,9 +140,9 @@ public class OtpAuthorizationService {
         log.debug("PKCE validation successful for method: {}", pkceMethod.getValue());
     }
 
-    private static OAuth2AuthorizationCode getAuthCode(String authorizationCode) {
+    private OAuth2AuthorizationCode getAuthCode(String authorizationCode) {
         Instant issuedAt = Instant.now();
-        Instant expiresAt = issuedAt.plus(5, ChronoUnit.MINUTES);
+        Instant expiresAt = issuedAt.plus(properties.getExpirationTime().getAuthCode(), ChronoUnit.MINUTES);
         return new OAuth2AuthorizationCode(authorizationCode, issuedAt, expiresAt);
     }
 }

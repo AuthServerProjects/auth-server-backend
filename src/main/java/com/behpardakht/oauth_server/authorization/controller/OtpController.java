@@ -91,8 +91,7 @@ public class OtpController {
                     }
                     String authorizationCode = "auth_code_" + UUID.randomUUID().toString().replace("-", "");
                     String redirectUrl = otpAuthorizationService.createAuthorization(authorizationCode, sessionDto);
-                    otpStorageService.storeAuthCode(authorizationCode, sessionDto.phoneNumber());
-                    otpStorageService.removePhoneNumberByAuthSessionId(state);
+                    otpStorageService.removePhoneNumberByState(state);
                     return "redirect:" + buildRedirectUrl(sessionDto, authorizationCode, redirectUrl);
                 } catch (Exception e) {
                     log.error("Error completing authorization", e);

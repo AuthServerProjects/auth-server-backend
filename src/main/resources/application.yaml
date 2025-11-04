@@ -74,7 +74,7 @@ storage:
     rate-limit: 1
     lock-account: 15
     failed-attempts: 3
-    auth-code: 10
+    auth-code: 5
 
 logging:
   level:

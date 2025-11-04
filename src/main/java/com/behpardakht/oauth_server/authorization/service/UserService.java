@@ -57,7 +57,9 @@ public class UserService {
         if (existUserWithUsername(usersDto.getUsername())) {
             throw new AlreadyExistException("Username", usersDto.getUsername());
         } else {
-            usersDto.setPassword(passwordEncoder.encode(usersDto.getPassword()));
+            if (!usersDto.getPassword().isBlank()) {
+                usersDto.setPassword(passwordEncoder.encode(usersDto.getPassword()));
+            }
             userRepository.save(userMapper.toEntity(usersDto));
         }
     }

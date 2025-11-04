@@ -38,7 +38,7 @@ public class OtpStorageService {
 
     public boolean isRateLimited(String phoneNumber) {
         String key = OTP_RATE_LIMIT_PREFIX + phoneNumber;
-        return redisTemplate.hasKey(key);
+        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
 
     public boolean hasValidOtp(String phoneNumber) {
@@ -134,15 +134,9 @@ public class OtpStorageService {
         log.debug("Phone Number stored: {}", state);
     }
 
-    public void removePhoneNumberByAuthSessionId(String state) {
+    public void removePhoneNumberByState(String state) {
         String key = PHONE_NUMBER_PREFIX + state;
         redisTemplate.delete(key);
-    }
-
-    public void storeAuthCode(String authCode, String phoneNumber) {
-        String key = AUTH_CODE_PREFIX + authCode;
-        redisTemplate.opsForValue().set(key, phoneNumber, Duration.ofMinutes(properties.expirationTime.getAuthCode()));
-        log.debug("Auth Code stored: {}", authCode);
     }
 
 
