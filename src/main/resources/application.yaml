@@ -57,7 +57,7 @@ spring:
         enabled: false
 
 vault:
-  enabled: false
+  enabled: true
 
 # OAuth2 JWT Configuration
 oauth2:
