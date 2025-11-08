@@ -8,7 +8,7 @@ import com.behpardakht.oauth_server.authorization.service.otp.OtpService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService.SessionDto;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,12 +19,13 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
+import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.URL_PREFIX;
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.maskPhoneNumber;
 
 @Slf4j
 @Controller
-@RequestMapping("/otp/")
-@AllArgsConstructor
+@RequiredArgsConstructor
+@RequestMapping(path = URL_PREFIX + "/otp/")
 public class OtpController {
 
     private final OtpService otpService;

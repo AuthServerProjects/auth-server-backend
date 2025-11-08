@@ -65,6 +65,14 @@ oauth2:
     key-id: authserver-key-2025
     vault-path: secret/data/oauth2/jwt-keys
 
+cors:
+  allowed-origins: "*"
+  allowed-methods: "GET,POST,PUT,DELETE,OPTIONS,PATCH"
+  allowed-headers: "*"
+  exposed-headers: "X-XSRF-TOKEN,Authorization"
+  allowed-credentials: "true"
+  max-age: 3600
+
 # Expiration Time Configuration
 storage:
   expiration-time:

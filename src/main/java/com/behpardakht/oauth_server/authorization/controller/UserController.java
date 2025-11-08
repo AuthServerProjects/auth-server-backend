@@ -2,46 +2,48 @@ package com.behpardakht.oauth_server.authorization.controller;
 
 import com.behpardakht.oauth_server.authorization.model.dto.UsersDto;
 import com.behpardakht.oauth_server.authorization.service.UserService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.API_PREFIX;
+
 @RestController
-@RequestMapping(path = "/user")
-@AllArgsConstructor
+@RequiredArgsConstructor
+@RequestMapping(path = API_PREFIX + "/user/")
 public class UserController {
 
     private final UserService userService;
 
-    @GetMapping
+    @GetMapping(path = "findByUsername")
     public UsersDto findByUsername(@RequestParam String username) {
         return userService.findUserByUsername(username);
     }
 
-    @GetMapping(path = "/existUsername")
+    @GetMapping(path = "existUsername")
     public Boolean existUsername(@RequestParam String username) {
         return userService.existUserWithUsername(username);
     }
 
-    @GetMapping(path = "/existPhoneNumber")
+    @GetMapping(path = "existPhoneNumber")
     public Boolean existPhoneNumber(@RequestParam String phoneNumber) {
         return userService.existUserWithPhoneNumber(phoneNumber);
     }
 
-    @PostMapping(path = "/register")
+    @PostMapping(path = "register")
     public void register(@RequestBody UsersDto users) {
         userService.registerUser(users);
     }
 
     @PreAuthorize("#oldUsername == authentication.principal.username")
-    @PostMapping(path = "/changeUsername")
+    @PostMapping(path = "changeUsername")
     public void changeUsername(@RequestParam String oldUsername,
                                @RequestParam String newUsername) {
         userService.changeUsername(oldUsername, newUsername);
     }
 
     @PreAuthorize("#username == authentication.principal.username")
-    @PostMapping(path = "/changePassword")
+    @PostMapping(path = "changePassword")
     public void changePassword(@RequestParam String username,
                                @RequestParam String oldPassword,
                                @RequestParam String newPassword) {
@@ -49,7 +51,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('Admin')")
-    @PostMapping(path = "/addRoleToUser")
+    @PostMapping(path = "addRoleToUser")
     public void addRoleToUser(@RequestParam String username,
                               @RequestParam String roleName) {
         userService.addRoleToUser(username, roleName);

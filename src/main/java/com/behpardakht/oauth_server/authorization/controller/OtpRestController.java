@@ -11,7 +11,7 @@ import com.behpardakht.oauth_server.authorization.service.otp.OtpService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService.SessionDto;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,12 +21,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
+import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.API_PREFIX;
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.maskPhoneNumber;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/otp/")
-@AllArgsConstructor
+@RequiredArgsConstructor
+@RequestMapping(path = API_PREFIX + "/api/otp/")
 public class OtpRestController {
 
     private final OtpService otpService;

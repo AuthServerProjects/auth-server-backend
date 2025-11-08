@@ -6,36 +6,38 @@ import com.behpardakht.oauth_server.authorization.model.enums.AuthenticationMeth
 import com.behpardakht.oauth_server.authorization.model.enums.AuthorizationGrantTypes;
 import com.behpardakht.oauth_server.authorization.model.enums.ScopeTypes;
 import com.behpardakht.oauth_server.authorization.service.ClientService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
 
+import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.API_PREFIX;
+
 @RestController
-@RequestMapping(path = "/client")
-@AllArgsConstructor
+@RequiredArgsConstructor
+@RequestMapping(path = API_PREFIX + "/client/")
 public class ClientController {
 
     private final ClientService clientService;
 
     @PreAuthorize("hasRole('Admin')")
-    @GetMapping(path = "/{clientId}")
+    @GetMapping(path = "{clientId}")
     public ResponseEntity<ClientDto> findByClientId(@PathVariable String clientId) {
         ClientDto client = clientService.findByClientId(clientId);
         return ResponseEntity.ok(client);
     }
 
     @PreAuthorize("hasRole('Admin')")
-    @PostMapping(path = "/register")
+    @PostMapping(path = "register")
     public ResponseEntity<String> register(@RequestBody ClientDto client) {
         clientService.insertClient(client);
         return ResponseEntity.ok("Client registered Successfully : " + client.getClientId());
     }
 
 //    @PreAuthorize("hasRole('Admin')")
-    @PostMapping(path = "/defaultRegister")
+@PostMapping(path = "defaultRegister")
     public ResponseEntity<String> register() {
         ClientDto clientDto = new ClientDto();
         clientDto.setClientId("web");
