@@ -14,6 +14,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
+import java.util.Base64;
+
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.maskPhoneNumber;
 
 @Slf4j
@@ -26,6 +29,7 @@ public class UserService {
 
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
+    private final SecureRandom secureRandom = new SecureRandom();
 
     public UsersDto findUserByUsername(String username) {
         Users user = userRepository.findByUsername(username)
@@ -42,7 +46,7 @@ public class UserService {
     public void createUserByPhoneNumber(String phoneNumber) {
         UsersDto usersDto = UsersDto.builder()
                 .username(phoneNumber)
-                .password(null)
+                .password(generateSecureRandomPassword())
                 .phoneNumber(phoneNumber)
                 .isAccountNonExpired(true)
                 .isAccountNonLocked(true)
@@ -51,6 +55,12 @@ public class UserService {
                 .build();
         registerUser(usersDto);
         log.info("New user account created for phone: {}", maskPhoneNumber(phoneNumber));
+    }
+
+    private String generateSecureRandomPassword() {
+        byte[] randomBytes = new byte[32];
+        secureRandom.nextBytes(randomBytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
     }
 
     public void registerUser(UsersDto usersDto) {
