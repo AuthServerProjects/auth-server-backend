@@ -5,6 +5,7 @@ import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 
+import java.time.Instant;
 import java.util.Optional;
 
 public interface AuthorizationRepository extends JpaRepository<Authorizations, String> {
@@ -17,4 +18,6 @@ public interface AuthorizationRepository extends JpaRepository<Authorizations, S
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Authorizations> findByAuthorizationCode(String authorizationCode);
+
+    int deleteByAuthorizationCodeExpiresAtBeforeAndAccessTokenIsNull(Instant expirationTime);
 }
