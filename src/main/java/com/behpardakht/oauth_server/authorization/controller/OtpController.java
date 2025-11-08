@@ -47,7 +47,7 @@ public class OtpController {
     public String sendOtp(@Valid @ModelAttribute SendOtpRequestDto otpRequestDto, RedirectAttributes redirectAttributes) {
         String phoneNumber = otpRequestDto.getPhoneNumber();
         try {
-            OtpResponse otpResponse = otpService.sendOtp(phoneNumber);
+            OtpResponse otpResponse = otpService.sendOtp(phoneNumber, null);
             if (otpResponse.isSuccess()) {
                 otpStorageService.storePhoneNumber(otpRequestDto.getState(), phoneNumber);
                 log.info("OTP sent successfully for phone: {}", maskPhoneNumber(phoneNumber));
@@ -80,7 +80,7 @@ public class OtpController {
         String state = request.getState();
         try {
             String phoneNumber = otpStorageService.getPhoneNumber(state);
-            boolean isValid = otpStorageService.validateAndConsumeOtp(phoneNumber, request.getOtp());
+            boolean isValid = otpStorageService.validateAndConsumeOtp(phoneNumber, request.getOtp(), null);
             if (isValid) {
                 log.info("OTP validation successful for phone: {}", maskPhoneNumber(phoneNumber));
                 try {

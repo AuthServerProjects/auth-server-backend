@@ -11,6 +11,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.authentication.ClientSecretAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeAuthenticationProvider;
@@ -20,10 +21,10 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.API_PREFIX;
+import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.URL_PREFIX;
 
 @Configuration
 @RequiredArgsConstructor
@@ -68,23 +69,13 @@ public class SecurityConfig {
                                                           CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
-                .csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .ignoringRequestMatchers(
-                                API_PREFIX + "/**",
-                                "/oauth2/token",
-                                "/oauth2/introspect",
-                                "/oauth2/revoke",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**"
-                        )
-                )
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         authorization ->
                                 authorization
                                         .requestMatchers(
-                                                "/otp/**",
-                                                "/api/otp/**",
+                                                URL_PREFIX + "/otp/**",
+                                                API_PREFIX + "/api/otp/**",
                                                 "/swagger-ui/**",
                                                 "/v3/api-docs/**").permitAll()
                                         .anyRequest().authenticated())

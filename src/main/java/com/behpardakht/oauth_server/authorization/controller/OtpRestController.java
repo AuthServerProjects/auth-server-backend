@@ -10,6 +10,7 @@ import com.behpardakht.oauth_server.authorization.service.otp.OtpAuthorizationSe
 import com.behpardakht.oauth_server.authorization.service.otp.OtpService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService.SessionDto;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,9 +44,11 @@ public class OtpRestController {
     }
 
     @PostMapping("sendOtp")
-    public ResponseEntity<ResponseDto<String>> sendOtp(@RequestBody @Valid SendOtpRequestDto request) {
+    public ResponseEntity<ResponseDto<String>> sendOtp(@RequestBody @Valid SendOtpRequestDto request,
+                                                       HttpServletRequest httpRequest) {
         String phoneNumber = request.getPhoneNumber();
-        OtpResponse otpResponse = otpService.sendOtp(phoneNumber);
+        String ipAddress = getClientIpAddress(httpRequest);
+        OtpResponse otpResponse = otpService.sendOtp(phoneNumber, ipAddress);
         if (otpResponse.isSuccess()) {
             otpStorageService.storePhoneNumber(request.getState(), phoneNumber);
             return ResponseEntity.ok(ResponseDto.success(otpResponse.getMessage()));
@@ -55,13 +58,15 @@ public class OtpRestController {
     }
 
     @PostMapping("verifyOtp")
-    public ResponseEntity<ResponseDto<VerifyOtpResponseDto>> verifyOtp(@RequestBody @Valid VerifyOtpRequestDto request) {
+    public ResponseEntity<ResponseDto<VerifyOtpResponseDto>> verifyOtp(@RequestBody @Valid VerifyOtpRequestDto request,
+                                                                       HttpServletRequest httpRequest) {
         String state = request.getState();
         String phoneNumber = otpStorageService.getPhoneNumber(state);
         String maskedPhoneNumber = maskPhoneNumber(phoneNumber);
         VerifyOtpResponseDto.VerifyOtpResponseDtoBuilder responseBuilder =
                 VerifyOtpResponseDto.builder().phoneNumber(phoneNumber);
-        boolean isValid = otpStorageService.validateAndConsumeOtp(phoneNumber, request.getOtp());
+        String ipAddress = getClientIpAddress(httpRequest);
+        boolean isValid = otpStorageService.validateAndConsumeOtp(phoneNumber, request.getOtp(), ipAddress);
         if (isValid) {
             SessionDto sessionDto = otpStorageService.getSessionDto(state);
             if (sessionDto.clientId() == null) {
@@ -81,5 +86,25 @@ public class OtpRestController {
             return ResponseEntity.badRequest().body(
                     ResponseDto.failed("Invalid or expired OTP", responseBuilder.build()));
         }
+    }
+
+    private String getClientIpAddress(HttpServletRequest request) {
+        String ipAddress = request.getHeader("X-Forwarded-For");
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("Proxy-Client-IP");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getRemoteAddr();
+        }
+        if (ipAddress != null && ipAddress.contains(",")) {
+            ipAddress = ipAddress.split(",")[0].trim();
+        }
+        return ipAddress;
     }
 }
