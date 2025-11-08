@@ -24,7 +24,6 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.API_PREFIX;
-import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.URL_PREFIX;
 
 @Configuration
 @RequiredArgsConstructor
@@ -73,7 +72,6 @@ public class SecurityConfig {
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .ignoringRequestMatchers(
                                 API_PREFIX + "/**",
-                                URL_PREFIX + "/**",
                                 "/oauth2/token",
                                 "/oauth2/introspect",
                                 "/oauth2/revoke",
@@ -86,7 +84,7 @@ public class SecurityConfig {
                                 authorization
                                         .requestMatchers(
                                                 "/otp/**",
-                                                "api/otp/**",
+                                                "/api/otp/**",
                                                 "/swagger-ui/**",
                                                 "/v3/api-docs/**").permitAll()
                                         .anyRequest().authenticated())
