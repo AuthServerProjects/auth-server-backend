@@ -135,8 +135,14 @@ public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
                 return authorizationRepository.findByAuthorizationCode(token)
                         .map(auth -> {
                             if (Boolean.TRUE.equals(auth.getAuthorizationCodeConsumed())) {
-                                log.warn("Authorization code already consumed at: {}",
+                                log.warn("SECURITY ALERT: Authorization code replay attempt detected! " +
+                                                "Code: {}, Client: {}, Principal: {}, Originally consumed at: {}",
+                                        auth.getAuthorizationCode(),
+                                        auth.getRegisteredClientId(),
+                                        auth.getPrincipalName(),
                                         auth.getAuthorizationCodeConsumedAt());
+                                revokeAllTokensForAuthorization(auth);
+                                authorizationRepository.delete(auth);
                                 return null;
                             }
                             return buildOAuth2Authorization(auth);
@@ -146,6 +152,26 @@ public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
         }
         return null;
     }
+
+    private void revokeAllTokensForAuthorization(Authorizations auth) {
+        if (auth.getAccessToken() != null) {
+            log.warn("Revoking access token due to authorization code replay: {}",
+                    maskToken(auth.getAccessToken()));
+        }
+
+        if (auth.getRefreshToken() != null) {
+            log.warn("Revoking refresh token due to authorization code replay: {}",
+                    maskToken(auth.getRefreshToken()));
+        }
+    }
+
+    private String maskToken(String token) {
+        if (token == null || token.length() <= 8) {
+            return "****";
+        }
+        return token.substring(0, 8) + "****";
+    }
+
 
     private OAuth2Authorization buildOAuth2Authorization(Authorizations entity) {
         RegisteredClient registeredClient =
