@@ -94,29 +94,21 @@ public class OtpStorageService {
 
     private void setIpRateLimit(String ipAddress) {
         String countKey = IP_OTP_COUNT_PREFIX + ipAddress;
+        redisTemplate.opsForValue().setIfAbsent(countKey, "0", Duration.ofHours(1));
         Long count = redisTemplate.opsForValue().increment(countKey);
-        if (count != null) {
-            if (count == 1) {
-                redisTemplate.expire(countKey, Duration.ofHours(1));
-            }
-            if (count >= MAX_OTP_PER_IP_PER_HOUR) {
-                String rateLimitKey = IP_RATE_LIMIT_PREFIX + ipAddress;
-                redisTemplate.opsForValue().set(rateLimitKey, "blocked", Duration.ofHours(1));
-                log.warn("IP {} blocked due to {} OTP requests in 1 hour", ipAddress, count);
-            }
+        if (count != null && count >= MAX_OTP_PER_IP_PER_HOUR) {
+            String rateLimitKey = IP_RATE_LIMIT_PREFIX + ipAddress;
+            redisTemplate.opsForValue().set(rateLimitKey, "blocked", Duration.ofHours(1));
+            log.warn("IP {} blocked due to {} OTP requests in 1 hour", ipAddress, count);
         }
     }
 
     private void trackGlobalOtpRequest() {
         String key = GLOBAL_OTP_COUNT;
+        redisTemplate.opsForValue().setIfAbsent(key, "0", Duration.ofMinutes(1));
         Long count = redisTemplate.opsForValue().increment(key);
-        if (count != null) {
-            if (count == 1) {
-                redisTemplate.expire(key, Duration.ofMinutes(1));
-            }
-            if (count > MAX_GLOBAL_OTP_PER_MINUTE) {
-                log.warn("Global OTP rate limit exceeded: {} requests in 1 minute", count);
-            }
+        if (count != null && count > MAX_GLOBAL_OTP_PER_MINUTE) {
+            log.warn("Global OTP rate limit exceeded: {} requests in 1 minute", count);
         }
     }
 
@@ -176,15 +168,11 @@ public class OtpStorageService {
 
     private void trackVerificationAttempt(String phoneNumber, String ipAddress) {
         String key = VERIFICATION_ATTEMPT_PREFIX + phoneNumber + ":" + ipAddress;
+        redisTemplate.opsForValue().setIfAbsent(key, "0", Duration.ofHours(1));
         Long count = redisTemplate.opsForValue().increment(key);
-        if (count != null) {
-            if (count == 1) {
-                redisTemplate.expire(key, Duration.ofHours(1));
-            }
-            if (count >= MAX_VERIFICATION_ATTEMPTS_PER_HOUR) {
-                log.warn("Phone {} verification blocked from IP {} due to {} failed attempts",
-                        maskPhoneNumber(phoneNumber), ipAddress, count);
-            }
+        if (count != null && count >= MAX_VERIFICATION_ATTEMPTS_PER_HOUR) {
+            log.warn("Phone {} verification blocked from IP {} due to {} failed attempts",
+                    maskPhoneNumber(phoneNumber), ipAddress, count);
         }
     }
 
