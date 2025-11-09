@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,20 +38,35 @@ public class OtpRestController {
 
     @PostMapping("initOtp")
     public ResponseEntity<ResponseDto<String>> initOtpSession(@RequestBody @Valid InitOtpRequestDto request) {
-        otpStorageService.storeOAuth2Parameters(request.getClientId(), request.getState(), request.getRedirectUri(),
-                request.getCodeChallenge(), request.getCodeChallengeMethod().getValue(), request.getScope());
-        log.info("OTP session initialized for client: {}", request.getClientId());
-        return ResponseEntity.ok(ResponseDto.success(null));
+        String state = request.getState();
+        if (otpStorageService.stateExists(state)) {
+            log.warn("Duplicate state parameter detected in initOtp: {}", state);
+            return ResponseEntity.badRequest().body(
+                    ResponseDto.failed("State parameter already in use. Generate a new one.", null));
+        }
+        otpStorageService.storeOAuth2Parameters(request.getClientId(), state, request.getRedirectUri(),
+                request.getCodeChallenge(), request.getCodeChallengeMethod().getValue(), request.getScope()
+        );
+        log.info("OTP session initialized for client: {} with state: {}",
+                request.getClientId(), state);
+        return ResponseEntity.ok(ResponseDto.success("Session initialized successfully"));
     }
 
     @PostMapping("sendOtp")
     public ResponseEntity<ResponseDto<String>> sendOtp(@RequestBody @Valid SendOtpRequestDto request,
                                                        HttpServletRequest httpRequest) {
         String phoneNumber = request.getPhoneNumber();
+        String state = request.getState();
+        if (!otpStorageService.stateExists(state)) {
+            log.warn("Invalid or expired state in sendOtp: {}", state);
+            return ResponseEntity.badRequest().body(
+                    ResponseDto.failed("Invalid or expired session. Please initialize OTP flow first.", null));
+        }
         String ipAddress = getClientIpAddress(httpRequest);
         OtpResponse otpResponse = otpService.sendOtp(phoneNumber, ipAddress);
         if (otpResponse.isSuccess()) {
-            otpStorageService.storePhoneNumber(request.getState(), phoneNumber);
+            otpStorageService.storePhoneNumber(state, phoneNumber);
+            log.info("OTP sent successfully for phone: {}", maskPhoneNumber(phoneNumber));
             return ResponseEntity.ok(ResponseDto.success(otpResponse.getMessage()));
         } else {
             return ResponseEntity.badRequest().body(ResponseDto.failed(otpResponse.getMessage(), maskPhoneNumber(phoneNumber)));
@@ -61,26 +77,49 @@ public class OtpRestController {
     public ResponseEntity<ResponseDto<VerifyOtpResponseDto>> verifyOtp(@RequestBody @Valid VerifyOtpRequestDto request,
                                                                        HttpServletRequest httpRequest) {
         String state = request.getState();
+        if (!otpStorageService.stateExists(state)) {
+            log.warn("Invalid or expired state in verifyOtp: {}", state);
+            return ResponseEntity.badRequest().body(
+                    ResponseDto.failed("Invalid or expired session. Please start the flow again.",
+                            VerifyOtpResponseDto.builder().build()));
+        }
         String phoneNumber = otpStorageService.getPhoneNumber(state);
+        if (phoneNumber == null) {
+            log.warn("Phone number not found for state: {}", state);
+            return ResponseEntity.badRequest().body(
+                    ResponseDto.failed("Phone number not found. Please send OTP first.",
+                            VerifyOtpResponseDto.builder().build()));
+        }
         String maskedPhoneNumber = maskPhoneNumber(phoneNumber);
         VerifyOtpResponseDto.VerifyOtpResponseDtoBuilder responseBuilder =
-                VerifyOtpResponseDto.builder().phoneNumber(phoneNumber);
+                VerifyOtpResponseDto.builder().phoneNumber(maskedPhoneNumber);
         String ipAddress = getClientIpAddress(httpRequest);
         boolean isValid = otpStorageService.validateAndConsumeOtp(phoneNumber, request.getOtp(), ipAddress);
         if (isValid) {
             SessionDto sessionDto = otpStorageService.getSessionDto(state);
             if (sessionDto.clientId() == null) {
+                log.error("Client ID not found in session for state: {}", state);
+                otpStorageService.markStateAsConsumed(state);
                 return ResponseEntity.badRequest().body(
-                        ResponseDto.failed("Client Id not Found", responseBuilder.build()));
+                        ResponseDto.failed("Client ID not found", responseBuilder.build()));
             }
             String authorizationCode = "auth_code_" + UUID.randomUUID().toString().replace("-", "");
-            String redirectUrl = otpAuthorizationService.createAuthorization(authorizationCode, sessionDto);
-            otpStorageService.removePhoneNumberByState(state);
-            return ResponseEntity.ok(ResponseDto.success(responseBuilder
-                    .state(state)
-                    .redirectUri(redirectUrl)
-                    .authorizationCode(authorizationCode)
-                    .build()));
+            try {
+                String redirectUrl = otpAuthorizationService.createAuthorization(authorizationCode, sessionDto);
+                otpStorageService.markStateAsConsumed(state);
+                log.info("Authorization successful for phone: {}, client: {}",
+                        maskedPhoneNumber, sessionDto.clientId());
+                return ResponseEntity.ok(ResponseDto.success(responseBuilder
+                        .state(state)
+                        .redirectUri(redirectUrl)
+                        .authorizationCode(authorizationCode)
+                        .build()));
+            } catch (Exception e) {
+                log.error("Failed to create authorization for phone: {}", maskedPhoneNumber, e);
+                otpStorageService.markStateAsConsumed(state);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                        ResponseDto.failed("Authorization creation failed", responseBuilder.build()));
+            }
         } else {
             log.warn("OTP validation failed for phone: {}", maskedPhoneNumber);
             return ResponseEntity.badRequest().body(

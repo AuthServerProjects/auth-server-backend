@@ -94,7 +94,7 @@ public class OtpStorageService {
 
     private void setIpRateLimit(String ipAddress) {
         String countKey = IP_OTP_COUNT_PREFIX + ipAddress;
-        redisTemplate.opsForValue().setIfAbsent(countKey, "0", Duration.ofHours(1));
+        redisTemplate.opsForValue().setIfAbsent(countKey, 0L, Duration.ofHours(1));
         Long count = redisTemplate.opsForValue().increment(countKey);
         if (count != null && count >= MAX_OTP_PER_IP_PER_HOUR) {
             String rateLimitKey = IP_RATE_LIMIT_PREFIX + ipAddress;
@@ -105,7 +105,7 @@ public class OtpStorageService {
 
     private void trackGlobalOtpRequest() {
         String key = GLOBAL_OTP_COUNT;
-        redisTemplate.opsForValue().setIfAbsent(key, "0", Duration.ofMinutes(1));
+        redisTemplate.opsForValue().setIfAbsent(key, 0L, Duration.ofMinutes(1));
         Long count = redisTemplate.opsForValue().increment(key);
         if (count != null && count > MAX_GLOBAL_OTP_PER_MINUTE) {
             log.warn("Global OTP rate limit exceeded: {} requests in 1 minute", count);
@@ -168,7 +168,7 @@ public class OtpStorageService {
 
     private void trackVerificationAttempt(String phoneNumber, String ipAddress) {
         String key = VERIFICATION_ATTEMPT_PREFIX + phoneNumber + ":" + ipAddress;
-        redisTemplate.opsForValue().setIfAbsent(key, "0", Duration.ofHours(1));
+        redisTemplate.opsForValue().setIfAbsent(key, 0L, Duration.ofHours(1));
         Long count = redisTemplate.opsForValue().increment(key);
         if (count != null && count >= MAX_VERIFICATION_ATTEMPTS_PER_HOUR) {
             log.warn("Phone {} verification blocked from IP {} due to {} failed attempts",
@@ -204,6 +204,20 @@ public class OtpStorageService {
 
     //--------------------------------------------------------------------------
 
+    public boolean stateExists(String state) {
+        if (state == null || state.isEmpty()) {
+            return false;
+        }
+        String key = CLIENT_ID_PREFIX + state;
+        Boolean exists = redisTemplate.hasKey(key);
+
+        if (!Boolean.TRUE.equals(exists)) {
+            log.warn("State not found or expired: {}", state);
+            return false;
+        }
+        return true;
+    }
+
     public void storeOAuth2Parameters(String clientId, String state, String redirectUri,
                                       String codeChallenge, String codeChallengeMethod, String scope) {
         Duration expiration = Duration.ofMinutes(properties.expirationTime.getInitialize());
@@ -212,6 +226,16 @@ public class OtpStorageService {
         redisTemplate.opsForValue().set(CODE_CHALLENGE_PREFIX + state, codeChallenge, expiration);
         redisTemplate.opsForValue().set(CODE_CHALLENGE_METHOD_PREFIX + state, codeChallengeMethod, expiration);
         redisTemplate.opsForValue().set(SCOPE_PREFIX + state, scope, expiration);
+    }
+
+    public void markStateAsConsumed(String state) {
+        redisTemplate.delete(CLIENT_ID_PREFIX + state);
+        redisTemplate.delete(REDIRECT_URI_PREFIX + state);
+        redisTemplate.delete(CODE_CHALLENGE_PREFIX + state);
+        redisTemplate.delete(CODE_CHALLENGE_METHOD_PREFIX + state);
+        redisTemplate.delete(SCOPE_PREFIX + state);
+        redisTemplate.delete(PHONE_NUMBER_PREFIX + state);
+        log.debug("State marked as consumed and cleaned up: {}", state);
     }
 
     public void storePhoneNumber(String state, String phoneNumber) {

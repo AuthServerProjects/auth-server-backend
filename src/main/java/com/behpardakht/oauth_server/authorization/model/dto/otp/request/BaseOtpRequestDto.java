@@ -9,7 +9,7 @@ import lombok.Data;
 public class BaseOtpRequestDto {
 
     @NotBlank(message = "State is required")
-    @Size(max = 500, message = "State must not exceed 500 characters")
-    @Pattern(regexp = "^[a-zA-Z0-9_.-]*$", message = "State can only contain letters, numbers, underscores, dots and hyphens")
+    @Size(min = 43, max = 500, message = "State must be between 43 and 500 characters")
+    @Pattern(regexp = "^[A-Za-z0-9_-]+$", message = "State must be base64url encoded (letters, numbers, underscore, hyphen)")
     private String state;
 }
