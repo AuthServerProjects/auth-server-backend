@@ -22,22 +22,21 @@ public class ClientController {
 
     private final ClientService clientService;
 
-    @PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = "{clientId}")
     public ResponseEntity<ClientDto> findByClientId(@PathVariable String clientId) {
         ClientDto client = clientService.findByClientId(clientId);
         return ResponseEntity.ok(client);
     }
 
-    @PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping(path = "register")
     public ResponseEntity<String> register(@RequestBody ClientDto client) {
         clientService.insertClient(client);
         return ResponseEntity.ok("Client registered Successfully : " + client.getClientId());
     }
 
-//    @PreAuthorize("hasRole('Admin')")
-@PostMapping(path = "defaultRegister")
+    @PostMapping(path = "defaultRegister")
     public ResponseEntity<String> register() {
         ClientDto clientDto = new ClientDto();
         clientDto.setClientId("web");

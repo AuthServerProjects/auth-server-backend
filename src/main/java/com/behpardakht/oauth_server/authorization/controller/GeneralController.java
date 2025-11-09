@@ -3,6 +3,7 @@ package com.behpardakht.oauth_server.authorization.controller;
 import com.behpardakht.oauth_server.authorization.service.GeneralService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,18 +19,21 @@ public class GeneralController {
 
     private final GeneralService generalService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = "loadAuthenticationMethodType")
     public ResponseEntity<List<String>> loadAuthenticationMethodType() {
         List<String> typeList = generalService.loadAuthenticationMethodType();
         return ResponseEntity.ok(typeList);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = "loadAuthorizationGrantType")
     public ResponseEntity<List<String>> loadAuthorizationGrantType() {
         List<String> typeList = generalService.loadAuthorizationGrantType();
         return ResponseEntity.ok(typeList);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = "loadScopeType")
     public ResponseEntity<List<String>> loadScopeType() {
         List<String> typeList = generalService.loadScopeType();

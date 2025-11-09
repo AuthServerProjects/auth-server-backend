@@ -7,6 +7,7 @@ import com.behpardakht.oauth_server.authorization.model.entity.Client;
 import com.behpardakht.oauth_server.authorization.model.mapper.ClientMapper;
 import com.behpardakht.oauth_server.authorization.repository.ClientRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class ClientService {
     private final ClientRepository clientRepository;
     private final RegisteredClientRepository registeredClientRepository;
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public void insertClient(ClientDto clientDto) {
         Optional<Client> client =
                 clientRepository.findByClientId(clientDto.getClientId());

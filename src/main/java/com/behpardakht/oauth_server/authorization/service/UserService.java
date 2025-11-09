@@ -4,6 +4,7 @@ import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.Alr
 import com.behpardakht.oauth_server.authorization.model.dto.UsersDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Role;
 import com.behpardakht.oauth_server.authorization.model.entity.Users;
+import com.behpardakht.oauth_server.authorization.model.enums.UserRole;
 import com.behpardakht.oauth_server.authorization.model.mapper.UserMapper;
 import com.behpardakht.oauth_server.authorization.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -70,11 +71,13 @@ public class UserService {
             if (!usersDto.getPassword().isBlank()) {
                 usersDto.setPassword(passwordEncoder.encode(usersDto.getPassword()));
             }
-            userRepository.save(userMapper.toEntity(usersDto));
+            Role role = roleService.findByName(UserRole.USER.getValue());
+            Users user = userMapper.toEntity(usersDto);
+            user.getRoles().add(role);
+            userRepository.save(user);
         }
     }
 
-    @PreAuthorize(value = "Admin")
     public void changeUsername(String oldUsername, String newUsername) {
         if (oldUsername.equals(newUsername)) {
             throw new IllegalArgumentException("New username can not be the same as old one");
@@ -88,7 +91,6 @@ public class UserService {
         userRepository.save(userMapper.toEntity(users));
     }
 
-    @PreAuthorize(value = "Admin")
     public void changePassword(String oldPassword, String newPassword) {
         String encodeNewPassword = passwordEncoder.encode(newPassword);
         if (passwordEncoder.matches(oldPassword, encodeNewPassword)) {
@@ -103,7 +105,6 @@ public class UserService {
         userRepository.save(userMapper.toEntity(users));
     }
 
-    @PreAuthorize(value = "Admin")
     public void addRoleToUser(String username, String roleName) {
         Users user = findByUsername(username);
         Role role = roleService.findByName(roleName);

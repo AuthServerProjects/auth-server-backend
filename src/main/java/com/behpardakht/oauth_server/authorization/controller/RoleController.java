@@ -4,6 +4,7 @@ import com.behpardakht.oauth_server.authorization.model.entity.Role;
 import com.behpardakht.oauth_server.authorization.service.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,13 +18,14 @@ public class RoleController {
 
     private final RoleService roleService;
 
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping(path = "save")
-//    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<String> save(@RequestBody Role role) {
         roleService.save(role);
         return ResponseEntity.ok("Role Added Successfully");
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = "findAll")
     public List<Role> findAllRoles() {
         return roleService.findAllRoles();

@@ -1,5 +1,6 @@
 package com.behpardakht.oauth_server.authorization.security.common.config;
 
+import com.behpardakht.oauth_server.authorization.model.enums.UserRole;
 import com.behpardakht.oauth_server.authorization.security.resourceServer.JwtAuthenticationConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,8 +24,7 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfigurationSource;
 
-import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.API_PREFIX;
-import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.URL_PREFIX;
+import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.*;
 
 @Configuration
 @RequiredArgsConstructor
@@ -43,22 +43,18 @@ public class SecurityConfig {
 
         OAuth2AuthorizationServerConfigurer authServerConfigurer =
                 OAuth2AuthorizationServerConfigurer.authorizationServer();
-
         http
                 .securityMatcher(authServerConfigurer.getEndpointsMatcher())
                 .with(authServerConfigurer, authServer ->
                         authServer
                                 .tokenGenerator(tokenGenerator)
-                                .oidc(Customizer.withDefaults())
-                )
+                                .oidc(Customizer.withDefaults()))
                 .authorizeHttpRequests(authorize ->
                         authorize
                                 .requestMatchers("/oauth2/authorize").permitAll()
-                                .anyRequest().authenticated()
-                )
+                                .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 ->
-                        oauth2.jwt(Customizer.withDefaults())
-                );
+                        oauth2.jwt(Customizer.withDefaults()));
         return http.build();
     }
 
@@ -75,10 +71,20 @@ public class SecurityConfig {
                                 authorization
                                         .requestMatchers(
                                                 URL_PREFIX + "/otp/**",
-                                                API_PREFIX + "/api/otp/**",
+                                                API_PREFIX + "/api/otp/**")
+                                        .permitAll()
+
+                                        .requestMatchers(
                                                 "/actuator/**",
                                                 "/swagger-ui/**",
-                                                "/v3/api-docs/**").permitAll()
+                                                "/v3/api-docs/**"
+                                        ).hasAnyRole(
+                                                UserRole.SUPER_ADMIN.getValue())
+
+                                        .requestMatchers(ADMIN_PREFIX + "/**")
+                                        .hasAnyRole(
+                                                UserRole.SUPER_ADMIN.getValue(),
+                                                UserRole.ADMIN.getValue())
                                         .anyRequest().authenticated())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
@@ -87,9 +93,7 @@ public class SecurityConfig {
                         oauth2.jwt(jwt ->
                                 jwt
                                         .jwkSetUri(jwkSetUri)
-                                        .jwtAuthenticationConverter(jwtAuthenticationConverter)
-                        )
-                );
+                                        .jwtAuthenticationConverter(jwtAuthenticationConverter)));
 
         return http.build();
     }
