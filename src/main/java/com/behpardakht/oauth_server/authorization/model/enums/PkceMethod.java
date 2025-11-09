@@ -22,8 +22,7 @@ public enum PkceMethod {
                 return method;
             }
         }
-        throw new IllegalArgumentException("Unsupported PKCE method: " + value +
-                ". Supported methods: " + getSupportedMethods());
+        throw new IllegalArgumentException("Unsupported PKCE method. Supported methods: " + getSupportedMethods());
     }
 
     public static String getSupportedMethods() {

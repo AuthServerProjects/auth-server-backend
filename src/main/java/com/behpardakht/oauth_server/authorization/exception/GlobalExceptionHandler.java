@@ -48,7 +48,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseDto<?>> handleGeneralException(Exception exception) {
         String message = exception.getCause() != null ? exception.getCause().getMessage() : exception.getMessage();
         log.error("thrown exception with message: {}", message);
-        ResponseDto<?> responseDto = ResponseDto.failed(message, null);
+        ResponseDto<?> responseDto = ResponseDto.failed("An error occurred. Please try again.", null);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
     }
 

@@ -81,7 +81,8 @@ public class OtpAuthorizationService {
             if (registeredUris.contains(requestedUri)) {
                 return requestedUri;
             } else {
-                throw new IllegalArgumentException("Invalid redirect_uri: " + requestedUri);
+                log.warn("Invalid redirect_uri attempted: {}", requestedUri);
+                throw new IllegalArgumentException("Invalid redirect_uri");
             }
         }
         return registeredUris.iterator().next();
@@ -131,10 +132,9 @@ public class OtpAuthorizationService {
         if (pkceMethod.hasFixedChallengeLength()) {
             int expectedLength = pkceMethod.getExpectedChallengeLength();
             if (codeChallenge.length() != expectedLength) {
-                throw new IllegalArgumentException(
-                        String.format("Invalid code_challenge length for %s method. Expected: %d, Got: %d",
-                                pkceMethod.getValue(), expectedLength, codeChallenge.length())
-                );
+                log.warn("Invalid code_challenge length for method: {}. Expected: {}, Got: {}",
+                        pkceMethod.getValue(), expectedLength, codeChallenge.length());
+                throw new IllegalArgumentException("Invalid code_challenge length");
             }
         }
         log.debug("PKCE validation successful for method: {}", pkceMethod.getValue());
