@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.maskPhoneNumber;
@@ -20,7 +21,14 @@ public class OtpService {
     private final ISmsService iSmsService;
     private final OtpStorageService otpStorageService;
 
-    private final SecureRandom secureRandom = new SecureRandom();
+    private static final ThreadLocal<SecureRandom> SECURE_RANDOM = ThreadLocal.withInitial(() -> {
+        try {
+            return SecureRandom.getInstanceStrong();
+        } catch (NoSuchAlgorithmException e) {
+            log.warn("Strong SecureRandom not available, using default", e);
+            return new SecureRandom();
+        }
+    });
 
     public OtpResponse sendOtp(String phoneNumber, String ipAddress) {
         try {
@@ -43,7 +51,7 @@ public class OtpService {
             if (!userService.existUserWithUsername(phoneNumber)) {
                 userService.createUserByPhoneNumber(phoneNumber);
             }
-            String otp = String.valueOf(100000 + secureRandom.nextInt(900000));
+            String otp = String.valueOf(100000 + SECURE_RANDOM.get().nextInt(900000));
             sendSms(phoneNumber, otp);
             otpStorageService.storeOtp(phoneNumber, otp, ipAddress);
             log.info("OTP generated and sent successfully to: {}", maskPhoneNumber(phoneNumber));
