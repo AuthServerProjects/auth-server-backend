@@ -44,6 +44,10 @@ services:
 #unseal key :     84AHRMB7LUK+x+j1XXMH5jzBobhD5+Pizse8h3bQOns=
 #health : http://localhost:8200/v1/sys/health
 
+# actuator:
+#  http://localhost:9090/actuator/metrics/hikaricp.connections.active
+#  http://localhost:9090/actuator/metrics/hikaricp.connections.idle
+
 networks:
   db:
     driver: bridge

@@ -76,6 +76,7 @@ public class SecurityConfig {
                                         .requestMatchers(
                                                 URL_PREFIX + "/otp/**",
                                                 API_PREFIX + "/api/otp/**",
+                                                "/actuator/**",
                                                 "/swagger-ui/**",
                                                 "/v3/api-docs/**").permitAll()
                                         .anyRequest().authenticated())
