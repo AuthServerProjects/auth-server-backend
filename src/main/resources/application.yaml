@@ -11,13 +11,35 @@ spring:
     url: jdbc:postgresql://localhost:5432/postgres-db
     password: admin
     username: admin
+    hikari:
+
+      # Core Settings
+      maximum-pool-size: 20          # Good balance for OAuth2 server
+      minimum-idle: 5                # Keep 5 connections warm
+      connection-timeout: 20000      # 20 seconds timeout
+      idle-timeout: 300000           # Close idle connections after 5 min
+      max-lifetime: 1800000          # Recycle connections after 30 min
+
+      # Health & Monitoring
+      leak-detection-threshold: 60000   # Detect connection leaks
+      connection-test-query: SELECT 1   # PostgresSQL health check
+
+      # Naming
+      pool-name: AuthServerHikariPool
+
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: true
+
+        # Performance tuning
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+    show-sql: false
 
   #Security Configuration
   security:
@@ -101,6 +123,15 @@ springdoc:
   api-docs:
     enabled: true
     path: /v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,hikaricp
+  metrics:
+    enable:
+      hikaricp: true
 
 # Bundle Configuration
 config:
