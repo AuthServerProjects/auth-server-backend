@@ -10,6 +10,6 @@ import lombok.EqualsAndHashCode;
 public class VerifyOtpRequestDto extends BaseOtpRequestDto {
 
     @NotBlank(message = "OTP is required")
-    @Pattern(regexp = "^\\d{5}$", message = "OTP must be exactly 5 digits")
+    @Pattern(regexp = "^\\d{6}$", message = "OTP must be exactly 6 digits")
     private String otp;
 }
