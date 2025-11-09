@@ -79,7 +79,8 @@ public class SecurityConfig {
                                                 "/swagger-ui/**",
                                                 "/v3/api-docs/**").permitAll()
                                         .anyRequest().authenticated())
-                .formLogin(Customizer.withDefaults())
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
                 .authenticationManager(authenticationManager)
                 .oauth2ResourceServer(oauth2 ->
                         oauth2.jwt(jwt ->
