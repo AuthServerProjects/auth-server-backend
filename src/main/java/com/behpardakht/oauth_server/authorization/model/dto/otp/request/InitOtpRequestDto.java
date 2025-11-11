@@ -10,17 +10,15 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class InitOtpRequestDto extends BaseOtpRequestDto {
-    @NotBlank(message = "Client ID is required")
-    @Pattern(regexp = "^[a-zA-Z0-9_-]+$", message = "Client ID can only contain letters, numbers, underscores and hyphens")
+    @NotBlank(message = "{clientId_is_required}")
+    @Pattern(regexp = "^[a-zA-Z0-9_-]+$", message = "{invalid_clientId_format}")
     private String clientId;
 
-    @Pattern(regexp = "^(https?://.*|[a-zA-Z][a-zA-Z0-9+.-]*://.*)?$",
-            message = "Redirect URI must be a valid URL (http, https) or custom scheme")
+    @Pattern(regexp = "^(https?://.*|[a-zA-Z][a-zA-Z0-9+.-]*://.*)?$", message = "{invalid_redirectUri_format}")
     private String redirectUri;
 
-    @Size(min = 43, max = 128, message = "Code challenge must be between 43 and 128 characters")
-    @Pattern(regexp = "^[A-Za-z0-9_-]*$",
-            message = "Code challenge must be base64url encoded (letters, numbers, underscore, hyphen)")
+    @Size(min = 43, max = 128, message = "{invalid_code_challenge_size}")
+    @Pattern(regexp = "^[A-Za-z0-9_-]*$", message = "{invalid_code_challenge_format}")
     private String codeChallenge;
 
     private PkceMethod codeChallengeMethod;

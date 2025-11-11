@@ -1,5 +1,6 @@
 package com.behpardakht.oauth_server.authorization.exception;
 
+import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.AlreadyExistException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
@@ -41,7 +42,8 @@ public class GlobalExceptionHandler {
     private ResponseDto<?> getResponseDto(CustomException exception) {
         log.error("thrown exception with message: {}",
                 exception.getCause() != null ? exception.getCause().getMessage() : exception.getMessage());
-        return ResponseDto.failed(exception.getExceptionMessage().getMessage(), null);
+        String message = MessageResolver.getMessage(exception.getExceptionMessage().getMessage(), exception.getParams());
+        return ResponseDto.failed(message, null);
     }
 
     @ExceptionHandler(Exception.class)
@@ -60,7 +62,7 @@ public class GlobalExceptionHandler {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList());
         ResponseDto<?> responseDto =
                 ResponseDto.failed(
-                        ExceptionMessages.INPUTS_ARE_NOT_VALID.getMessage(),
+                        MessageResolver.getMessage(ExceptionMessages.INPUTS_ARE_NOT_VALID.getMessage()),
                         errorMessages);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
     }

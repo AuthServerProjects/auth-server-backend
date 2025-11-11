@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class SendOtpRequestDto extends BaseOtpRequestDto {
 
-    @NotBlank(message = "Phone number is required")
-    @Pattern(regexp = "^98\\d{10}$", message = "Phone number must be in format 98XXXXXXXXXX")
+    @NotBlank(message = "{phone_number_is_required}")
+    @Pattern(regexp = "^98\\d{10}$", message = "{invalid_phone_number_format}")
     private String phoneNumber;
 }
