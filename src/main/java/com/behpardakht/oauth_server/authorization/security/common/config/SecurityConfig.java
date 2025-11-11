@@ -70,16 +70,19 @@ public class SecurityConfig {
                         authorization ->
                                 authorization
                                         .requestMatchers(
+                                                "/actuator/**",
+                                                "/swagger-ui/**",
+                                                "/v3/api-docs/**",
                                                 URL_PREFIX + "/otp/**",
                                                 API_PREFIX + "/api/otp/**")
                                         .permitAll()
 
-                                        .requestMatchers(
-                                                "/actuator/**",
-                                                "/swagger-ui/**",
-                                                "/v3/api-docs/**"
-                                        ).hasAnyRole(
-                                                UserRole.SUPER_ADMIN.getValue())
+//                                        .requestMatchers(
+//                                                "/actuator/**",
+//                                                "/swagger-ui/**",
+//                                                "/v3/api-docs/**"
+//                                        ).hasAnyRole(
+//                                                UserRole.SUPER_ADMIN.getValue())
 
                                         .requestMatchers(ADMIN_PREFIX + "/**")
                                         .hasAnyRole(
