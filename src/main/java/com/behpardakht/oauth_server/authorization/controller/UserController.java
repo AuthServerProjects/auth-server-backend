@@ -4,7 +4,6 @@ import com.behpardakht.oauth_server.authorization.model.dto.UsersDto;
 import com.behpardakht.oauth_server.authorization.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.API_PREFIX;

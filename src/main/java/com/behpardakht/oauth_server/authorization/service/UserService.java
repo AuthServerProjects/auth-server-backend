@@ -9,7 +9,6 @@ import com.behpardakht.oauth_server.authorization.model.mapper.UserMapper;
 import com.behpardakht.oauth_server.authorization.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
