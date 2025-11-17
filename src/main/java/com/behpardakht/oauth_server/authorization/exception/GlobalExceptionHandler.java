@@ -9,6 +9,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -44,6 +50,34 @@ public class GlobalExceptionHandler {
                 exception.getCause() != null ? exception.getCause().getMessage() : exception.getMessage());
         String message = MessageResolver.getMessage(exception.getExceptionMessage().getMessage(), exception.getParams());
         return ResponseDto.failed(message, null);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ResponseDto<?>> handleAuthorizationDeniedException(AuthorizationDeniedException exception) {
+        log.warn("Authorization denied: {}", exception.getMessage());
+        ResponseDto<?> responseDto = ResponseDto.failed(
+                "Access denied. You don't have permission to access this resource.", null);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseDto);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ResponseDto<?>> handleAccessDeniedException(AccessDeniedException exception) {
+        log.warn("Access denied: {}", exception.getMessage());
+        ResponseDto<?> responseDto = ResponseDto.failed(
+                "Access denied. You don't have permission to access this resource.", null);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseDto);
+    }
+
+    @ExceptionHandler({
+            AuthenticationException.class,
+            BadCredentialsException.class,
+            InsufficientAuthenticationException.class,
+            AuthenticationCredentialsNotFoundException.class})
+    public ResponseEntity<ResponseDto<?>> handleAuthenticationException(Exception exception) {
+        log.warn("Authentication failed: {}", exception.getMessage());
+        ResponseDto<?> responseDto = ResponseDto.failed(
+                "Authentication failed. Please provide valid credentials.", null);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseDto);
     }
 
     @ExceptionHandler(Exception.class)
