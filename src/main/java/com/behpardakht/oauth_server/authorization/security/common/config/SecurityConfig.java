@@ -52,46 +52,48 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize ->
                         authorize
                                 .requestMatchers("/oauth2/authorize").permitAll()
-                                .anyRequest().authenticated())
-                .oauth2ResourceServer(oauth2 ->
-                        oauth2.jwt(Customizer.withDefaults()));
+                                .anyRequest().authenticated());
         return http.build();
     }
 
     @Bean
     @Order(2)
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http,
-                                                          AuthenticationManager authenticationManager,
-                                                          CorsConfigurationSource corsConfigurationSource) throws Exception {
+    public SecurityFilterChain publicSecurityFilterChain(HttpSecurity http,
+                                                         CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
+                .securityMatcher(
+                        "/actuator/**",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**",
+                        URL_PREFIX + "/otp/**",
+                        API_PREFIX + "/api/otp/**")
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(
-                        authorization ->
-                                authorization
-                                        .requestMatchers(
-                                                "/actuator/**",
-                                                "/swagger-ui/**",
-                                                "/v3/api-docs/**",
-                                                URL_PREFIX + "/otp/**",
-                                                API_PREFIX + "/api/otp/**")
-                                        .permitAll()
+                .authorizeHttpRequests(authorize ->
+                        authorize.anyRequest().permitAll());
+        return http.build();
+    }
 
-//                                        .requestMatchers(
-//                                                "/actuator/**",
-//                                                "/swagger-ui/**",
-//                                                "/v3/api-docs/**"
-//                                        ).hasAnyRole(
-//                                                UserRole.SUPER_ADMIN.getValue())
-
-                                        .requestMatchers(ADMIN_PREFIX + "/**")
-                                        .hasAnyRole(
-                                                UserRole.SUPER_ADMIN.getValue(),
-                                                UserRole.ADMIN.getValue())
-                                        .anyRequest().authenticated())
+    @Bean
+    @Order(3)
+    public SecurityFilterChain resourceServerSecurityFilterChain(HttpSecurity http,
+                                                                 CorsConfigurationSource corsConfigurationSource) throws Exception {
+        http
+                .securityMatcher(
+                        API_PREFIX + "/**",
+                        ADMIN_PREFIX + "/**")
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authorize ->
+                        authorize
+                                .requestMatchers(ADMIN_PREFIX + "/**")
+                                .hasAnyRole(
+                                        UserRole.SUPER_ADMIN.getValue(),
+                                        UserRole.ADMIN.getValue())
+                                .requestMatchers(API_PREFIX + "/**")
+                                .authenticated().anyRequest().authenticated())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .authenticationManager(authenticationManager)
                 .oauth2ResourceServer(oauth2 ->
                         oauth2.jwt(jwt ->
                                 jwt
