@@ -103,8 +103,8 @@ public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
     @Transactional
     public void remove(OAuth2Authorization authorization) {
         String id = authorization.getId();
-        if (authorizationRepository.existsById(id)) {
-            authorizationRepository.deleteById(id);
+        if (authorizationRepository.findByAuthorizationId(id).isPresent()) {
+            authorizationRepository.deleteByAuthorizationId(id);
             log.debug("Removed authorization: {}", id);
         } else {
             log.warn("Attempted to remove non-existent authorization: {}", id);

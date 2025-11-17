@@ -12,6 +12,8 @@ public interface AuthorizationRepository extends JpaRepository<Authorizations, S
 
     Optional<Authorizations> findByAuthorizationId(String authorizationId);
 
+    void deleteByAuthorizationId(String authorizationId);
+
     Optional<Authorizations> findByAccessToken(String accessToken);
 
     Optional<Authorizations> findByRefreshToken(String refreshToken);

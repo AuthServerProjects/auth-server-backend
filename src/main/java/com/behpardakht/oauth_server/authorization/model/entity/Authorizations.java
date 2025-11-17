@@ -59,6 +59,6 @@ public class Authorizations {
     @Column(name = "registered_client_id")
     private String registeredClientId;
 
-    @Column(name = "authorization_attributes", length = 1000)
+    @Column(name = "authorization_attributes", length = 2000)
     private String authorizationAttributes;
 }
