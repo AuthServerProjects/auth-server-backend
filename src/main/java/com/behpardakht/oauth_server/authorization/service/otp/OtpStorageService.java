@@ -132,12 +132,11 @@ public class OtpStorageService {
 
     private boolean isVerificationRateLimited(String phoneNumber, String ipAddress) {
         String key = VERIFICATION_ATTEMPT_PREFIX + phoneNumber + ":" + ipAddress;
-        String countStr = (String) redisTemplate.opsForValue().get(key);
-        if (countStr == null) {
+        Integer count = (Integer) redisTemplate.opsForValue().get(key);
+        if (count == null) {
             return false;
         }
         try {
-            int count = Integer.parseInt(countStr);
             return count >= MAX_VERIFICATION_ATTEMPTS_PER_HOUR;
         } catch (NumberFormatException e) {
             return false;
