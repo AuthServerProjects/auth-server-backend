@@ -29,33 +29,33 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ResponseDto<?>> handleCustomException(CustomException exception) {
-        ResponseDto<?> responseDto = getResponseDto(exception);
+        ResponseDto<?> responseDto = getResponseDto(exception, HttpStatus.BAD_REQUEST);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
     }
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ResponseDto<?>> handleNotFoundException(NotFoundException exception) {
-        ResponseDto<?> responseDto = getResponseDto(exception);
+        ResponseDto<?> responseDto = getResponseDto(exception, HttpStatus.NOT_FOUND);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseDto);
     }
 
     @ExceptionHandler(AlreadyExistException.class)
     public ResponseEntity<ResponseDto<?>> handleAlreadyExistException(AlreadyExistException exception) {
-        ResponseDto<?> responseDto = getResponseDto(exception);
+        ResponseDto<?> responseDto = getResponseDto(exception, HttpStatus.BAD_REQUEST);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
     }
 
-    private ResponseDto<?> getResponseDto(CustomException exception) {
+    private ResponseDto<?> getResponseDto(CustomException exception, HttpStatus error) {
         log.error("thrown exception with message: {}",
                 exception.getCause() != null ? exception.getCause().getMessage() : exception.getMessage());
         String message = MessageResolver.getMessage(exception.getExceptionMessage().getMessage(), exception.getParams());
-        return ResponseDto.failed(message, null);
+        return ResponseDto.failed(error.name(), message, null);
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<ResponseDto<?>> handleAuthorizationDeniedException(AuthorizationDeniedException exception) {
         log.warn("Authorization denied: {}", exception.getMessage());
-        ResponseDto<?> responseDto = ResponseDto.failed(
+        ResponseDto<?> responseDto = ResponseDto.failed("ACCESS_DENIED",
                 "Access denied. You don't have permission to access this resource.", null);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseDto);
     }
@@ -63,7 +63,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ResponseDto<?>> handleAccessDeniedException(AccessDeniedException exception) {
         log.warn("Access denied: {}", exception.getMessage());
-        ResponseDto<?> responseDto = ResponseDto.failed(
+        ResponseDto<?> responseDto = ResponseDto.failed("ACCESS_DENIED",
                 "Access denied. You don't have permission to access this resource.", null);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseDto);
     }
@@ -75,7 +75,7 @@ public class GlobalExceptionHandler {
             AuthenticationCredentialsNotFoundException.class})
     public ResponseEntity<ResponseDto<?>> handleAuthenticationException(Exception exception) {
         log.warn("Authentication failed: {}", exception.getMessage());
-        ResponseDto<?> responseDto = ResponseDto.failed(
+        ResponseDto<?> responseDto = ResponseDto.failed("AUTHENTICATION_FAILED",
                 "Authentication failed. Please provide valid credentials.", null);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseDto);
     }
@@ -84,7 +84,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseDto<?>> handleGeneralException(Exception exception) {
         String message = exception.getCause() != null ? exception.getCause().getMessage() : exception.getMessage();
         log.error("thrown exception with message: {}", message);
-        ResponseDto<?> responseDto = ResponseDto.failed("An error occurred. Please try again.", null);
+        ResponseDto<?> responseDto = ResponseDto.failed("ERROR", "An error occurred. Please try again.", null);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
     }
 
@@ -96,6 +96,7 @@ public class GlobalExceptionHandler {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList());
         ResponseDto<?> responseDto =
                 ResponseDto.failed(
+                        ExceptionMessages.INPUTS_ARE_NOT_VALID.name(),
                         MessageResolver.getMessage(ExceptionMessages.INPUTS_ARE_NOT_VALID.getMessage()),
                         errorMessages);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);

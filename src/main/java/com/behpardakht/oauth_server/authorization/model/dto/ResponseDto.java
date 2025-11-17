@@ -7,6 +7,7 @@ import lombok.Data;
 @Builder
 public class ResponseDto<T> {
     private Boolean success;
+    private String error;
     private String message;
     private T responses;
 
@@ -14,13 +15,15 @@ public class ResponseDto<T> {
         return ResponseDto.<T>builder()
                 .success(true)
                 .message("OK")
+                .error(null)
                 .responses(response)
                 .build();
     }
 
-    public static <T> ResponseDto<T> failed(String message, T response) {
+    public static <T> ResponseDto<T> failed(String error, String message, T response) {
         return ResponseDto.<T>builder()
                 .success(false)
+                .error(error)
                 .message(message)
                 .responses(response)
                 .build();
