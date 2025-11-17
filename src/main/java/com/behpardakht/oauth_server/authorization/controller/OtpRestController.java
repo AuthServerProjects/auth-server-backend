@@ -23,8 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
-import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.API_PREFIX;
-import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.maskPhoneNumber;
+import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.*;
 
 @Slf4j
 @RestController
@@ -125,25 +124,5 @@ public class OtpRestController {
             return ResponseEntity.badRequest().body(
                     ResponseDto.failed("Invalid or expired OTP", responseBuilder.build()));
         }
-    }
-
-    private String getClientIpAddress(HttpServletRequest request) {
-        String ipAddress = request.getHeader("X-Forwarded-For");
-        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
-            ipAddress = request.getHeader("Proxy-Client-IP");
-        }
-        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
-            ipAddress = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
-            ipAddress = request.getHeader("HTTP_X_FORWARDED_FOR");
-        }
-        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
-            ipAddress = request.getRemoteAddr();
-        }
-        if (ipAddress != null && ipAddress.contains(",")) {
-            ipAddress = ipAddress.split(",")[0].trim();
-        }
-        return ipAddress;
     }
 }
