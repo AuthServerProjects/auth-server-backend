@@ -1,8 +1,9 @@
 package com.behpardakht.oauth_server.authorization.security.resourceServer;
 
+import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
 import com.behpardakht.oauth_server.authorization.model.dto.ResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,18 +23,12 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     private final ObjectMapper objectMapper;
 
     @Override
-    public void commence(HttpServletRequest request,
-                         HttpServletResponse response,
-                         AuthenticationException authException) throws IOException, ServletException {
-
-        log.warn("Authentication failed for request {}: {}",
-                request.getRequestURI(), authException.getMessage());
-
-        // Set response headers
+    public void commence(HttpServletRequest request, HttpServletResponse response,
+                         AuthenticationException authException) throws IOException {
+        log.warn("Authentication failed for request {}: {}", request.getRequestURI(), authException.getMessage());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-
         ResponseDto<?> responseDto = determineErrorType(authException);
         response.getWriter().write(objectMapper.writeValueAsString(responseDto));
     }
@@ -42,61 +37,42 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         String exceptionMessage = authException.getMessage();
         String causeMessage = authException.getCause() != null ? authException.getCause().getMessage() : "";
         String fullMessage = (exceptionMessage + " " + causeMessage).toLowerCase();
+        ExceptionMessages exceptionType = detectExceptionType(fullMessage);
+        String message = MessageResolver.getMessage(exceptionType.getMessage());
+        return ResponseDto.failed(exceptionType.getMessage(), message, null);
+    }
 
-        if (fullMessage.contains("expired") || fullMessage.contains("jwt expired")) {
-            return ResponseDto.failed(
-                    "TOKEN_EXPIRED",
-                    "Your session has expired. Please refresh your token.",
-                    null);
+    private ExceptionMessages detectExceptionType(String fullMessage) {
+        if (containsAny(fullMessage, "expired", "jwt expired")) {
+            return ExceptionMessages.TOKEN_EXPIRED;
         }
-        if (fullMessage.contains("signature")
-                || fullMessage.contains("no matching key")
-                || fullMessage.contains("another algorithm expected")
-                || fullMessage.contains("invalid signature")) {
-            return ResponseDto.failed(
-                    "TOKEN_INVALID_SIGNATURE",
-                    "Token signature is invalid. Please log in again.",
-                    null);
+        if (containsAny(fullMessage, "signature", "no matching key", "another algorithm expected", "invalid signature")) {
+            return ExceptionMessages.TOKEN_INVALID_SIGNATURE;
         }
-        if (fullMessage.contains("not yet valid")
-                || fullMessage.contains("before")
-                || fullMessage.contains("nbf")) {
-            return ResponseDto.failed(
-                    "TOKEN_NOT_YET_VALID",
-                    "Token is not yet valid. Please check your system time.",
-                    null);
+        if (containsAny(fullMessage, "not yet valid", "before", "nbf")) {
+            return ExceptionMessages.TOKEN_NOT_YET_VALID;
         }
-        if (fullMessage.contains("malformed")
-                || fullMessage.contains("invalid jwt")
-                || fullMessage.contains("cannot decode")) {
-            return ResponseDto.failed(
-                    "TOKEN_MALFORMED",
-                    "Token format is invalid. Please log in again.",
-                    null);
+        if (containsAny(fullMessage, "malformed", "invalid jwt", "cannot decode")) {
+            return ExceptionMessages.TOKEN_MALFORMED;
         }
-        if (fullMessage.contains("bearer token")
-                || fullMessage.contains("missing")
-                || fullMessage.contains("credentials not found")) {
-            return ResponseDto.failed(
-                    "TOKEN_MISSING",
-                    "Authentication required. Please provide a valid token.",
-                    null);
+        if (containsAny(fullMessage, "bearer token", "missing", "credentials not found")) {
+            return ExceptionMessages.TOKEN_MISSING;
         }
-        if (fullMessage.contains("issuer") || fullMessage.contains("iss")) {
-            return ResponseDto.failed(
-                    "TOKEN_INVALID_ISSUER",
-                    "Token issuer is invalid. Please log in again.",
-                    null);
+        if (containsAny(fullMessage, "issuer", "iss")) {
+            return ExceptionMessages.TOKEN_INVALID_ISSUER;
         }
-        if (fullMessage.contains("audience") || fullMessage.contains("aud")) {
-            return ResponseDto.failed(
-                    "TOKEN_INVALID_AUDIENCE",
-                    "Token audience is invalid. Please log in again.",
-                    null);
+        if (containsAny(fullMessage, "audience", "aud")) {
+            return ExceptionMessages.TOKEN_INVALID_AUDIENCE;
         }
-        return ResponseDto.failed(
-                "AUTHENTICATION_FAILED",
-                "Authentication failed. Please log in again.",
-                null);
+        return ExceptionMessages.AUTHENTICATION_FAILED;
+    }
+
+    private boolean containsAny(String text, String... keywords) {
+        for (String keyword : keywords) {
+            if (text.contains(keyword)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

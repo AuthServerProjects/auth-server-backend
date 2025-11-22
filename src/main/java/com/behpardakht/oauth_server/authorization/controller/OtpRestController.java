@@ -1,5 +1,7 @@
 package com.behpardakht.oauth_server.authorization.controller;
 
+import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.model.dto.ResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.request.InitOtpRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.request.SendOtpRequestDto;
@@ -14,7 +16,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,8 +41,7 @@ public class OtpRestController {
         String state = request.getState();
         if (otpStorageService.stateExists(state)) {
             log.warn("Duplicate state parameter detected in initOtp: {}", state);
-            return ResponseEntity.badRequest().body(
-                    ResponseDto.failed("INVALID_STATE", "State parameter already in use. Generate a new one.", null));
+            throw new CustomException(ExceptionMessages.INVALID_STATE);
         }
         otpStorageService.storeOAuth2Parameters(request.getClientId(), state, request.getRedirectUri(),
                 request.getCodeChallenge(), request.getCodeChallengeMethod().getValue(), request.getScope()
@@ -58,9 +58,7 @@ public class OtpRestController {
         String state = request.getState();
         if (!otpStorageService.stateExists(state)) {
             log.warn("Invalid or expired state in sendOtp: {}", state);
-            return ResponseEntity.badRequest().body(
-                    ResponseDto.failed("INVALID_OR_EXPIRED_SESSION",
-                            "Invalid or expired session. Please initialize OTP flow first.", null));
+            throw new CustomException(ExceptionMessages.INVALID_OR_EXPIRED_SESSION);
         }
         String ipAddress = getClientIpAddress(httpRequest);
         OtpResponse otpResponse = otpService.sendOtp(phoneNumber, ipAddress);
@@ -69,7 +67,7 @@ public class OtpRestController {
             log.info("OTP sent successfully for phone: {}", maskPhoneNumber(phoneNumber));
             return ResponseEntity.ok(ResponseDto.success(otpResponse.getMessage()));
         } else {
-            return ResponseEntity.badRequest().body(ResponseDto.failed(null, otpResponse.getMessage(), maskPhoneNumber(phoneNumber)));
+            throw new CustomException(ExceptionMessages.OTP_SEND_FAILED);
         }
     }
 
@@ -79,17 +77,12 @@ public class OtpRestController {
         String state = request.getState();
         if (!otpStorageService.stateExists(state)) {
             log.warn("Invalid or expired state in verifyOtp: {}", state);
-            return ResponseEntity.badRequest().body(
-                    ResponseDto.failed("INVALID_OR_EXPIRED_SESSION",
-                            "Invalid or expired session. Please start the flow again.",
-                            VerifyOtpResponseDto.builder().build()));
+            throw new CustomException(ExceptionMessages.INVALID_OR_EXPIRED_SESSION);
         }
         String phoneNumber = otpStorageService.getPhoneNumber(state);
         if (phoneNumber == null) {
             log.warn("Phone number not found for state: {}", state);
-            return ResponseEntity.badRequest().body(
-                    ResponseDto.failed("PHONE_NUMBER_NOT_FOUND", "Phone number not found. Please send OTP first.",
-                            VerifyOtpResponseDto.builder().build()));
+            throw new CustomException(ExceptionMessages.PHONE_NUMBER_NOT_FOUND);
         }
         String maskedPhoneNumber = maskPhoneNumber(phoneNumber);
         VerifyOtpResponseDto.VerifyOtpResponseDtoBuilder responseBuilder =
@@ -101,8 +94,7 @@ public class OtpRestController {
             if (sessionDto.clientId() == null) {
                 log.error("Client ID not found in session for state: {}", state);
                 otpStorageService.markStateAsConsumed(state);
-                return ResponseEntity.badRequest().body(
-                        ResponseDto.failed("CLIENT_ID_NOT_FOUND", "Client ID not found", responseBuilder.build()));
+                throw new CustomException(ExceptionMessages.CLIENT_ID_NOT_FOUND);
             }
             String authorizationCode = "auth_code_" + UUID.randomUUID().toString().replace("-", "");
             try {
@@ -118,13 +110,11 @@ public class OtpRestController {
             } catch (Exception e) {
                 log.error("Failed to create authorization for phone: {}", maskedPhoneNumber, e);
                 otpStorageService.markStateAsConsumed(state);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                        ResponseDto.failed("AUTHORIZATION_CREATION_FAILED", "Authorization creation failed", responseBuilder.build()));
+                throw new CustomException(ExceptionMessages.AUTHORIZATION_CREATION_FAILED);
             }
         } else {
             log.warn("OTP validation failed for phone: {}", maskedPhoneNumber);
-            return ResponseEntity.badRequest().body(
-                    ResponseDto.failed("INVALID_OR_EXPIRED_OTP", "Invalid or expired OTP", responseBuilder.build()));
+            throw new CustomException(ExceptionMessages.INVALID_OR_EXPIRED_OTP);
         }
     }
 }
