@@ -1,6 +1,8 @@
 package com.behpardakht.oauth_server.authorization.security.common.config;
 
 import com.behpardakht.oauth_server.authorization.model.enums.UserRole;
+import com.behpardakht.oauth_server.authorization.security.resourceServer.CustomAccessDeniedHandler;
+import com.behpardakht.oauth_server.authorization.security.resourceServer.CustomAuthenticationEntryPoint;
 import com.behpardakht.oauth_server.authorization.security.resourceServer.JwtAuthenticationConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -77,7 +79,9 @@ public class SecurityConfig {
     @Bean
     @Order(3)
     public SecurityFilterChain resourceServerSecurityFilterChain(HttpSecurity http,
-                                                                 CorsConfigurationSource corsConfigurationSource) throws Exception {
+                                                                 CorsConfigurationSource corsConfigurationSource,
+                                                                 CustomAuthenticationEntryPoint authenticationEntryPoint,
+                                                                 CustomAccessDeniedHandler accessDeniedHandler) throws Exception {
         http
                 .securityMatcher(
                         API_PREFIX + "/**",
@@ -94,11 +98,14 @@ public class SecurityConfig {
                                 .authenticated().anyRequest().authenticated())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .oauth2ResourceServer(oauth2 ->
-                        oauth2.jwt(jwt ->
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .jwt(jwt ->
                                 jwt
                                         .jwkSetUri(jwkSetUri)
-                                        .jwtAuthenticationConverter(jwtAuthenticationConverter)));
+                                        .jwtAuthenticationConverter(jwtAuthenticationConverter)))
+                .exceptionHandling(exceptions -> exceptions
+                        .accessDeniedHandler(accessDeniedHandler));
 
         return http.build();
     }
