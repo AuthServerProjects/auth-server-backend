@@ -11,7 +11,7 @@ public class ExceptionWrapper {
     @Setter
     public static class CustomException extends RuntimeException {
         private final ExceptionMessages exceptionMessage;
-        private final Object[] params;
+        private Object[] params;
         private Exception cause;
 
         public CustomException(ExceptionMessages exceptionMessage, Exception e, Object... params) {
@@ -23,6 +23,10 @@ public class ExceptionWrapper {
         public CustomException(ExceptionMessages exceptionMessage, Object... params) {
             this.exceptionMessage = exceptionMessage;
             this.params = params;
+        }
+
+        public CustomException(ExceptionMessages exceptionMessage) {
+            this.exceptionMessage = exceptionMessage;
         }
     }
 

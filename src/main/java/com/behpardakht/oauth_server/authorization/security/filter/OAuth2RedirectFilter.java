@@ -1,4 +1,4 @@
-package com.behpardakht.oauth_server.authorization.security;
+package com.behpardakht.oauth_server.authorization.security.filter;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,7 +39,7 @@ public class OAuth2RedirectFilter implements Filter {
             addParameterIfPresent(redirectUrl, "scope", httpRequest.getParameter("scope"));
 
             httpResponse.sendRedirect(redirectUrl.toString());
-            return; // Don't continue the filter chain
+            return;
         }
         chain.doFilter(request, response);
     }
