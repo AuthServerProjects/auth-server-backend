@@ -50,7 +50,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             return ExceptionMessages.TOKEN_INVALID_SIGNATURE;
         }
         if (containsAny(fullMessage, "not yet valid", "before", "nbf")) {
-            return ExceptionMessages.TOKEN_NOT_YET_VALID;
+            return ExceptionMessages.TOKEN_NOT_VALID;
         }
         if (containsAny(fullMessage, "malformed", "invalid jwt", "cannot decode")) {
             return ExceptionMessages.TOKEN_MALFORMED;

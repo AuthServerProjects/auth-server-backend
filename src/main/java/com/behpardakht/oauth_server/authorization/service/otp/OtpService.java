@@ -1,5 +1,6 @@
 package com.behpardakht.oauth_server.authorization.service.otp;
 
+import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.request.InitOtpRequestDto;
@@ -69,22 +70,23 @@ public class OtpService {
     }
 
     public OtpResponse sendOtp(String phoneNumber, String ipAddress) {
+        String maskedPhoneNumber = maskPhoneNumber(phoneNumber);
         try {
             if (otpStorageService.isGlobalRateLimited()) {
                 log.warn("Global rate limit exceeded");
-                return OtpResponse.rateLimited("System is busy. Please try again later.");
+                return OtpResponse.rateLimited(MessageResolver.getMessage(ExceptionMessages.SYSTEM_BUSY.getMessage()));
             }
             if (otpStorageService.isIpRateLimited(ipAddress)) {
                 log.warn("Rate limit exceeded for IP: {}", ipAddress);
-                return OtpResponse.rateLimited("Too many requests from your network. Please try again later.");
+                return OtpResponse.rateLimited(MessageResolver.getMessage(ExceptionMessages.RATE_LIMIT_IP.getMessage()));
             }
             if (otpStorageService.isPhoneNumberRateLimited(phoneNumber)) {
-                log.warn("Rate limit exceeded for phone: {}", maskPhoneNumber(phoneNumber));
-                return OtpResponse.rateLimited("Too many requests. Please try again later.");
+                log.warn("Rate limit exceeded for phone: {}", maskedPhoneNumber);
+                return OtpResponse.rateLimited(MessageResolver.getMessage(ExceptionMessages.RATE_LIMIT_PHONE.getMessage()));
             }
             if (otpStorageService.hasValidOtp(phoneNumber)) {
-                log.info("Valid OTP already exists for phone: {}", maskPhoneNumber(phoneNumber));
-                return OtpResponse.alreadySent("OTP already sent. Please check your messages.");
+                log.info("Valid OTP already exists for phone: {}", maskedPhoneNumber);
+                return OtpResponse.alreadySent(MessageResolver.getMessage(ExceptionMessages.OTP_ALREADY_SENT.getMessage()));
             }
             if (!userService.existUserWithUsername(phoneNumber)) {
                 userService.createUserByPhoneNumber(phoneNumber);
@@ -92,11 +94,12 @@ public class OtpService {
             String otp = String.valueOf(100000 + SECURE_RANDOM.get().nextInt(900000));
             sendSms(phoneNumber, otp);
             otpStorageService.storeOtp(phoneNumber, otp, ipAddress);
-            log.info("OTP generated and sent successfully to: {}", maskPhoneNumber(phoneNumber));
-            return OtpResponse.success("OTP sent successfully to " + maskPhoneNumber(phoneNumber));
+            log.info("OTP generated and sent successfully to: {}", maskedPhoneNumber);
+            return OtpResponse.success(MessageResolver.getMessage(
+                    ExceptionMessages.OTP_SENT_SUCCESS.getMessage(), new Object[]{maskedPhoneNumber}));
         } catch (Exception e) {
-            log.error("Failed to generate OTP for phone: {}", maskPhoneNumber(phoneNumber), e);
-            return OtpResponse.error("Failed to send OTP. Please try again.");
+            log.error("Failed to generate OTP for phone: {}", maskedPhoneNumber, e);
+            return OtpResponse.error(MessageResolver.getMessage(ExceptionMessages.OTP_SEND_FAILED.getMessage()));
         }
     }
 

@@ -1,5 +1,7 @@
 package com.behpardakht.oauth_server.authorization.controller;
 
+import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
 import com.behpardakht.oauth_server.authorization.model.entity.Role;
 import com.behpardakht.oauth_server.authorization.service.RoleService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +24,8 @@ public class RoleController {
     @PostMapping(path = "save")
     public ResponseEntity<String> save(@RequestBody Role role) {
         roleService.save(role);
-        return ResponseEntity.ok("Role Added Successfully");
+        String message = MessageResolver.getMessage(ExceptionMessages.ROLE_ADDED_SUCCESS.getMessage());
+        return ResponseEntity.ok(message);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

@@ -4,35 +4,46 @@ import lombok.Getter;
 
 @Getter
 public enum ExceptionMessages {
+    // GlobalException
+    AUTHENTICATION_FAILED_CREDENTIALS("authentication_failed_credentials"),
+    GENERAL_ERROR("general_error"),
     INPUTS_ARE_NOT_VALID("inputs_are_not_valid"),
     NOT_FOUND_WITH("not_found_with"),
     IS_ALREADY_EXIST("is_already_exist"),
-    SERVICE_UNAVAILABLE("service_unavailable"),
+
+    // SecurityHandler
+    ACCESS_DENIED("access_denied"),
+    TOKEN_EXPIRED("token_expired"),
+    TOKEN_INVALID_SIGNATURE("token_invalid_signature"),
+    TOKEN_NOT_VALID("token_not_valid"),
+    TOKEN_MALFORMED("token_malformed"),
+    TOKEN_MISSING("token_missing"),
+    TOKEN_INVALID_ISSUER("token_invalid_issuer"),
+    TOKEN_INVALID_AUDIENCE("token_invalid_audience"),
+    AUTHENTICATION_FAILED("authentication_failed"),
 
     // AuthService
     INVAlID_AUTH_HEADER("invalid_auth_header"),
     TOKEN_NOT_FOUND("token_not_found"),
     NO_ACTIVE_SESSIONS_FOUND("no_active_sessions_found"),
 
-    // OTP exceptions
+    // OtpService
     INVALID_STATE("invalid_state"),
-    INVALID_OR_EXPIRED_SESSION("invalid_or_expired_session"),
     OTP_SEND_FAILED("otp_send_failed"),
+    SYSTEM_BUSY("system_busy"),
+    RATE_LIMIT_IP("rate_limit_ip"),
+    RATE_LIMIT_PHONE("rate_limit_phone"),
+    OTP_ALREADY_SENT("otp_already_sent"),
+    OTP_SENT_SUCCESS("otp_sent_success"),
+    INVALID_OR_EXPIRED_SESSION("invalid_or_expired_session"),
     PHONE_NUMBER_NOT_FOUND("phone_number_not_found"),
+    INVALID_OR_EXPIRED_OTP("invalid_or_expired_otp"),
     CLIENT_ID_NOT_FOUND("client_id_not_found"),
     AUTHORIZATION_CREATION_FAILED("authorization_creation_failed"),
-    INVALID_OR_EXPIRED_OTP("invalid_or_expired_otp"),
 
-    // Security Handler exceptions
-    ACCESS_DENIED("access_denied"),
-    TOKEN_EXPIRED("token_expired"),
-    TOKEN_INVALID_SIGNATURE("token_invalid_signature"),
-    TOKEN_NOT_YET_VALID("token_not_yet_valid"),
-    TOKEN_MALFORMED("token_malformed"),
-    TOKEN_MISSING("token_missing"),
-    TOKEN_INVALID_ISSUER("token_invalid_issuer"),
-    TOKEN_INVALID_AUDIENCE("token_invalid_audience"),
-    AUTHENTICATION_FAILED("authentication_failed");
+    // Client/Role
+    CLIENT_REGISTERED_SUCCESS("client_registered_success"),
+    ROLE_ADDED_SUCCESS("role_added_success");
 
     public final String message;
 

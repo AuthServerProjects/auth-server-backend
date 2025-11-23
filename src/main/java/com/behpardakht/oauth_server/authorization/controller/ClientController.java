@@ -1,5 +1,7 @@
 package com.behpardakht.oauth_server.authorization.controller;
 
+import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
 import com.behpardakht.oauth_server.authorization.model.dto.ClientDto;
 import com.behpardakht.oauth_server.authorization.model.dto.TokenAndClientSettingDto;
 import com.behpardakht.oauth_server.authorization.model.enums.AuthenticationMethodTypes;
@@ -33,7 +35,9 @@ public class ClientController {
     @PostMapping(path = "register")
     public ResponseEntity<String> register(@RequestBody ClientDto client) {
         clientService.insertClient(client);
-        return ResponseEntity.ok("Client registered Successfully : " + client.getClientId());
+        String message = MessageResolver.getMessage(
+                ExceptionMessages.CLIENT_REGISTERED_SUCCESS.getMessage(), new Object[]{client.getClientId()});
+        return ResponseEntity.ok(message);
     }
 
     @PostMapping(path = "defaultRegister")
@@ -64,6 +68,8 @@ public class ClientController {
         settingDto.setReuseRefreshTokens(false);
         clientDto.setSetting(settingDto);
         clientService.insertClient(clientDto);
-        return ResponseEntity.ok("Client registered Successfully : " + clientDto.getClientId());
+        String message = MessageResolver.getMessage(
+                ExceptionMessages.CLIENT_REGISTERED_SUCCESS.getMessage(), new Object[]{clientDto.getClientId()});
+        return ResponseEntity.ok(message);
     }
 }

@@ -55,16 +55,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<ResponseDto<?>> handleAuthorizationDeniedException(AuthorizationDeniedException exception) {
         log.warn("Authorization denied: {}", exception.getMessage());
-        ResponseDto<?> responseDto = ResponseDto.failed("ACCESS_DENIED",
-                "Access denied. You don't have permission to access this resource.", null);
+        String message = MessageResolver.getMessage(ExceptionMessages.ACCESS_DENIED.getMessage());
+        ResponseDto<?> responseDto = ResponseDto.failed(
+                ExceptionMessages.ACCESS_DENIED.getMessage(), message, null);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseDto);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ResponseDto<?>> handleAccessDeniedException(AccessDeniedException exception) {
         log.warn("Access denied: {}", exception.getMessage());
-        ResponseDto<?> responseDto = ResponseDto.failed("ACCESS_DENIED",
-                "Access denied. You don't have permission to access this resource.", null);
+        String message = MessageResolver.getMessage(ExceptionMessages.ACCESS_DENIED.getMessage());
+        ResponseDto<?> responseDto = ResponseDto.failed(
+                ExceptionMessages.ACCESS_DENIED.getMessage(), message, null);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseDto);
     }
 
@@ -75,8 +77,9 @@ public class GlobalExceptionHandler {
             AuthenticationCredentialsNotFoundException.class})
     public ResponseEntity<ResponseDto<?>> handleAuthenticationException(Exception exception) {
         log.warn("Authentication failed: {}", exception.getMessage());
-        ResponseDto<?> responseDto = ResponseDto.failed("AUTHENTICATION_FAILED",
-                "Authentication failed. Please provide valid credentials.", null);
+        String message = MessageResolver.getMessage(ExceptionMessages.AUTHENTICATION_FAILED_CREDENTIALS.getMessage());
+        ResponseDto<?> responseDto = ResponseDto.failed(
+                ExceptionMessages.AUTHENTICATION_FAILED_CREDENTIALS.getMessage(), message, null);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseDto);
     }
 
@@ -84,7 +87,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseDto<?>> handleGeneralException(Exception exception) {
         String message = exception.getCause() != null ? exception.getCause().getMessage() : exception.getMessage();
         log.error("thrown exception with message: {}", message);
-        ResponseDto<?> responseDto = ResponseDto.failed("ERROR", "An error occurred. Please try again.", null);
+        String localizedMessage = MessageResolver.getMessage(ExceptionMessages.GENERAL_ERROR.getMessage());
+        ResponseDto<?> responseDto = ResponseDto.failed("ERROR", localizedMessage, null);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
     }
 
