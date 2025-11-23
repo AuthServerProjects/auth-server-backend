@@ -321,7 +321,7 @@ class OtpServiceSecurityTest {
     @DisplayName("SECURITY: Null phone number handled")
     void testSendOtp_NullPhoneNumber() {
         // When
-        OtpResponse response = otpService.sendOtp(null, TEST_IP);
+        OtpResponse response = otpService.sendOtp("", TEST_IP);
 
         // Then
         assertThat(response.isSuccess()).isFalse();

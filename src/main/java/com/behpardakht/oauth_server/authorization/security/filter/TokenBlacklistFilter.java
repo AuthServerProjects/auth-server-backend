@@ -63,7 +63,7 @@ public class TokenBlacklistFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
 
-        return path.contains("/api/otp/") ||
+        return path.contains("/otp/") ||
                 path.contains("/oauth2/token") ||
                 path.contains("/oauth2/authorize") ||
                 path.contains("/.well-known/") ||
