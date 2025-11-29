@@ -97,14 +97,18 @@ cors:
 
 # Expiration Time Configuration
 storage:
-  expiration-time:
+  expiration-time-min:
     initialize: 15
     phone-number: 10
     otp: 5
     rate-limit: 1
     lock-account: 15
-    failed-attempts: 3
     auth-code: 5
+  times:
+    failed-attempts: 3
+    max-otp-per-ip-per-hour: 10
+    max-global-otp-per-minute: 100
+    max-verification-attempts-per-hour: 10
 
 logging:
   level:

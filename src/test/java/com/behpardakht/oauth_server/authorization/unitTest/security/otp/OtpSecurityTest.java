@@ -36,7 +36,7 @@ class OtpSecurityTest {
     private Properties properties;
 
     @Mock
-    private Properties.ExpirationTime expirationTime;
+    private Properties.ExpirationTimeMin expirationTimeMin;
 
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
@@ -55,15 +55,14 @@ class OtpSecurityTest {
     @BeforeEach
     void setUp() {
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-        when(expirationTime.getOtp()).thenReturn(5);
-        when(expirationTime.getRateLimit()).thenReturn(2);
-        when(expirationTime.getLockAccount()).thenReturn(30);
-        when(expirationTime.getFailedAttempts()).thenReturn(3);
-        when(expirationTime.getInitialize()).thenReturn(10);
-        when(expirationTime.getPhoneNumber()).thenReturn(15);
+        when(expirationTimeMin.getOtp()).thenReturn(5);
+        when(expirationTimeMin.getRateLimit()).thenReturn(2);
+        when(expirationTimeMin.getLockAccount()).thenReturn(30);
+        when(expirationTimeMin.getInitialize()).thenReturn(10);
+        when(expirationTimeMin.getPhoneNumber()).thenReturn(15);
 
         // Use ReflectionTestUtils to set the final field
-        ReflectionTestUtils.setField(properties, "expirationTime", expirationTime);
+        ReflectionTestUtils.setField(properties, "expirationTime", expirationTimeMin);
     }
 
     // ==================== RATE LIMITING TESTS ====================

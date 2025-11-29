@@ -38,10 +38,6 @@ public class OtpStorageService {
     private static final String SCOPE_PREFIX = "scope:";
     private static final String PHONE_NUMBER_PREFIX = "phone_number:";
 
-    private static final int MAX_OTP_PER_IP_PER_HOUR = 10;
-    private static final int MAX_GLOBAL_OTP_PER_MINUTE = 100;
-    private static final int MAX_VERIFICATION_ATTEMPTS_PER_HOUR = 10;
-
     private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     public boolean isPhoneNumberRateLimited(String phoneNumber) {
@@ -60,7 +56,7 @@ public class OtpStorageService {
             return false;
         }
         try {
-            return countStr >= MAX_GLOBAL_OTP_PER_MINUTE;
+            return countStr >= properties.getTimes().getMaxGlobalOtpPerMinute();
         } catch (NumberFormatException e) {
             return false;
         }
@@ -76,12 +72,12 @@ public class OtpStorageService {
     }
 
     public void storeOtp(String phoneNumber, String otp, String ipAddress) {
-        int otpTime = properties.expirationTime.getOtp();
+        int otpTime = properties.expirationTimeMin.getOtp();
         String key = OTP_PREFIX + phoneNumber;
         OtpData otpData = new OtpData(otp, Instant.now().plusSeconds(otpTime * 60L));
         redisTemplate.opsForValue().set(key, otpData, Duration.ofMinutes(otpTime));
         log.debug("OTP stored for phone: {}, expires in {} minutes", maskPhoneNumber(phoneNumber), otpTime);
-        setPhoneNumberRateLimit(phoneNumber, properties.expirationTime.getRateLimit());
+        setPhoneNumberRateLimit(phoneNumber, properties.expirationTimeMin.getRateLimit());
         setIpRateLimit(ipAddress);
         trackGlobalOtpRequest();
     }
@@ -96,7 +92,7 @@ public class OtpStorageService {
         String countKey = IP_OTP_COUNT_PREFIX + ipAddress;
         redisTemplate.opsForValue().setIfAbsent(countKey, 0L, Duration.ofHours(1));
         Long count = redisTemplate.opsForValue().increment(countKey);
-        if (count != null && count >= MAX_OTP_PER_IP_PER_HOUR) {
+        if (count != null && count >= properties.getTimes().getMaxOtpPerIpPerHour()) {
             String rateLimitKey = IP_RATE_LIMIT_PREFIX + ipAddress;
             redisTemplate.opsForValue().set(rateLimitKey, "blocked", Duration.ofHours(1));
             log.warn("IP {} blocked due to {} OTP requests in 1 hour", ipAddress, count);
@@ -107,7 +103,7 @@ public class OtpStorageService {
         String key = GLOBAL_OTP_COUNT;
         redisTemplate.opsForValue().setIfAbsent(key, 0L, Duration.ofMinutes(1));
         Long count = redisTemplate.opsForValue().increment(key);
-        if (count != null && count > MAX_GLOBAL_OTP_PER_MINUTE) {
+        if (count != null && count > properties.getTimes().getMaxGlobalOtpPerMinute()) {
             log.warn("Global OTP rate limit exceeded: {} requests in 1 minute", count);
         }
     }
@@ -137,7 +133,7 @@ public class OtpStorageService {
             return false;
         }
         try {
-            return count >= MAX_VERIFICATION_ATTEMPTS_PER_HOUR;
+            return count >= properties.getTimes().getMaxVerificationAttemptsPerHour();
         } catch (NumberFormatException e) {
             return false;
         }
@@ -169,7 +165,7 @@ public class OtpStorageService {
         String key = VERIFICATION_ATTEMPT_PREFIX + phoneNumber + ":" + ipAddress;
         redisTemplate.opsForValue().setIfAbsent(key, 0L, Duration.ofHours(1));
         Long count = redisTemplate.opsForValue().increment(key);
-        if (count != null && count >= MAX_VERIFICATION_ATTEMPTS_PER_HOUR) {
+        if (count != null && count >= properties.getTimes().getMaxVerificationAttemptsPerHour()) {
             log.warn("Phone {} verification blocked from IP {} due to {} failed attempts",
                     maskPhoneNumber(phoneNumber), ipAddress, count);
         }
@@ -190,9 +186,9 @@ public class OtpStorageService {
         Long attempts = redisTemplate.opsForValue().increment(key);
         if (attempts != null) {
             if (attempts == 1) {
-                redisTemplate.expire(key, properties.expirationTime.getLockAccount(), TimeUnit.MINUTES);
+                redisTemplate.expire(key, properties.expirationTimeMin.getLockAccount(), TimeUnit.MINUTES);
             }
-            if (attempts >= properties.expirationTime.getFailedAttempts()) {
+            if (attempts >= properties.getTimes().getFailedAttempts()) {
                 int lockDuration = Math.min((int) Math.pow(2, attempts), 60);
                 setPhoneNumberRateLimit(phoneNumber, lockDuration);
                 log.warn("Phone {} blocked for {} minutes due to {} failed OTP attempts",
@@ -219,7 +215,7 @@ public class OtpStorageService {
 
     public void storeOAuth2Parameters(String clientId, String state, String redirectUri,
                                       String codeChallenge, String codeChallengeMethod, String scope) {
-        Duration expiration = Duration.ofMinutes(properties.expirationTime.getInitialize());
+        Duration expiration = Duration.ofMinutes(properties.expirationTimeMin.getInitialize());
         redisTemplate.opsForValue().set(CLIENT_ID_PREFIX + state, clientId, expiration);
         redisTemplate.opsForValue().set(REDIRECT_URI_PREFIX + state, redirectUri, expiration);
         redisTemplate.opsForValue().set(CODE_CHALLENGE_PREFIX + state, codeChallenge, expiration);
@@ -239,7 +235,7 @@ public class OtpStorageService {
 
     public void storePhoneNumber(String state, String phoneNumber) {
         String key = PHONE_NUMBER_PREFIX + state;
-        redisTemplate.opsForValue().set(key, phoneNumber, Duration.ofMinutes(properties.expirationTime.getPhoneNumber()));
+        redisTemplate.opsForValue().set(key, phoneNumber, Duration.ofMinutes(properties.expirationTimeMin.getPhoneNumber()));
         log.debug("Phone Number stored: {}", state);
     }
 

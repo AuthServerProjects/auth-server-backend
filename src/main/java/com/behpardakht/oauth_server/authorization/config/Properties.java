@@ -11,17 +11,26 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "storage", ignoreUnknownFields = false)
 public class Properties {
 
-    public final ExpirationTime expirationTime = new ExpirationTime();
+    public final ExpirationTimeMin expirationTimeMin = new ExpirationTimeMin();
+    private final Times times = new Times();
 
     @Data
     @NoArgsConstructor
-    public static class ExpirationTime {
+    public static class ExpirationTimeMin {
         private int initialize;
         private int phoneNumber;
         private int otp;
         private int rateLimit;
         private int lockAccount;
-        private int failedAttempts;
         private int authCode;
+    }
+
+    @Data
+    @NoArgsConstructor
+    public static class Times {
+        private int failedAttempts;
+        private int maxOtpPerIpPerHour;
+        private int maxGlobalOtpPerMinute;
+        private int maxVerificationAttemptsPerHour;
     }
 }
