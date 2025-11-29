@@ -267,49 +267,41 @@
 
 ### 12. DashboardController (NEW) - `/api/dashboard/`
 
-#### Overview (2 endpoints)
+> **📊 REVISED**: Simplified to focus on business metrics only. Use Grafana for system/performance metrics.
+
+#### Business Overview (1 endpoint)
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
-| GET | `/overview` | System overview statistics | ADMIN |
-| GET | `/metrics` | Real-time metrics | ADMIN |
+| GET | `/overview` | Business KPIs & statistics | ADMIN |
 
-#### User Analytics (3 endpoints)
+#### User Stats (1 endpoint)
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
-| GET | `/users/growth` | User growth over time | ADMIN |
-| GET | `/users/active` | Active users count | ADMIN |
-| GET | `/users/by-role` | Users grouped by role | ADMIN |
+| GET | `/users/stats` | User management metrics | ADMIN |
 
-#### Client Analytics (3 endpoints)
+#### Client Stats (1 endpoint)
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
-| GET | `/clients/usage` | Client usage statistics | ADMIN |
-| GET | `/clients/active` | Active clients | ADMIN |
-| GET | `/clients/top` | Top clients by usage | ADMIN |
+| GET | `/clients/stats` | Client usage statistics | ADMIN |
 
-#### Token Analytics (3 endpoints)
+#### Security Alerts (1 endpoint)
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
-| GET | `/tokens/issued` | Tokens issued over time | ADMIN |
-| GET | `/tokens/active` | Active tokens count | ADMIN |
-| GET | `/tokens/by-type` | Tokens by grant type | ADMIN |
+| GET | `/security/alerts` | Security events for action | ADMIN |
 
-#### Authentication Analytics (3 endpoints)
+#### Activity Feed (1 endpoint)
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
-| GET | `/auth/methods` | Auth methods usage | ADMIN |
-| GET | `/auth/success-rate` | Authentication success rate | ADMIN |
-| GET | `/auth/failures` | Failed auth attempts | ADMIN |
+| GET | `/activity/recent` | Recent admin activity | ADMIN |
 
-#### System Health (4 endpoints)
+#### Quick Health (1 endpoint)
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
-| GET | `/health` | System health status | ADMIN |
-| GET | `/health/database` | Database health | ADMIN |
-| GET | `/health/redis` | Redis health | ADMIN |
-| GET | `/health/vault` | Vault health | ADMIN |
+| GET | `/health/summary` | Simple health check | ADMIN |
 
-**New endpoints: 18**
+**New endpoints: 6** (reduced from 18)
+
+> **Note**: System metrics (JVM, DB performance, detailed health) moved to Grafana. See MONITORING_STRATEGY.md
 
 ---
 
@@ -476,9 +468,9 @@
 
 **Phase 2 - Advanced Management (Medium Priority):**
 - AuditController: 12 endpoints
-- DashboardController: 18 endpoints
+- DashboardController: 6 endpoints (simplified, Grafana for deep metrics)
 - ConfigController: 16 endpoints
-- **Subtotal: 46 endpoints**
+- **Subtotal: 34 endpoints**
 
 **Phase 3 - Enhanced Features (Lower Priority):**
 - NotificationController: 18 endpoints
@@ -492,9 +484,10 @@
 |----------|-------------|-----------|
 | **Current** | 6 | 20 |
 | **Phase 1** | +4 | +66 |
-| **Phase 2** | +3 | +46 |
+| **Phase 2** | +3 | +34 |
 | **Phase 3** | +3 | +40 |
-| **Grand Total** | **16** | **172** |
+| **Grand Total** | **16** | **160** |
+| **Grafana** | - | (System metrics) |
 
 ---
 
@@ -518,11 +511,23 @@
 
 | Role | Total Accessible Endpoints |
 |------|---------------------------|
-| **SUPER_ADMIN** | All 172 endpoints |
-| **ADMIN** | ~120 endpoints (read + limited write) |
+| **SUPER_ADMIN** | All 160 endpoints + Grafana access |
+| **ADMIN** | ~110 endpoints (read + limited write) + Grafana access |
 | **USER** | ~10 endpoints (self-management only) |
 | **PUBLIC** | 3 endpoints (OTP flow) |
 
 ---
 
 This comprehensive API structure will provide a **fully-featured admin panel** capable of managing every aspect of your OAuth2 Authorization Server!
+
+---
+
+## 📊 Monitoring Strategy
+
+**Hybrid Approach Recommended**: Admin Panel (business metrics) + Grafana (system metrics)
+
+- **Admin Panel**: 160 endpoints for business operations and admin actions
+- **Grafana/Prometheus**: System performance, infrastructure monitoring, alerting
+
+See **MONITORING_STRATEGY.md** for detailed analysis and implementation guide.
+ur OAuth2 Authorization Server!
