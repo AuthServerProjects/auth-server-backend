@@ -1,7 +1,7 @@
 package com.behpardakht.oauth_server.authorization.model.mapper;
 
-import com.behpardakht.oauth_server.authorization.model.dto.ClientDto;
-import com.behpardakht.oauth_server.authorization.model.dto.TokenAndClientSettingDto;
+import com.behpardakht.oauth_server.authorization.model.dto.client.ClientDto;
+import com.behpardakht.oauth_server.authorization.model.dto.client.TokenAndClientSettingDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Client;
 import com.behpardakht.oauth_server.authorization.model.entity.TokenAndClientSetting;
 import com.behpardakht.oauth_server.authorization.model.enums.AuthenticationMethodTypes;

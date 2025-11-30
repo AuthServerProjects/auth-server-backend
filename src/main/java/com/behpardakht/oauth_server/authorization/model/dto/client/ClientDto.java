@@ -1,4 +1,4 @@
-package com.behpardakht.oauth_server.authorization.model.dto;
+package com.behpardakht.oauth_server.authorization.model.dto.client;
 
 import com.behpardakht.oauth_server.authorization.model.enums.AuthenticationMethodTypes;
 import com.behpardakht.oauth_server.authorization.model.enums.AuthorizationGrantTypes;

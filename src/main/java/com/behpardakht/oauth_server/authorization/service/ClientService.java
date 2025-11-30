@@ -2,7 +2,7 @@ package com.behpardakht.oauth_server.authorization.service;
 
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.AlreadyExistException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
-import com.behpardakht.oauth_server.authorization.model.dto.ClientDto;
+import com.behpardakht.oauth_server.authorization.model.dto.client.ClientDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Client;
 import com.behpardakht.oauth_server.authorization.model.mapper.ClientMapper;
 import com.behpardakht.oauth_server.authorization.repository.ClientRepository;
