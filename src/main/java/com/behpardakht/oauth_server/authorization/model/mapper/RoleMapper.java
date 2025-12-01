@@ -6,8 +6,9 @@ import com.behpardakht.oauth_server.authorization.repository.RoleRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,10 +29,8 @@ public class RoleMapper {
     }
 
     public Set<RoleDto> toDtoList(Set<Role> entityList) {
-        if (entityList != null && !entityList.isEmpty()) {
-            return entityList.stream().filter(Objects::nonNull).map(this::toDto).collect(Collectors.toSet());
-        }
-        return new HashSet<>(0);
+        return Optional.ofNullable(entityList).orElse(Collections.emptySet())
+                .stream().filter(Objects::nonNull).map(this::toDto).collect(Collectors.toSet());
     }
 
     public Role toEntity(RoleDto dto) {
@@ -44,10 +43,8 @@ public class RoleMapper {
     }
 
     public Set<Role> toEntityList(Set<RoleDto> dtoList) {
-        if (dtoList != null && !dtoList.isEmpty()) {
-            return dtoList.stream().filter(Objects::nonNull).map(this::toEntity).collect(Collectors.toSet());
-        }
-        return new HashSet<>(0);
+        return Optional.ofNullable(dtoList).orElse(Collections.emptySet())
+                .stream().filter(Objects::nonNull).map(this::toEntity).collect(Collectors.toSet());
     }
 
     public Role loadEntity(RoleDto dto) {
@@ -58,9 +55,7 @@ public class RoleMapper {
     }
 
     public Set<Role> loadEntityList(Set<RoleDto> dtoList) {
-        if (dtoList != null && !dtoList.isEmpty()) {
-            return dtoList.stream().filter(Objects::nonNull).map(this::loadEntity).collect(Collectors.toSet());
-        }
-        return new HashSet<>(0);
+        return Optional.ofNullable(dtoList).orElse(Collections.emptySet())
+                .stream().filter(Objects::nonNull).map(this::loadEntity).collect(Collectors.toSet());
     }
 }
