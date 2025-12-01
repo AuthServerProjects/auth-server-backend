@@ -1,7 +1,9 @@
 package com.behpardakht.oauth_server.authorization.service;
 
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
 import com.behpardakht.oauth_server.authorization.model.dto.auth.AuthorizationDto;
 import com.behpardakht.oauth_server.authorization.model.dto.auth.AuthorizationFilterDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
@@ -78,6 +80,24 @@ public class AuthService {
         authorizationService.remove(authorization);
         log.info("LOGOUT SUCCESS: User {} logged out. Authorization ID: {}",
                 maskPhoneNumber(authorization.getPrincipalName()), authorization.getId());
+    }
+
+    public void revokeSession(String authorizationId) {
+        Authorizations authorization = authorizationRepository.findByAuthorizationId(authorizationId)
+                .orElseThrow(() -> new NotFoundException("Session", "authorizationId", authorizationId));
+        removeAndBlacklistByEntity(authorization);
+    }
+
+    private void removeAndBlacklistByEntity(Authorizations authorization) {
+        if (authorization.getAccessToken() != null) {
+            tokenBlacklistService.blacklistAccessToken(
+                    authorization.getAccessToken(), authorization.getAccessTokenExpiresAt());
+        }
+        if (authorization.getRefreshToken() != null) {
+            tokenBlacklistService.blacklistRefreshToken(
+                    authorization.getRefreshToken(), authorization.getRefreshTokenExpiresAt());
+        }
+        authorizationRepository.deleteByAuthorizationId(authorization.getAuthorizationId());
     }
 
     public String logoutFromAllDevices(String authHeader) {

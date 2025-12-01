@@ -39,6 +39,13 @@ public class AuthController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("sessions/revoke/{authorizationId}")
+    public ResponseEntity<ResponseDto<String>> revokeSession(@PathVariable String authorizationId) {
+        authService.revokeSession(authorizationId);
+        return ResponseEntity.ok(ResponseDto.success("Session revoked successfully"));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("sessions/findAll")
     public ResponseEntity<ResponseDto<PageableResponseDto<AuthorizationDto>>> findAllSessions(@RequestBody
                                                                                               PageableRequestDto
