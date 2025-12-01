@@ -7,11 +7,11 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ScopeTypes {
 
-    OPENID("openid"),
-    PROFILE("profile"),
-    EMAIL("email"),
-    ADDRESS("address"),
-    PHONE("phone");
+    OPENID("OPENID"),
+    PROFILE("PROFILE"),
+    EMAIL("EMAIL"),
+    ADDRESS("ADDRESS"),
+    PHONE("PHONE");
 
     private final String value;
 }

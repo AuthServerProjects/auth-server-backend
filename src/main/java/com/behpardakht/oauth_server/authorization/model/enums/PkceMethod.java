@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum PkceMethod {
 
-    PLAIN("plain", "Plain text code challenge"),
+    PLAIN("PLAIN", "Plain text code challenge"),
     S256("S256", "SHA256 hashed code challenge");
 
     private final String value;
