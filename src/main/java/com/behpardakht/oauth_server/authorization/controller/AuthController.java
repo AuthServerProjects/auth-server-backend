@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.API_PREFIX;
 
 @Slf4j
@@ -43,6 +45,13 @@ public class AuthController {
                                                                                                       <AuthorizationFilterDto>
                                                                                                       request) {
         PageableResponseDto<AuthorizationDto> sessions = authService.findAllSessions(request);
+        return ResponseEntity.ok(ResponseDto.success(sessions));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("sessions/findByUsername/{username}")
+    public ResponseEntity<ResponseDto<List<AuthorizationDto>>> findSessionsByUsername(@PathVariable String username) {
+        List<AuthorizationDto> sessions = authService.findSessionsByUsername(username);
         return ResponseEntity.ok(ResponseDto.success(sessions));
     }
 }

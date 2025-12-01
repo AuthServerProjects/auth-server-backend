@@ -131,4 +131,9 @@ public class AuthService {
         List<AuthorizationDto> responses = authorizationMapper.toDtoList(page.getContent());
         return PageableResponseDto.build(responses, page);
     }
+
+    public List<AuthorizationDto> findSessionsByUsername(String username) {
+        List<Authorizations> sessions = authorizationRepository.findByPrincipalName(username);
+        return authorizationMapper.toDtoList(sessions);
+    }
 }
