@@ -2,7 +2,7 @@ package com.behpardakht.oauth_server.authorization.security.resourceServer;
 
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
-import com.behpardakht.oauth_server.authorization.model.dto.ResponseDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -1,6 +1,6 @@
 package com.behpardakht.oauth_server.authorization.controller;
 
-import com.behpardakht.oauth_server.authorization.model.dto.ResponseDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.request.InitOtpRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.request.SendOtpRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.request.VerifyOtpRequestDto;

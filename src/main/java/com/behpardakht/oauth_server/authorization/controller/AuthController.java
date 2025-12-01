@@ -1,6 +1,6 @@
 package com.behpardakht.oauth_server.authorization.controller;
 
-import com.behpardakht.oauth_server.authorization.model.dto.ResponseDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.behpardakht.oauth_server.authorization.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
