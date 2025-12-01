@@ -2,10 +2,18 @@ package com.behpardakht.oauth_server.authorization.service;
 
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
+import com.behpardakht.oauth_server.authorization.model.dto.auth.AuthorizationDto;
+import com.behpardakht.oauth_server.authorization.model.dto.auth.AuthorizationFilterDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Authorizations;
+import com.behpardakht.oauth_server.authorization.model.mapper.AuthorizationMapper;
+import com.behpardakht.oauth_server.authorization.repository.AuthorizationFilterSpecification;
 import com.behpardakht.oauth_server.authorization.repository.AuthorizationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
@@ -21,6 +29,9 @@ import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.maskPh
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+
+    private final AuthorizationFilterSpecification authorizationFilterSpecification;
+    private final AuthorizationMapper authorizationMapper;
 
     private final OAuth2AuthorizationService authorizationService;
     private final AuthorizationRepository authorizationRepository;
@@ -112,5 +123,12 @@ public class AuthService {
             message += String.format(" (%d failed)", failedCount);
         }
         return message;
+    }
+
+    public PageableResponseDto<AuthorizationDto> findAllSessions(PageableRequestDto<AuthorizationFilterDto> request) {
+        Specification<Authorizations> spec = authorizationFilterSpecification.toSpecification(request.getFilters());
+        Page<Authorizations> page = authorizationRepository.findAll(spec, request.toPageable());
+        List<AuthorizationDto> responses = authorizationMapper.toDtoList(page.getContent());
+        return PageableResponseDto.build(responses, page);
     }
 }

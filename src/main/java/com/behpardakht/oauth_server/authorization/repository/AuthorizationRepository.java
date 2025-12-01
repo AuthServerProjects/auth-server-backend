@@ -3,13 +3,14 @@ package com.behpardakht.oauth_server.authorization.repository;
 import com.behpardakht.oauth_server.authorization.model.entity.Authorizations;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-public interface AuthorizationRepository extends JpaRepository<Authorizations, String> {
+public interface AuthorizationRepository extends JpaRepository<Authorizations, String>, JpaSpecificationExecutor<Authorizations> {
 
     Optional<Authorizations> findByAuthorizationId(String authorizationId);
 
