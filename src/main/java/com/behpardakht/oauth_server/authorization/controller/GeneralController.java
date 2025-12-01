@@ -39,4 +39,18 @@ public class GeneralController {
         List<String> typeList = generalService.loadScopeType();
         return ResponseEntity.ok(typeList);
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping(path = "loadPkceMethod")
+    public ResponseEntity<List<String>> loadPkceMethod() {
+        List<String> methodList = generalService.loadPkceMethod();
+        return ResponseEntity.ok(methodList);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping(path = "loadUserRoles")
+    public ResponseEntity<List<String>> loadUserRoles() {
+        List<String> roleList = generalService.loadUserRoles();
+        return ResponseEntity.ok(roleList);
+    }
 }

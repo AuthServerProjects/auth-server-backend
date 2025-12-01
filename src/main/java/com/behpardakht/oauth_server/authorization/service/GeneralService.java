@@ -1,8 +1,6 @@
 package com.behpardakht.oauth_server.authorization.service;
 
-import com.behpardakht.oauth_server.authorization.model.enums.AuthenticationMethodTypes;
-import com.behpardakht.oauth_server.authorization.model.enums.AuthorizationGrantTypes;
-import com.behpardakht.oauth_server.authorization.model.enums.ScopeTypes;
+import com.behpardakht.oauth_server.authorization.model.enums.*;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -25,5 +23,15 @@ public class GeneralService {
     public List<String> loadScopeType() {
         return Arrays.stream(ScopeTypes.values())
                 .map(ScopeTypes::getValue).collect(Collectors.toList());
+    }
+
+    public List<String> loadPkceMethod() {
+        return Arrays.stream(PkceMethod.values())
+                .map(PkceMethod::getValue).collect(Collectors.toList());
+    }
+
+    public List<String> loadUserRoles() {
+        return Arrays.stream(UserRole.values())
+                .map(UserRole::getValue).collect(Collectors.toList());
     }
 }
