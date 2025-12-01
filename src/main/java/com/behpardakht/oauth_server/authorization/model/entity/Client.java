@@ -1,5 +1,8 @@
 package com.behpardakht.oauth_server.authorization.model.entity;
 
+import com.behpardakht.oauth_server.authorization.model.enums.AuthenticationMethodTypes;
+import com.behpardakht.oauth_server.authorization.model.enums.AuthorizationGrantTypes;
+import com.behpardakht.oauth_server.authorization.model.enums.ScopeTypes;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -26,13 +29,15 @@ public class Client {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "client_auth_methods", joinColumns = @JoinColumn(name = "client_id"))
+    @Enumerated(EnumType.STRING)
     @Column(name = "auth_method")
-    private Set<String> clientAuthenticationMethods;
+    private Set<AuthenticationMethodTypes> clientAuthenticationMethods;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "client_grant_types", joinColumns = @JoinColumn(name = "client_id"))
+    @Enumerated(EnumType.STRING)
     @Column(name = "grant_type")
-    private Set<String> authorizationGrantTypes;
+    private Set<AuthorizationGrantTypes> authorizationGrantTypes;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "client_redirect_uris", joinColumns = @JoinColumn(name = "client_id"))
@@ -41,8 +46,9 @@ public class Client {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "client_scopes", joinColumns = @JoinColumn(name = "client_id"))
+    @Enumerated(EnumType.STRING)
     @Column(name = "scope")
-    private Set<String> scopes;
+    private Set<ScopeTypes> scopes;
 
     @Column(name = "is_enabled")
     private Boolean isEnabled = true;

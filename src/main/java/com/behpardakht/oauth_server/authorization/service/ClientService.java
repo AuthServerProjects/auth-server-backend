@@ -33,7 +33,6 @@ public class ClientService {
     private final RegisteredClientRepository registeredClientRepository;
     private final ClientFilterSpecification clientFilterSpecification;
 
-    @PreAuthorize("hasAnyRole('ADMIN')")
     public void insertClient(ClientDto clientDto) {
         Optional<Client> client = clientRepository.findByClientId(clientDto.getClientId());
         if (client.isPresent()) {
@@ -43,6 +42,13 @@ public class ClientService {
         clientDto.setClientSecret(passwordEncoder.encode(clientDto.getClientSecret()));
         Client entity = clientMapper.dtoToEntity(clientDto);
         clientRepository.save(entity);
+    }
+
+    public void updateClient(String clientId, ClientDto clientDto) {
+        Client existingClient = clientRepository.findByClientId(clientId)
+                .orElseThrow(() -> new NotFoundException("Client", "clientId", clientId));
+        clientMapper.dtoToEntity(existingClient, clientDto);
+        clientRepository.save(existingClient);
     }
 
     public ClientDto findByClientId(String clientId) {

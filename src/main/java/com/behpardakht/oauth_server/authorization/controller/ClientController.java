@@ -28,13 +28,6 @@ public class ClientController {
 
     private final ClientService clientService;
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping(path = "{clientId}")
-    public ResponseEntity<ClientDto> findByClientId(@PathVariable String clientId) {
-        ClientDto client = clientService.findByClientId(clientId);
-        return ResponseEntity.ok(client);
-    }
-
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping(path = "register")
     public ResponseEntity<String> register(@RequestBody ClientDto client) {
@@ -44,10 +37,33 @@ public class ClientController {
         return ResponseEntity.ok(message);
     }
 
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PutMapping(path = "update/{clientId}")
+    public ResponseEntity<ResponseDto<String>> update(@PathVariable String clientId,
+                                                      @RequestBody ClientDto clientDto) {
+        clientService.updateClient(clientId, clientDto);
+        return ResponseEntity.ok(ResponseDto.success("Client updated successfully"));
+    }
+
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @GetMapping(path = "find/{clientId}")
+    public ResponseEntity<ClientDto> findByClientId(@PathVariable String clientId) {
+        ClientDto client = clientService.findByClientId(clientId);
+        return ResponseEntity.ok(client);
+    }
+
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PostMapping(path = "findAll")
+    public ResponseEntity<ResponseDto<PageableResponseDto<ClientDto>>> findAll(@RequestBody
+                                                                               PageableRequestDto<ClientFilterDto> request) {
+        PageableResponseDto<ClientDto> clients = clientService.findAll(request);
+        return ResponseEntity.ok(ResponseDto.success(clients));
+    }
+
     @GetMapping(path = "defaultRegister")
     public ResponseEntity<String> register() {
         ClientDto clientDto = new ClientDto();
-        clientDto.setClientId("SidePay");
+        clientDto.setClientId("Wallet");
         clientDto.setClientSecret("secret");
         clientDto.setClientAuthenticationMethods(Set.of(
                 AuthenticationMethodTypes.NONE,
@@ -75,13 +91,5 @@ public class ClientController {
         String message = MessageResolver.getMessage(
                 ExceptionMessages.CLIENT_REGISTERED_SUCCESS.getMessage(), new Object[]{clientDto.getClientId()});
         return ResponseEntity.ok(message);
-    }
-
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @PostMapping(path = "findAll")
-    public ResponseEntity<ResponseDto<PageableResponseDto<ClientDto>>> findAll(@RequestBody
-                                                                               PageableRequestDto<ClientFilterDto> request) {
-        PageableResponseDto<ClientDto> clients = clientService.findAll(request);
-        return ResponseEntity.ok(ResponseDto.success(clients));
     }
 }

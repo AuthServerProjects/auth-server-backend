@@ -16,10 +16,7 @@ import org.springframework.security.oauth2.server.authorization.settings.TokenSe
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -30,16 +27,125 @@ public class ClientMapper {
         entity.setRegisteredClientId(registeredClient.getId());
         entity.setClientId(registeredClient.getClientId());
         entity.setClientSecret(registeredClient.getClientSecret());
-        entity.setClientAuthenticationMethods(
-                registeredClient.getClientAuthenticationMethods().stream()
-                        .map(ClientAuthenticationMethod::getValue).collect(Collectors.toSet()));
-        entity.setAuthorizationGrantTypes(
-                registeredClient.getAuthorizationGrantTypes().stream()
-                        .map(AuthorizationGrantType::getValue).collect(Collectors.toSet()));
-        entity.setRedirectUris(registeredClient.getRedirectUris());
-        entity.setScopes(registeredClient.getScopes());
+        entity.setClientAuthenticationMethods(getClientAuthenticationMethods(registeredClient));
+        entity.setAuthorizationGrantTypes(getAuthorizationGrantTypes(registeredClient));
+        entity.setScopes(getScopeTypes(registeredClient.getScopes()));
         entity.setSetting(getSetting(registeredClient));
         return entity;
+    }
+
+    public RegisteredClient entityToRegisteredClient(Client entity) {
+        return getRegisteredClient(
+                entity.getRegisteredClientId(),
+                entity.getClientId(),
+                entity.getClientSecret(),
+                entity.getClientAuthenticationMethods(),
+                entity.getAuthorizationGrantTypes(),
+                entity.getRedirectUris(),
+                entity.getScopes(),
+                getClientSetting(entity),
+                getTokenSetting(entity));
+    }
+
+    // -----------------------------------------------------------------------
+    public ClientDto registeredClientToDto(RegisteredClient registeredClient) {
+        ClientDto dto = new ClientDto();
+        dto.setRegisteredClientId(registeredClient.getId());
+        dto.setClientId(registeredClient.getClientId());
+        dto.setClientSecret(registeredClient.getClientSecret());
+        dto.setClientAuthenticationMethods(getClientAuthenticationMethods(registeredClient));
+        dto.setAuthorizationGrantTypes(getAuthorizationGrantTypes(registeredClient));
+        dto.setRedirectUris(registeredClient.getRedirectUris());
+        dto.setScopes(getScopeTypes(registeredClient.getScopes()));
+        dto.setSetting(getSettingDto(registeredClient));
+        return dto;
+    }
+
+    public RegisteredClient dtoToRegisteredClient(ClientDto dto) {
+        return getRegisteredClient(
+                dto.getRegisteredClientId(),
+                dto.getClientId(),
+                dto.getClientSecret(),
+                dto.getClientAuthenticationMethods(),
+                dto.getAuthorizationGrantTypes(),
+                dto.getRedirectUris(),
+                dto.getScopes(),
+                getClientSetting(dto),
+                getTokenSetting(dto));
+    }
+
+    // -----------------------------------------------------------------------
+
+    public ClientDto entityToDto(Client entity) {
+        if (entity != null) {
+            ClientDto dto = new ClientDto();
+            dto.setId(entity.getId());
+            dto.setRegisteredClientId(entity.getRegisteredClientId());
+            dto.setClientId(entity.getClientId());
+            dto.setClientSecret(entity.getClientSecret());
+            dto.setClientAuthenticationMethods(entity.getClientAuthenticationMethods());
+            dto.setAuthorizationGrantTypes(entity.getAuthorizationGrantTypes());
+            dto.setRedirectUris(entity.getRedirectUris());
+            dto.setScopes(entity.getScopes());
+            dto.setSetting(toSettingDto(entity.getSetting()));
+            dto.setIsEnabled(entity.getIsEnabled());
+            return dto;
+        }
+        return null;
+    }
+
+    public List<ClientDto> entityToDtoList(List<Client> entities) {
+        return Optional.ofNullable(entities).orElse(Collections.emptyList())
+                .stream().filter(Objects::nonNull).map(this::entityToDto).toList();
+    }
+
+    public Client dtoToEntity(ClientDto dto) {
+        if (dto != null) {
+            Client entity = new Client();
+            entity.setRegisteredClientId(dto.getRegisteredClientId());
+            entity.setClientId(dto.getClientId());
+            entity.setClientSecret(dto.getClientSecret());
+            entity.setClientAuthenticationMethods(dto.getClientAuthenticationMethods());
+            entity.setAuthorizationGrantTypes(dto.getAuthorizationGrantTypes());
+            entity.setRedirectUris(dto.getRedirectUris());
+            entity.setScopes(dto.getScopes());
+            entity.setSetting(toSettingEntity(dto.getSetting()));
+            entity.setIsEnabled(dto.getIsEnabled() != null ? dto.getIsEnabled() : true);
+            return entity;
+        }
+        return null;
+    }
+
+    public void dtoToEntity(Client entity, ClientDto dto) {
+        entity.setClientAuthenticationMethods(dto.getClientAuthenticationMethods());
+        entity.setAuthorizationGrantTypes(dto.getAuthorizationGrantTypes());
+        entity.setRedirectUris(dto.getRedirectUris());
+        entity.setScopes(dto.getScopes());
+        entity.setSetting(toSettingEntity(dto.getSetting()));
+        entity.setIsEnabled(dto.getIsEnabled());
+    }
+
+    // -----------------------------------------------------------------------
+
+    private Set<AuthenticationMethodTypes> getClientAuthenticationMethods(RegisteredClient registeredClient) {
+        return Optional
+                .ofNullable(registeredClient.getClientAuthenticationMethods()).orElse(Collections.emptySet())
+                .stream().filter(Objects::nonNull)
+                .map(method -> AuthenticationMethodTypes.valueOf(method.getValue()))
+                .collect(Collectors.toSet());
+    }
+
+    private Set<AuthorizationGrantTypes> getAuthorizationGrantTypes(RegisteredClient registeredClient) {
+        return Optional
+                .ofNullable(registeredClient.getAuthorizationGrantTypes()).orElse(Collections.emptySet())
+                .stream().filter(Objects::nonNull)
+                .map(c -> AuthorizationGrantTypes.valueOf(c.getValue()))
+                .collect(Collectors.toSet());
+    }
+
+    private Set<ScopeTypes> getScopeTypes(Set<String> scopes) {
+        return Optional.ofNullable(scopes).orElse(Collections.emptySet())
+                .stream().filter(Objects::nonNull).map(ScopeTypes::valueOf).collect(Collectors.toSet());
     }
 
     private TokenAndClientSetting getSetting(RegisteredClient registeredClient) {
@@ -60,22 +166,67 @@ public class ClientMapper {
         return setting;
     }
 
-    public RegisteredClient entityToRegisteredClient(Client entity) {
+    private TokenAndClientSettingDto getSettingDto(RegisteredClient registeredClient) {
+        TokenAndClientSettingDto setting = new TokenAndClientSettingDto();
+
+        ClientSettings clientSettings = registeredClient.getClientSettings();
+        setting.setRequireProofKey(clientSettings.isRequireProofKey());
+        setting.setRequireAuthorizationConsent(clientSettings.isRequireAuthorizationConsent());
+
+        TokenSettings tokenSettings = registeredClient.getTokenSettings();
+        setting.setAccessTokenTimeToLive(tokenSettings.getAccessTokenTimeToLive().toMinutes());
+        setting.setX509CertificateBoundAccessTokens(tokenSettings.isX509CertificateBoundAccessTokens());
+        setting.setRefreshTokenTimeToLive(tokenSettings.getRefreshTokenTimeToLive().toMinutes());
+        setting.setReuseRefreshTokens(tokenSettings.isReuseRefreshTokens());
+        setting.setIdTokenSignatureAlgorithm(tokenSettings.getIdTokenSignatureAlgorithm().getName());
+        setting.setAuthorizationCodeTimeToLive(tokenSettings.getAuthorizationCodeTimeToLive().toMinutes());
+        setting.setDeviceCodeTimeToLive(tokenSettings.getDeviceCodeTimeToLive().toMinutes());
+        return setting;
+    }
+
+    // -----------------------------------------------------------------------
+
+    private RegisteredClient getRegisteredClient(String registeredClientId, String clientId, String clientSecret,
+                                                 Set<AuthenticationMethodTypes> clientAuthenticationMethods,
+                                                 Set<AuthorizationGrantTypes> authorizationGrantTypes,
+                                                 Set<String> redirectUris, Set<ScopeTypes> scopes2,
+                                                 ClientSettings clientSetting, TokenSettings tokenSetting) {
         return RegisteredClient
-                .withId(entity.getRegisteredClientId())
-                .clientId(entity.getClientId())
-                .clientSecret(entity.getClientSecret())
-                .clientAuthenticationMethods(
-                        authMethods -> entity.getClientAuthenticationMethods()
-                                .forEach(method -> authMethods.add(new ClientAuthenticationMethod(method))))
-                .authorizationGrantTypes(
-                        grantTypes -> entity.getAuthorizationGrantTypes()
-                                .forEach(grant -> grantTypes.add(new AuthorizationGrantType(grant))))
-                .redirectUris(uris -> uris.addAll(entity.getRedirectUris()))
-                .scopes(scopes -> scopes.addAll(entity.getScopes()))
-                .clientSettings(getClientSetting(entity))
-                .tokenSettings(getTokenSetting(entity))
+                .withId(registeredClientId)
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .clientAuthenticationMethods(authMethodSet ->
+                        toClientAuthenticationMethods(clientAuthenticationMethods, authMethodSet))
+                .authorizationGrantTypes(grantTypeSet ->
+                        toAuthorizationGrantTypes(authorizationGrantTypes, grantTypeSet))
+                .redirectUris(uris -> uris.addAll(redirectUris))
+                .scopes(scopes -> scopes.addAll(getScope(scopes2)))
+                .clientSettings(clientSetting)
+                .tokenSettings(tokenSetting)
                 .build();
+    }
+
+    private void toClientAuthenticationMethods(Set<AuthenticationMethodTypes> entity,
+                                               Set<ClientAuthenticationMethod> authMethodSet) {
+        Optional
+                .ofNullable(entity).orElse(Collections.emptySet())
+                .stream().filter(Objects::nonNull)
+                .map(method -> new ClientAuthenticationMethod(method.getValue()))
+                .forEach(authMethodSet::add);
+    }
+
+    private void toAuthorizationGrantTypes(Set<AuthorizationGrantTypes> authorizationGrantTypes,
+                                           Set<AuthorizationGrantType> grantTypeSet) {
+        Optional
+                .ofNullable(authorizationGrantTypes).orElse(Collections.emptySet())
+                .stream().filter(Objects::nonNull)
+                .map(grant -> new AuthorizationGrantType(grant.getValue()))
+                .forEach(grantTypeSet::add);
+    }
+
+    private Set<String> getScope(Set<ScopeTypes> scopeTypes) {
+        return Optional.ofNullable(scopeTypes).orElse(Collections.emptySet())
+                .stream().filter(Objects::nonNull).map(ScopeTypes::getValue).collect(Collectors.toSet());
     }
 
     private ClientSettings getClientSetting(Client entity) {
@@ -124,76 +275,6 @@ public class ClientMapper {
                 .authorizationCodeTimeToLive(Duration.ofMinutes(authorizationCodeTime))
                 .deviceCodeTimeToLive(Duration.ofMinutes(deviceCodeTime))
                 .build();
-    }
-
-    // -----------------------------------------------------------------------
-    public ClientDto registeredClientToDto(RegisteredClient registeredClient) {
-        ClientDto dto = new ClientDto();
-        dto.setRegisteredClientId(registeredClient.getId());
-        dto.setClientId(registeredClient.getClientId());
-        dto.setClientSecret(registeredClient.getClientSecret());
-        dto.setClientAuthenticationMethods(
-                registeredClient.getClientAuthenticationMethods().stream().filter(Objects::nonNull)
-                        .map(c -> AuthenticationMethodTypes.valueOf(c.getValue())).collect(Collectors.toSet()));
-        dto.setAuthorizationGrantTypes(
-                registeredClient.getAuthorizationGrantTypes().stream()
-                        .map(c -> AuthorizationGrantTypes.valueOf(c.getValue())).collect(Collectors.toSet()));
-        dto.setRedirectUris(registeredClient.getRedirectUris());
-        dto.setScopes(getScopeTypes(registeredClient.getScopes()));
-        dto.setSetting(getSettingDto(registeredClient));
-        return dto;
-    }
-
-    private Set<ScopeTypes> getScopeTypes(Set<String> scopes) {
-        if (scopes != null && !scopes.isEmpty()) {
-            return scopes.stream().filter(Objects::nonNull).map(ScopeTypes::valueOf).collect(Collectors.toSet());
-        } else {
-            return new HashSet<>(0);
-        }
-    }
-
-    private TokenAndClientSettingDto getSettingDto(RegisteredClient registeredClient) {
-        TokenAndClientSettingDto setting = new TokenAndClientSettingDto();
-
-        ClientSettings clientSettings = registeredClient.getClientSettings();
-        setting.setRequireProofKey(clientSettings.isRequireProofKey());
-        setting.setRequireAuthorizationConsent(clientSettings.isRequireAuthorizationConsent());
-
-        TokenSettings tokenSettings = registeredClient.getTokenSettings();
-        setting.setAccessTokenTimeToLive(tokenSettings.getAccessTokenTimeToLive().toMinutes());
-        setting.setX509CertificateBoundAccessTokens(tokenSettings.isX509CertificateBoundAccessTokens());
-        setting.setRefreshTokenTimeToLive(tokenSettings.getRefreshTokenTimeToLive().toMinutes());
-        setting.setReuseRefreshTokens(tokenSettings.isReuseRefreshTokens());
-        setting.setIdTokenSignatureAlgorithm(tokenSettings.getIdTokenSignatureAlgorithm().getName());
-        setting.setAuthorizationCodeTimeToLive(tokenSettings.getAuthorizationCodeTimeToLive().toMinutes());
-        setting.setDeviceCodeTimeToLive(tokenSettings.getDeviceCodeTimeToLive().toMinutes());
-        return setting;
-    }
-
-    public RegisteredClient dtoToRegisteredClient(ClientDto dto) {
-        return RegisteredClient
-                .withId(dto.getRegisteredClientId())
-                .clientId(dto.getClientId())
-                .clientSecret(dto.getClientSecret())
-                .clientAuthenticationMethods(
-                        authMethods -> dto.getClientAuthenticationMethods().stream().filter(Objects::nonNull)
-                                .map(method -> new ClientAuthenticationMethod(method.getValue())).forEach(authMethods::add))
-                .authorizationGrantTypes(
-                        grantTypes -> dto.getAuthorizationGrantTypes().stream().filter(Objects::nonNull)
-                                .map(grant -> new AuthorizationGrantType(grant.getValue())).forEach(grantTypes::add))
-                .redirectUris(uris -> uris.addAll(dto.getRedirectUris()))
-                .scopes(scopes -> scopes.addAll(getScope(dto.getScopes())))
-                .clientSettings(getClientSetting(dto))
-                .tokenSettings(getTokenSetting(dto))
-                .build();
-    }
-
-    private Set<String> getScope(Set<ScopeTypes> scopeTypes) {
-        if (scopeTypes != null && !scopeTypes.isEmpty()) {
-            return scopeTypes.stream().filter(Objects::nonNull).map(ScopeTypes::getValue).collect(Collectors.toSet());
-        } else {
-            return new HashSet<>(0);
-        }
     }
 
     private ClientSettings getClientSetting(ClientDto dto) {
@@ -245,88 +326,37 @@ public class ClientMapper {
     }
 
     // -----------------------------------------------------------------------
-    public ClientDto entityToDto(Client entity) {
+
+    private TokenAndClientSettingDto toSettingDto(TokenAndClientSetting entity) {
         if (entity != null) {
-            ClientDto dto = new ClientDto();
-            dto.setId(entity.getId());
-            dto.setRegisteredClientId(entity.getRegisteredClientId());
-            dto.setClientId(entity.getClientId());
-            dto.setClientSecret(entity.getClientSecret());
-            dto.setClientAuthenticationMethods(
-                    entity.getClientAuthenticationMethods().stream().filter(Objects::nonNull)
-                            .map(AuthenticationMethodTypes::valueOf).collect(Collectors.toSet()));
-            dto.setAuthorizationGrantTypes(
-                    entity.getAuthorizationGrantTypes().stream().filter(Objects::nonNull)
-                            .map(AuthorizationGrantTypes::valueOf).collect(Collectors.toSet()));
-            dto.setRedirectUris(entity.getRedirectUris());
-            dto.setScopes(getScopeTypes(entity.getScopes()));
-            dto.setSetting(getSettingDto(entity.getSetting()));
-            dto.setIsEnabled(entity.getIsEnabled());
-            return dto;
-        }
-        return null;
-    }
-
-    private TokenAndClientSettingDto getSettingDto(TokenAndClientSetting setting) {
-        if (setting != null) {
             TokenAndClientSettingDto dto = new TokenAndClientSettingDto();
-            dto.setRequireProofKey(setting.getRequireProofKey());
-            dto.setRequireAuthorizationConsent(setting.getRequireAuthorizationConsent());
-            dto.setAccessTokenTimeToLive(setting.getAccessTokenTimeToLive());
-            dto.setX509CertificateBoundAccessTokens(setting.getX509CertificateBoundAccessTokens());
-            dto.setRefreshTokenTimeToLive(setting.getRefreshTokenTimeToLive());
-            dto.setReuseRefreshTokens(setting.getReuseRefreshTokens());
-            dto.setIdTokenSignatureAlgorithm(setting.getIdTokenSignatureAlgorithm());
-            dto.setAuthorizationCodeTimeToLive(setting.getAuthorizationCodeTimeToLive());
-            dto.setDeviceCodeTimeToLive(setting.getDeviceCodeTimeToLive());
+            dto.setRequireProofKey(entity.getRequireProofKey());
+            dto.setRequireAuthorizationConsent(entity.getRequireAuthorizationConsent());
+            dto.setAccessTokenTimeToLive(entity.getAccessTokenTimeToLive());
+            dto.setX509CertificateBoundAccessTokens(entity.getX509CertificateBoundAccessTokens());
+            dto.setRefreshTokenTimeToLive(entity.getRefreshTokenTimeToLive());
+            dto.setReuseRefreshTokens(entity.getReuseRefreshTokens());
+            dto.setIdTokenSignatureAlgorithm(entity.getIdTokenSignatureAlgorithm());
+            dto.setAuthorizationCodeTimeToLive(entity.getAuthorizationCodeTimeToLive());
+            dto.setDeviceCodeTimeToLive(entity.getDeviceCodeTimeToLive());
             return dto;
-        }
-        return null;
-    }
-
-    public List<ClientDto> entityToDtoList(List<Client> entities) {
-        if (entities != null && !entities.isEmpty()) {
-            return entities.stream().filter(Objects::nonNull).map(this::entityToDto).toList();
-        }
-        return List.of();
-    }
-
-    // -----------------------------------------------------------------------
-    public Client dtoToEntity(ClientDto dto) {
-        if (dto != null) {
-            Client entity = new Client();
-            entity.setId(dto.getId());
-            entity.setRegisteredClientId(dto.getRegisteredClientId());
-            entity.setClientId(dto.getClientId());
-            entity.setClientSecret(dto.getClientSecret());
-            entity.setClientAuthenticationMethods(
-                    dto.getClientAuthenticationMethods().stream().filter(Objects::nonNull)
-                            .map(AuthenticationMethodTypes::getValue).collect(Collectors.toSet()));
-            entity.setAuthorizationGrantTypes(
-                    dto.getAuthorizationGrantTypes().stream().filter(Objects::nonNull)
-                            .map(AuthorizationGrantTypes::getValue).collect(Collectors.toSet()));
-            entity.setRedirectUris(dto.getRedirectUris());
-            entity.setScopes(getScope(dto.getScopes()));
-            entity.setSetting(toSettingEntity(dto.getSetting()));
-            entity.setIsEnabled(dto.getIsEnabled());
-            return entity;
         }
         return null;
     }
 
     private TokenAndClientSetting toSettingEntity(TokenAndClientSettingDto dto) {
         if (dto != null) {
-            TokenAndClientSetting setting = new TokenAndClientSetting();
-            setting.setRequireProofKey(dto.getRequireProofKey());
-            setting.setRequireAuthorizationConsent(dto.getRequireAuthorizationConsent());
-            setting.setAccessTokenTimeToLive(dto.getAccessTokenTimeToLive());
-            setting.setX509CertificateBoundAccessTokens(dto.getX509CertificateBoundAccessTokens());
-            setting.setRefreshTokenTimeToLive(dto.getRefreshTokenTimeToLive());
-            setting.setReuseRefreshTokens(dto.getReuseRefreshTokens());
-            setting.setIdTokenSignatureAlgorithm(dto.getIdTokenSignatureAlgorithm());
-            setting.setAuthorizationCodeTimeToLive(dto.getAuthorizationCodeTimeToLive());
-            setting.setDeviceCodeTimeToLive(dto.getDeviceCodeTimeToLive());
-            return setting;
+            TokenAndClientSetting entity = new TokenAndClientSetting();
+            entity.setRequireProofKey(dto.getRequireProofKey());
+            entity.setRequireAuthorizationConsent(dto.getRequireAuthorizationConsent());
+            entity.setAccessTokenTimeToLive(dto.getAccessTokenTimeToLive());
+            entity.setX509CertificateBoundAccessTokens(dto.getX509CertificateBoundAccessTokens());
+            entity.setRefreshTokenTimeToLive(dto.getRefreshTokenTimeToLive());
+            entity.setReuseRefreshTokens(dto.getReuseRefreshTokens());
+            entity.setIdTokenSignatureAlgorithm(dto.getIdTokenSignatureAlgorithm());
+            entity.setAuthorizationCodeTimeToLive(dto.getAuthorizationCodeTimeToLive());
+            entity.setDeviceCodeTimeToLive(dto.getDeviceCodeTimeToLive());
+            return entity;
         }
         return null;
     }
