@@ -5,18 +5,15 @@ import com.behpardakht.oauth_server.authorization.model.enums.AuthorizationGrant
 import com.behpardakht.oauth_server.authorization.model.enums.ScopeTypes;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Set;
 
 @Data
 @Entity
 @Table(name = "client")
-public class Client {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
+@EqualsAndHashCode(callSuper = true)
+public class Client extends BaseEntity {
 
     @Column(name = "registered_client_id")
     private String registeredClientId;
@@ -49,9 +46,6 @@ public class Client {
     @Enumerated(EnumType.STRING)
     @Column(name = "scope")
     private Set<ScopeTypes> scopes;
-
-    @Column(name = "is_enabled")
-    private Boolean isEnabled = true;
 
     @Embedded
     private TokenAndClientSetting setting;

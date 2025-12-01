@@ -1,6 +1,8 @@
 package com.behpardakht.oauth_server.authorization.model.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,12 +12,7 @@ import java.time.Instant;
 @Setter
 @Entity
 @Table(name = "authorizations")
-public class Authorizations {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
+public class Authorizations extends BaseEntity {
 
     @Column(name = "authorization_id")
     private String authorizationId;
