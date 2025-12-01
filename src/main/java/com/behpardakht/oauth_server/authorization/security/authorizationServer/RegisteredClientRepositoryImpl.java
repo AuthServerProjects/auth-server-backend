@@ -19,7 +19,7 @@ public class RegisteredClientRepositoryImpl implements RegisteredClientRepositor
 
     @Override
     public void save(RegisteredClient registeredClient) {
-        Client client = clientMapper.toEntity(registeredClient);
+        Client client = clientMapper.registeredClientToEntity(registeredClient);
         client.setClientSecret(passwordEncoder.encode(client.getClientSecret()));
         clientRepository.save(client);
     }
@@ -27,12 +27,12 @@ public class RegisteredClientRepositoryImpl implements RegisteredClientRepositor
     @Override
     public RegisteredClient findById(String id) {
         return clientRepository.findById(id)
-                .map(clientMapper::toRegisteredClient).orElse(null);
+                .map(clientMapper::entityToRegisteredClient).orElse(null);
     }
 
     @Override
     public RegisteredClient findByClientId(String clientId) {
         return clientRepository.findByClientId(clientId)
-                .map(clientMapper::toRegisteredClient).orElse(null);
+                .map(clientMapper::entityToRegisteredClient).orElse(null);
     }
 }

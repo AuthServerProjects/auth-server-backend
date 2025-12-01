@@ -1,6 +1,6 @@
 package com.behpardakht.oauth_server.authorization.repository;
 
-import com.behpardakht.oauth_server.authorization.model.dto.BaseFilterDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.BaseFilterDto;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
@@ -17,7 +17,7 @@ public interface FilterSpecification<F, T> {
     default void addBaseFilters(List<Predicate> predicates, Root<T> root,
                                 CriteriaBuilder cb, BaseFilterDto filter) {
         if (filter.getDeleted() != null) {
-            addBooleanFilter(predicates, root, cb, "isDeleted", filter.getDeleted());
+            addBooleanFilter(predicates, root, cb, "isEnabled", filter.getDeleted());
         }
     }
 

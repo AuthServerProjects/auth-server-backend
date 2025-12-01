@@ -78,7 +78,7 @@ class RegisteredClientSecurityTest {
     @DisplayName("SUCCESS: Save client with encoded secret")
     void testSaveClient_Success() {
         // Given
-        when(clientMapper.toEntity(testClient)).thenReturn(testClientEntity);
+        when(clientMapper.registeredClientToEntity(testClient)).thenReturn(testClientEntity);
         when(passwordEncoder.encode(CLIENT_SECRET)).thenReturn(ENCODED_SECRET);
         when(clientRepository.save(any(Client.class))).thenReturn(testClientEntity);
 
@@ -94,7 +94,7 @@ class RegisteredClientSecurityTest {
     @DisplayName("SECURITY: Client secret must be encoded before storage")
     void testSaveClient_SecretEncoded() {
         // Given
-        when(clientMapper.toEntity(testClient)).thenReturn(testClientEntity);
+        when(clientMapper.registeredClientToEntity(testClient)).thenReturn(testClientEntity);
         when(passwordEncoder.encode(CLIENT_SECRET)).thenReturn(ENCODED_SECRET);
 
         // When
@@ -109,7 +109,7 @@ class RegisteredClientSecurityTest {
     @DisplayName("SECURITY: Plain text secret never stored")
     void testSaveClient_NoPlainTextSecret() {
         // Given
-        when(clientMapper.toEntity(testClient)).thenReturn(testClientEntity);
+        when(clientMapper.registeredClientToEntity(testClient)).thenReturn(testClientEntity);
         when(passwordEncoder.encode(anyString())).thenReturn(ENCODED_SECRET);
         when(clientRepository.save(any(Client.class))).thenAnswer(invocation -> {
             Client savedClient = invocation.getArgument(0);
@@ -132,7 +132,7 @@ class RegisteredClientSecurityTest {
     void testFindById_Success() {
         // Given
         when(clientRepository.findById("id-123")).thenReturn(Optional.of(testClientEntity));
-        when(clientMapper.toRegisteredClient(testClientEntity)).thenReturn(testClient);
+        when(clientMapper.entityToRegisteredClient(testClientEntity)).thenReturn(testClient);
 
         // When
         RegisteredClient result = registeredClientRepository.findById("id-123");
@@ -148,7 +148,7 @@ class RegisteredClientSecurityTest {
     void testFindByClientId_Success() {
         // Given
         when(clientRepository.findByClientId(CLIENT_ID)).thenReturn(Optional.of(testClientEntity));
-        when(clientMapper.toRegisteredClient(testClientEntity)).thenReturn(testClient);
+        when(clientMapper.entityToRegisteredClient(testClientEntity)).thenReturn(testClient);
 
         // When
         RegisteredClient result = registeredClientRepository.findByClientId(CLIENT_ID);
@@ -248,7 +248,7 @@ class RegisteredClientSecurityTest {
         // Given
         String specialSecret = "pass!@#$%^&*()_+-=[]{}|;':,.<>?";
         testClientEntity.setClientSecret(specialSecret);
-        when(clientMapper.toEntity(any())).thenReturn(testClientEntity);
+        when(clientMapper.registeredClientToEntity(any())).thenReturn(testClientEntity);
         when(passwordEncoder.encode(specialSecret)).thenReturn(ENCODED_SECRET);
 
         // When
@@ -263,7 +263,7 @@ class RegisteredClientSecurityTest {
     void testSaveClient_EmptySecret() {
         // Given
         testClientEntity.setClientSecret("");
-        when(clientMapper.toEntity(any())).thenReturn(testClientEntity);
+        when(clientMapper.registeredClientToEntity(any())).thenReturn(testClientEntity);
         when(passwordEncoder.encode("")).thenReturn(ENCODED_SECRET);
 
         // When
@@ -611,7 +611,7 @@ class RegisteredClientSecurityTest {
     void testFindByClientId_ConcurrentAccess() throws InterruptedException {
         // Given
         when(clientRepository.findByClientId(CLIENT_ID)).thenReturn(Optional.of(testClientEntity));
-        when(clientMapper.toRegisteredClient(testClientEntity)).thenReturn(testClient);
+        when(clientMapper.entityToRegisteredClient(testClientEntity)).thenReturn(testClient);
 
         // When - Simulate concurrent requests
         Thread thread1 = new Thread(() -> registeredClientRepository.findByClientId(CLIENT_ID));
@@ -646,7 +646,7 @@ class RegisteredClientSecurityTest {
     void testFindByClientId_MapperException() {
         // Given
         when(clientRepository.findByClientId(CLIENT_ID)).thenReturn(Optional.of(testClientEntity));
-        when(clientMapper.toRegisteredClient(testClientEntity))
+        when(clientMapper.entityToRegisteredClient(testClientEntity))
                 .thenThrow(new RuntimeException("Mapping failed"));
 
         // When & Then

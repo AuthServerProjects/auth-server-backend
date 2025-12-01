@@ -18,5 +18,6 @@ public class ClientDto {
     private Set<AuthorizationGrantTypes> authorizationGrantTypes;
     private Set<String> redirectUris;
     private Set<ScopeTypes> scopes;
+    private Boolean isEnabled;
     private TokenAndClientSettingDto setting;
 }

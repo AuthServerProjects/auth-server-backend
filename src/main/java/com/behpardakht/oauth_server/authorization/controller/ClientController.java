@@ -2,7 +2,11 @@ package com.behpardakht.oauth_server.authorization.controller;
 
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.client.ClientDto;
+import com.behpardakht.oauth_server.authorization.model.dto.client.ClientFilterDto;
 import com.behpardakht.oauth_server.authorization.model.dto.client.TokenAndClientSettingDto;
 import com.behpardakht.oauth_server.authorization.model.enums.AuthenticationMethodTypes;
 import com.behpardakht.oauth_server.authorization.model.enums.AuthorizationGrantTypes;
@@ -15,11 +19,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
 
-import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.API_PREFIX;
+import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.ADMIN_PREFIX;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = API_PREFIX + "/client/")
+@RequestMapping(path = ADMIN_PREFIX + "/client/")
 public class ClientController {
 
     private final ClientService clientService;
@@ -40,10 +44,10 @@ public class ClientController {
         return ResponseEntity.ok(message);
     }
 
-    @PostMapping(path = "defaultRegister")
+    @GetMapping(path = "defaultRegister")
     public ResponseEntity<String> register() {
         ClientDto clientDto = new ClientDto();
-        clientDto.setClientId("web");
+        clientDto.setClientId("SidePay");
         clientDto.setClientSecret("secret");
         clientDto.setClientAuthenticationMethods(Set.of(
                 AuthenticationMethodTypes.NONE,
@@ -71,5 +75,13 @@ public class ClientController {
         String message = MessageResolver.getMessage(
                 ExceptionMessages.CLIENT_REGISTERED_SUCCESS.getMessage(), new Object[]{clientDto.getClientId()});
         return ResponseEntity.ok(message);
+    }
+
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PostMapping(path = "findAll")
+    public ResponseEntity<ResponseDto<PageableResponseDto<ClientDto>>> findAll(@RequestBody
+                                                                               PageableRequestDto<ClientFilterDto> request) {
+        PageableResponseDto<ClientDto> clients = clientService.findAll(request);
+        return ResponseEntity.ok(ResponseDto.success(clients));
     }
 }

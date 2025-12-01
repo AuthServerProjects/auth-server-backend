@@ -44,6 +44,9 @@ public class Client {
     @Column(name = "scope")
     private Set<String> scopes;
 
+    @Column(name = "is_enabled")
+    private Boolean isEnabled = true;
+
     @Embedded
     private TokenAndClientSetting setting;
 }
