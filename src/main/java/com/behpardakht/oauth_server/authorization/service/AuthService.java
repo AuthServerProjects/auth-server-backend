@@ -1,7 +1,6 @@
 package com.behpardakht.oauth_server.authorization.service;
 
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
-import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
 import com.behpardakht.oauth_server.authorization.model.dto.auth.AuthorizationDto;
@@ -98,6 +97,14 @@ public class AuthService {
                     authorization.getRefreshToken(), authorization.getRefreshTokenExpiresAt());
         }
         authorizationRepository.deleteByAuthorizationId(authorization.getAuthorizationId());
+    }
+
+    public String revokeSessionsByUsername(String username) {
+        List<Authorizations> userAuthorizationList = authorizationRepository.findByPrincipalName(username);
+        if (userAuthorizationList.isEmpty()) {
+            throw new CustomException(ExceptionMessages.NO_ACTIVE_SESSIONS_FOUND);
+        }
+        return removeAndBlackListToken(userAuthorizationList, maskPhoneNumber(username));
     }
 
     public String logoutFromAllDevices(String authHeader) {
