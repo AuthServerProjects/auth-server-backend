@@ -67,6 +67,13 @@ public class ClientController {
         return ResponseEntity.ok(ResponseDto.success(newSecret));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping(path = "toggleStatus/{clientId}")
+    public ResponseEntity<ResponseDto<Boolean>> toggleStatus(@PathVariable String clientId) {
+        Boolean newStatus = clientService.toggleStatus(clientId);
+        return ResponseEntity.ok(ResponseDto.success(newStatus));
+    }
+
     @GetMapping(path = "defaultRegister")
     public ResponseEntity<String> register() {
         ClientDto clientDto = new ClientDto();

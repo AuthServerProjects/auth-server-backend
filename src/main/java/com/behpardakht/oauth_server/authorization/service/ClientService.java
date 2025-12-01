@@ -87,4 +87,11 @@ public class ClientService {
         clientRepository.save(client);
         return rawSecret;
     }
+
+    public Boolean toggleStatus(String clientId) {
+        Client client = getClient(clientId);
+        client.setIsEnabled(!Boolean.TRUE.equals(client.getIsEnabled()));
+        clientRepository.save(client);
+        return client.getIsEnabled();
+    }
 }
