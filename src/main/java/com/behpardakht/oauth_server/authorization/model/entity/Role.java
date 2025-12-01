@@ -1,6 +1,8 @@
 package com.behpardakht.oauth_server.authorization.model.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,16 +11,11 @@ import org.springframework.security.core.GrantedAuthority;
 @Entity
 @Table(name = "Role")
 @NoArgsConstructor
-public class Role implements GrantedAuthority {
+public class Role extends BaseEntity implements GrantedAuthority {
 
     public Role(String name) {
         this.name = name;
     }
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
 
     @Column(name = "name", unique = true, nullable = false)
     private String name;

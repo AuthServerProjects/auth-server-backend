@@ -2,6 +2,7 @@ package com.behpardakht.oauth_server.authorization.controller;
 
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
+import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Role;
 import com.behpardakht.oauth_server.authorization.service.RoleService;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +29,31 @@ public class RoleController {
         return ResponseEntity.ok(message);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping(path = "findAll")
     public List<Role> findAllRoles() {
         return roleService.findAllRoles();
+    }
+
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @GetMapping(path = "find/{id}")
+    public ResponseEntity<Role> findById(@PathVariable Long id) {
+        Role role = roleService.findById(id);
+        return ResponseEntity.ok(role);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping(path = "toggleStatus/{roleId}")
+    public ResponseEntity<ResponseDto<Boolean>> toggleStatus(@PathVariable Long roleId) {
+        Boolean newStatus = roleService.toggleStatus(roleId);
+        return ResponseEntity.ok(ResponseDto.success(newStatus));
+    }
+
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @DeleteMapping(path = "delete/{id}")
+    public ResponseEntity<String> delete(@PathVariable Long id) {
+        roleService.delete(id);
+        String message = MessageResolver.getMessage(ExceptionMessages.ROLE_DELETED_SUCCESS.getMessage());
+        return ResponseEntity.ok().body(message);
     }
 }

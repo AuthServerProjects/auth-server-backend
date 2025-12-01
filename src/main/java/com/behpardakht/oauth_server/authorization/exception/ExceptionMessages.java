@@ -43,7 +43,9 @@ public enum ExceptionMessages {
 
     // Client/Role
     CLIENT_REGISTERED_SUCCESS("client_registered_success"),
-    ROLE_ADDED_SUCCESS("role_added_success");
+    ROLE_ADDED_SUCCESS("role_added_success"),
+    ROLE_ASSIGNED_TO_USERS("role_assigned_to_users"),
+    ROLE_DELETED_SUCCESS("role_deleted_success");
 
     public final String message;
 
