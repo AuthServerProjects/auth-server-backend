@@ -13,7 +13,6 @@ import com.behpardakht.oauth_server.authorization.repository.ClientRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -45,15 +44,19 @@ public class ClientService {
     }
 
     public void updateClient(String clientId, ClientDto clientDto) {
-        Client existingClient = clientRepository.findByClientId(clientId)
-                .orElseThrow(() -> new NotFoundException("Client", "clientId", clientId));
+        Client existingClient = getClient(clientId);
         clientMapper.dtoToEntity(existingClient, clientDto);
         clientRepository.save(existingClient);
     }
 
+    private Client getClient(String clientId) {
+        return clientRepository.findByClientId(clientId)
+                .orElseThrow(() -> new NotFoundException("Client", "clientId", clientId));
+    }
+
     public ClientDto findByClientId(String clientId) {
-        return clientRepository.findByClientId(clientId).map(clientMapper::entityToDto)
-                .orElseThrow(() -> new NotFoundException("Client", "ClientId", clientId));
+        Client client = getClient(clientId);
+        return clientMapper.entityToDto(client);
     }
 
     public RegisteredClient findRegisteredClientByClientId(String clientId) {
@@ -75,5 +78,13 @@ public class ClientService {
         Page<Client> page = clientRepository.findAll(spec, request.toPageable());
         List<ClientDto> responses = clientMapper.entityToDtoList(page.getContent());
         return PageableResponseDto.build(responses, page);
+    }
+
+    public String regenerateSecret(String clientId) {
+        Client client = getClient(clientId);
+        String rawSecret = UUID.randomUUID().toString();
+        client.setClientSecret(passwordEncoder.encode(rawSecret));
+        clientRepository.save(client);
+        return rawSecret;
     }
 }

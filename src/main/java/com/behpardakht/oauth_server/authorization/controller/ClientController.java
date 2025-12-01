@@ -60,6 +60,13 @@ public class ClientController {
         return ResponseEntity.ok(ResponseDto.success(clients));
     }
 
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PostMapping(path = "regenerateSecret/{clientId}")
+    public ResponseEntity<ResponseDto<String>> regenerateSecret(@PathVariable String clientId) {
+        String newSecret = clientService.regenerateSecret(clientId);
+        return ResponseEntity.ok(ResponseDto.success(newSecret));
+    }
+
     @GetMapping(path = "defaultRegister")
     public ResponseEntity<String> register() {
         ClientDto clientDto = new ClientDto();
