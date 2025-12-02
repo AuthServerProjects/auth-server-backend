@@ -83,6 +83,13 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PostMapping(path = "resetPassword/{id}")
+    public ResponseEntity<ResponseDto<String>> resetPassword(@PathVariable Long id) {
+        userService.resetPassword(id);
+        return ResponseEntity.ok(ResponseDto.success("Password sent to your mobile"));
+    }
+
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping(path = "addRoleToUser")
     public void addRoleToUser(@RequestParam String username,
                               @RequestParam String roleName) {

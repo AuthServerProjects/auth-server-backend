@@ -12,6 +12,7 @@ import com.behpardakht.oauth_server.authorization.model.enums.UserRole;
 import com.behpardakht.oauth_server.authorization.model.mapper.UserMapper;
 import com.behpardakht.oauth_server.authorization.repository.UserFilterSpecification;
 import com.behpardakht.oauth_server.authorization.repository.UserRepository;
+import com.behpardakht.oauth_server.authorization.sms.ISmsService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -36,6 +37,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserFilterSpecification userFilterSpecification;
 
+    private final ISmsService iSmsService;
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
     private final SecureRandom secureRandom = new SecureRandom();
@@ -134,6 +136,14 @@ public class UserService {
         }
         users.setPassword(encodeNewPassword);
         userRepository.save(userMapper.toEntity(users));
+    }
+
+    public void resetPassword(Long id) {
+        Users user = getUser(id);
+        String newPassword = generateSecureRandomPassword();
+        iSmsService.send(user.getPhoneNumber(), newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
     public void addRoleToUser(String username, String roleName) {
