@@ -28,6 +28,13 @@ public class UserController {
         return ResponseEntity.ok(ResponseDto.success(users));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping(path = "find/{id}")
+    public ResponseEntity<ResponseDto<UsersDto>> findById(@PathVariable Long id) {
+        UsersDto user = userService.findById(id);
+        return ResponseEntity.ok(ResponseDto.success(user));
+    }
+
     @PreAuthorize("hasRole('ADMIN') or #username == authentication.principal.username")
     @GetMapping(path = "findByUsername")
     public UsersDto findByUsername(@RequestParam String username) {

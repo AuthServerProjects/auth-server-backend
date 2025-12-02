@@ -1,6 +1,8 @@
 package com.behpardakht.oauth_server.authorization.service;
 
+import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.AlreadyExistException;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.user.UserFilterDto;
@@ -44,6 +46,12 @@ public class UserService {
         Page<Users> page = userRepository.findAll(spec, request.toPageable());
         List<UsersDto> responses = userMapper.toDtoList(page.getContent());
         return PageableResponseDto.build(responses, page);
+    }
+
+    public UsersDto findById(Long id) {
+        Users user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User", "id", id.toString()));
+        return userMapper.toDto(user);
     }
 
     public UsersDto findUserByUsername(String username) {
