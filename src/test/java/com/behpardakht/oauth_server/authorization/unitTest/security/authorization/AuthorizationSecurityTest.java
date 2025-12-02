@@ -1,7 +1,7 @@
 package com.behpardakht.oauth_server.authorization.unitTest.security.authorization;
 
 import com.behpardakht.oauth_server.authorization.controller.UserController;
-import com.behpardakht.oauth_server.authorization.model.dto.UsersDto;
+import com.behpardakht.oauth_server.authorization.model.dto.user.UsersDto;
 import com.behpardakht.oauth_server.authorization.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

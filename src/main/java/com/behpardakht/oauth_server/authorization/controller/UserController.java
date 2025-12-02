@@ -1,8 +1,13 @@
 package com.behpardakht.oauth_server.authorization.controller;
 
-import com.behpardakht.oauth_server.authorization.model.dto.UsersDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
+import com.behpardakht.oauth_server.authorization.model.dto.user.UserFilterDto;
+import com.behpardakht.oauth_server.authorization.model.dto.user.UsersDto;
 import com.behpardakht.oauth_server.authorization.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +19,14 @@ import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.API_PR
 public class UserController {
 
     private final UserService userService;
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping(path = "findAll")
+    public ResponseEntity<ResponseDto<PageableResponseDto<UsersDto>>> findAll(@RequestBody
+                                                                              PageableRequestDto<UserFilterDto> request) {
+        PageableResponseDto<UsersDto> users = userService.findAll(request);
+        return ResponseEntity.ok(ResponseDto.success(users));
+    }
 
     @PreAuthorize("hasRole('ADMIN') or #username == authentication.principal.username")
     @GetMapping(path = "findByUsername")

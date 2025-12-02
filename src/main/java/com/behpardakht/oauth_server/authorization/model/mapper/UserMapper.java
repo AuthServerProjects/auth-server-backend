@@ -1,14 +1,14 @@
 package com.behpardakht.oauth_server.authorization.model.mapper;
 
-import com.behpardakht.oauth_server.authorization.model.dto.UsersDto;
+import com.behpardakht.oauth_server.authorization.model.dto.user.UsersDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Users;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Component
 @AllArgsConstructor
@@ -33,11 +33,9 @@ public class UserMapper {
         return null;
     }
 
-    public Set<UsersDto> toDtoList(Set<Users> entityList) {
-        if (entityList != null && !entityList.isEmpty()) {
-            return entityList.stream().filter(Objects::nonNull).map(this::toDto).collect(Collectors.toSet());
-        }
-        return new HashSet<>(0);
+    public List<UsersDto> toDtoList(List<Users> entityList) {
+        return Optional.ofNullable(entityList).orElse(Collections.emptyList())
+                .stream().filter(Objects::nonNull).map(this::toDto).toList();
     }
 
     public Users toEntity(UsersDto dto) {
@@ -56,10 +54,8 @@ public class UserMapper {
         return null;
     }
 
-    public Set<Users> toEntityList(Set<UsersDto> dtoList) {
-        if (dtoList != null && !dtoList.isEmpty()) {
-            return dtoList.stream().filter(Objects::nonNull).map(this::toEntity).collect(Collectors.toSet());
-        }
-        return new HashSet<>(0);
+    public List<Users> toEntityList(List<UsersDto> dtoList) {
+        return Optional.ofNullable(dtoList).orElse(Collections.emptyList())
+                .stream().filter(Objects::nonNull).map(this::toEntity).toList();
     }
 }

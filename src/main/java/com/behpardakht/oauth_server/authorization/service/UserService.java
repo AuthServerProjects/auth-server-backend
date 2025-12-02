@@ -1,14 +1,20 @@
 package com.behpardakht.oauth_server.authorization.service;
 
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.AlreadyExistException;
-import com.behpardakht.oauth_server.authorization.model.dto.UsersDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
+import com.behpardakht.oauth_server.authorization.model.dto.user.UserFilterDto;
+import com.behpardakht.oauth_server.authorization.model.dto.user.UsersDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Role;
 import com.behpardakht.oauth_server.authorization.model.entity.Users;
 import com.behpardakht.oauth_server.authorization.model.enums.UserRole;
 import com.behpardakht.oauth_server.authorization.model.mapper.UserMapper;
+import com.behpardakht.oauth_server.authorization.repository.UserFilterSpecification;
 import com.behpardakht.oauth_server.authorization.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.List;
 
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.maskPhoneNumber;
 
@@ -26,10 +33,18 @@ public class UserService {
 
     private final UserMapper userMapper;
     private final UserRepository userRepository;
+    private final UserFilterSpecification userFilterSpecification;
 
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
     private final SecureRandom secureRandom = new SecureRandom();
+
+    public PageableResponseDto<UsersDto> findAll(PageableRequestDto<UserFilterDto> request) {
+        Specification<Users> spec = userFilterSpecification.toSpecification(request.getFilters());
+        Page<Users> page = userRepository.findAll(spec, request.toPageable());
+        List<UsersDto> responses = userMapper.toDtoList(page.getContent());
+        return PageableResponseDto.build(responses, page);
+    }
 
     public UsersDto findUserByUsername(String username) {
         Users user = userRepository.findByUsername(username)
