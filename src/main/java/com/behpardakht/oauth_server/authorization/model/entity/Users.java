@@ -40,9 +40,6 @@ public class Users extends BaseEntity implements UserDetails {
     @Column(name = "is_credentials_non_expired")
     private Boolean isCredentialsNonExpired;
 
-    @Column(name = "is_enabled")
-    private Boolean isEnabled;
-
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "users_roles",
@@ -75,6 +72,6 @@ public class Users extends BaseEntity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return this.isEnabled != null ? this.isEnabled : true;
+        return this.getIsEnabled() != null ? this.getIsEnabled() : true;
     }
 }

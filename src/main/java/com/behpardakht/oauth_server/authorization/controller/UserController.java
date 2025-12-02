@@ -55,8 +55,16 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(path = "register")
-    public void register(@RequestBody UsersDto users) {
+    public ResponseEntity<ResponseDto<String>> register(@RequestBody UsersDto users) {
         userService.registerUser(users);
+        return ResponseEntity.ok(ResponseDto.success("User registered successfully"));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping(path = "update/{id}")
+    public ResponseEntity<ResponseDto<String>> update(@PathVariable Long id, @RequestBody UsersDto usersDto) {
+        userService.updateUser(id, usersDto);
+        return ResponseEntity.ok(ResponseDto.success("User updated successfully"));
     }
 
     @PreAuthorize("#oldUsername == authentication.principal.username")

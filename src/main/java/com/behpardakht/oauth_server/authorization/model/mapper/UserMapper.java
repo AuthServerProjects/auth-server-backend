@@ -54,6 +54,15 @@ public class UserMapper {
         return null;
     }
 
+    public void toEntity(Users entity, UsersDto dto) {
+        entity.setUsername(dto.getUsername());
+        entity.setPhoneNumber(dto.getPhoneNumber());
+        entity.setIsAccountNonExpired(dto.getIsAccountNonExpired());
+        entity.setIsAccountNonLocked(dto.getIsAccountNonLocked());
+        entity.setIsCredentialsNonExpired(dto.getIsCredentialsNonExpired());
+        entity.setIsEnabled(dto.getIsEnabled());
+    }
+
     public List<Users> toEntityList(List<UsersDto> dtoList) {
         return Optional.ofNullable(dtoList).orElse(Collections.emptyList())
                 .stream().filter(Objects::nonNull).map(this::toEntity).toList();

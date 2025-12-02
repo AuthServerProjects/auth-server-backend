@@ -1,6 +1,5 @@
 package com.behpardakht.oauth_server.authorization.service;
 
-import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.AlreadyExistException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
@@ -49,9 +48,13 @@ public class UserService {
     }
 
     public UsersDto findById(Long id) {
-        Users user = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User", "id", id.toString()));
+        Users user = getUser(id);
         return userMapper.toDto(user);
+    }
+
+    private Users getUser(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User", "id", id.toString()));
     }
 
     public UsersDto findUserByUsername(String username) {
@@ -98,6 +101,12 @@ public class UserService {
             user.getRoles().add(role);
             userRepository.save(user);
         }
+    }
+
+    public void updateUser(Long id, UsersDto usersDto) {
+        Users user = getUser(id);
+        userMapper.toEntity(user, usersDto);
+        userRepository.save(user);
     }
 
     public void changeUsername(String oldUsername, String newUsername) {
