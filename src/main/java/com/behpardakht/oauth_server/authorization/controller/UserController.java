@@ -88,4 +88,11 @@ public class UserController {
                               @RequestParam String roleName) {
         userService.addRoleToUser(username, roleName);
     }
+
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PatchMapping(path = "toggleStatus/{userId}")
+    public ResponseEntity<ResponseDto<Boolean>> toggleStatus(@PathVariable Long userId) {
+        Boolean newStatus = userService.toggleStatus(userId);
+        return ResponseEntity.ok(ResponseDto.success(newStatus));
+    }
 }

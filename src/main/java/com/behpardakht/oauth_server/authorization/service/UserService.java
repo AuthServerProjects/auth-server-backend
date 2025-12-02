@@ -159,4 +159,11 @@ public class UserService {
     public boolean existUserWithPhoneNumber(String phoneNumber) {
         return userRepository.findByPhoneNumber(phoneNumber).isPresent();
     }
+
+    public Boolean toggleStatus(Long id) {
+        Users user = getUser(id);
+        user.setIsEnabled(!Boolean.TRUE.equals(user.getIsEnabled()));
+        userRepository.save(user);
+        return user.getIsEnabled();
+    }
 }
