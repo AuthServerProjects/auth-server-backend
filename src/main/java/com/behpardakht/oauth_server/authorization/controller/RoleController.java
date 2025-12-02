@@ -12,49 +12,49 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
 
-import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.API_PREFIX;
+import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.ADMIN_PREFIX;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = API_PREFIX + "/role/")
+@RequestMapping(path = ADMIN_PREFIX + "/role/")
 public class RoleController {
 
     private final RoleService roleService;
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping(path = "save")
-    public ResponseEntity<String> save(@RequestBody RoleDto roleDto) {
-        roleService.save(roleDto);
-        String message = MessageResolver.getMessage(ExceptionMessages.ROLE_ADDED_SUCCESS.getMessage());
-        return ResponseEntity.ok(message);
+    public ResponseEntity<ResponseDto<String>> save(@RequestBody RoleDto request) {
+        roleService.save(request);
+        String response = MessageResolver.getMessage(ExceptionMessages.ROLE_ADDED_SUCCESS.getMessage());
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping(path = "findAll")
-    public ResponseEntity<Set<RoleDto>> findAllRoles() {
-        Set<RoleDto> roles = roleService.findAllRoles();
-        return ResponseEntity.ok(roles);
+    public ResponseEntity<ResponseDto<Set<RoleDto>>> findAllRoles() {
+        Set<RoleDto> response = roleService.findAllRoles();
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @GetMapping(path = "{id}")
-    public ResponseEntity<RoleDto> findById(@PathVariable Long id) {
-        RoleDto role = roleService.findDtoById(id);
-        return ResponseEntity.ok(role);
+    @GetMapping(path = "find/{id}")
+    public ResponseEntity<ResponseDto<RoleDto>> findById(@PathVariable Long id) {
+        RoleDto response = roleService.findDtoById(id);
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @PatchMapping(path = "toggleStatus/{roleId}")
-    public ResponseEntity<ResponseDto<Boolean>> toggleStatus(@PathVariable Long roleId) {
-        Boolean newStatus = roleService.toggleStatus(roleId);
-        return ResponseEntity.ok(ResponseDto.success(newStatus));
+    @PatchMapping(path = "toggleStatus/{id}")
+    public ResponseEntity<ResponseDto<Boolean>> toggleStatus(@PathVariable Long id) {
+        Boolean response = roleService.toggleStatus(id);
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @DeleteMapping(path = "{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
+    @DeleteMapping(path = "delete/{id}")
+    public ResponseEntity<ResponseDto<String>> delete(@PathVariable Long id) {
         roleService.delete(id);
-        String message = MessageResolver.getMessage(ExceptionMessages.ROLE_DELETED_SUCCESS.getMessage());
-        return ResponseEntity.ok().body(message);
+        String response = MessageResolver.getMessage(ExceptionMessages.ROLE_DELETED_SUCCESS.getMessage());
+        return ResponseEntity.ok().body(ResponseDto.success(response));
     }
 }

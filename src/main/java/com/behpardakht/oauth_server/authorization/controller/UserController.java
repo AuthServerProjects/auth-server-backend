@@ -11,75 +11,81 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.API_PREFIX;
+import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.ADMIN_PREFIX;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = API_PREFIX + "/user/")
+@RequestMapping(path = ADMIN_PREFIX + "/user/")
 public class UserController {
 
     private final UserService userService;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping(path = "findAll")
     public ResponseEntity<ResponseDto<PageableResponseDto<UsersDto>>> findAll(@RequestBody
-                                                                              PageableRequestDto<UserFilterDto> request) {
-        PageableResponseDto<UsersDto> users = userService.findAll(request);
-        return ResponseEntity.ok(ResponseDto.success(users));
+                                                                                  PageableRequestDto<UserFilterDto>
+                                                                                          request) {
+        PageableResponseDto<UsersDto> response = userService.findAll(request);
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping(path = "find/{id}")
     public ResponseEntity<ResponseDto<UsersDto>> findById(@PathVariable Long id) {
-        UsersDto user = userService.findById(id);
-        return ResponseEntity.ok(ResponseDto.success(user));
+        UsersDto response = userService.findById(id);
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasRole('ADMIN') or #username == authentication.principal.username")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or #username == authentication.principal.username")
     @GetMapping(path = "findByUsername")
-    public UsersDto findByUsername(@RequestParam String username) {
-        return userService.findUserByUsername(username);
+    public ResponseEntity<ResponseDto<UsersDto>> findByUsername(@RequestParam String username) {
+        UsersDto response = userService.findUserByUsername(username);
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping(path = "existUsername")
-    public Boolean existUsername(@RequestParam String username) {
-        return userService.existUserWithUsername(username);
+    public ResponseEntity<ResponseDto<Boolean>> existUsername(@RequestParam String username) {
+        boolean response = userService.existUserWithUsername(username);
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping(path = "existPhoneNumber")
-    public Boolean existPhoneNumber(@RequestParam String phoneNumber) {
-        return userService.existUserWithPhoneNumber(phoneNumber);
+    public ResponseEntity<ResponseDto<Boolean>> existPhoneNumber(@RequestParam String phoneNumber) {
+        boolean response = userService.existUserWithPhoneNumber(phoneNumber);
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping(path = "register")
-    public ResponseEntity<ResponseDto<String>> register(@RequestBody UsersDto users) {
-        userService.registerUser(users);
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PostMapping(path = "save")
+    public ResponseEntity<ResponseDto<String>> save(@RequestBody UsersDto request) {
+        userService.save(request);
         return ResponseEntity.ok(ResponseDto.success("User registered successfully"));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PutMapping(path = "update/{id}")
-    public ResponseEntity<ResponseDto<String>> update(@PathVariable Long id, @RequestBody UsersDto usersDto) {
-        userService.updateUser(id, usersDto);
+    public ResponseEntity<ResponseDto<String>> update(@PathVariable Long id, @RequestBody UsersDto request) {
+        userService.update(id, request);
         return ResponseEntity.ok(ResponseDto.success("User updated successfully"));
     }
 
     @PreAuthorize("#oldUsername == authentication.principal.username")
     @PostMapping(path = "changeUsername")
-    public void changeUsername(@RequestParam String oldUsername,
-                               @RequestParam String newUsername) {
+    public ResponseEntity<ResponseDto<?>> changeUsername(@RequestParam String oldUsername,
+                                                         @RequestParam String newUsername) {
         userService.changeUsername(oldUsername, newUsername);
+        return ResponseEntity.ok(ResponseDto.success("User changed successfully"));
     }
 
     @PreAuthorize("#username == authentication.principal.username")
     @PostMapping(path = "changePassword")
-    public void changePassword(@RequestParam String username,
-                               @RequestParam String oldPassword,
-                               @RequestParam String newPassword) {
+    public ResponseEntity<ResponseDto<?>> changePassword(@RequestParam String username,
+                                                         @RequestParam String oldPassword,
+                                                         @RequestParam String newPassword) {
         userService.changePassword(oldPassword, newPassword);
+        return ResponseEntity.ok(ResponseDto.success("Password changed successfully"));
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
@@ -91,9 +97,10 @@ public class UserController {
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping(path = "addRoleToUser")
-    public void addRoleToUser(@RequestParam String username,
-                              @RequestParam String roleName) {
+    public ResponseEntity<ResponseDto<?>> addRoleToUser(@RequestParam String username,
+                                                        @RequestParam String roleName) {
         userService.addRoleToUser(username, roleName);
+        return ResponseEntity.ok(ResponseDto.success("Role added successfully"));
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
@@ -105,9 +112,9 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @PatchMapping(path = "toggleStatus/{userId}")
-    public ResponseEntity<ResponseDto<Boolean>> toggleStatus(@PathVariable Long userId) {
-        Boolean newStatus = userService.toggleStatus(userId);
-        return ResponseEntity.ok(ResponseDto.success(newStatus));
+    @PatchMapping(path = "toggleStatus/{id}")
+    public ResponseEntity<ResponseDto<Boolean>> toggleStatus(@PathVariable Long id) {
+        Boolean response = userService.toggleStatus(id);
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 }

@@ -32,7 +32,7 @@ public class ClientService {
     private final RegisteredClientRepository registeredClientRepository;
     private final ClientFilterSpecification clientFilterSpecification;
 
-    public void insertClient(ClientDto clientDto) {
+    public void save(ClientDto clientDto) {
         Optional<Client> client = clientRepository.findByClientId(clientDto.getClientId());
         if (client.isPresent()) {
             throw new AlreadyExistException("Client", clientDto.getClientId());
@@ -43,7 +43,7 @@ public class ClientService {
         clientRepository.save(entity);
     }
 
-    public void updateClient(String clientId, ClientDto clientDto) {
+    public void update(String clientId, ClientDto clientDto) {
         Client existingClient = getClient(clientId);
         clientMapper.dtoToEntity(existingClient, clientDto);
         clientRepository.save(existingClient);

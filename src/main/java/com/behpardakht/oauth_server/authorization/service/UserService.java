@@ -81,7 +81,7 @@ public class UserService {
                 .isCredentialsNonExpired(true)
                 .isEnabled(true)
                 .build();
-        registerUser(usersDto);
+        save(usersDto);
         log.info("New user account created for phone: {}", maskPhoneNumber(phoneNumber));
     }
 
@@ -91,7 +91,7 @@ public class UserService {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
     }
 
-    public void registerUser(UsersDto usersDto) {
+    public void save(UsersDto usersDto) {
         if (existUserWithUsername(usersDto.getUsername())) {
             throw new AlreadyExistException("Username", usersDto.getUsername());
         } else {
@@ -105,7 +105,7 @@ public class UserService {
         }
     }
 
-    public void updateUser(Long id, UsersDto usersDto) {
+    public void update(Long id, UsersDto usersDto) {
         Users user = getUser(id);
         userMapper.toEntity(user, usersDto);
         userRepository.save(user);

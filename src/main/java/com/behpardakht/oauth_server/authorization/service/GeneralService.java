@@ -10,28 +10,23 @@ import java.util.stream.Collectors;
 @Service
 public class GeneralService {
 
-    public List<String> loadAuthenticationMethodType() {
-        return Arrays.stream(AuthenticationMethodTypes.values())
-                .map(AuthenticationMethodTypes::getValue).collect(Collectors.toList());
+    public List<AuthenticationMethodTypes> loadAuthenticationMethodType() {
+        return Arrays.stream(AuthenticationMethodTypes.values()).collect(Collectors.toList());
     }
 
-    public List<String> loadAuthorizationGrantType() {
-        return Arrays.stream(AuthorizationGrantTypes.values())
-                .map(AuthorizationGrantTypes::getValue).collect(Collectors.toList());
+    public List<AuthorizationGrantTypes> loadAuthorizationGrantType() {
+        return Arrays.stream(AuthorizationGrantTypes.values()).collect(Collectors.toList());
     }
 
-    public List<String> loadScopeType() {
-        return Arrays.stream(ScopeTypes.values())
-                .map(ScopeTypes::getValue).collect(Collectors.toList());
+    public List<ScopeTypes> loadScopeType() {
+        return Arrays.stream(ScopeTypes.values()).collect(Collectors.toList());
     }
 
-    public List<String> loadPkceMethod() {
-        return Arrays.stream(PkceMethod.values())
-                .map(PkceMethod::getValue).collect(Collectors.toList());
+    public List<PkceMethod> loadPkceMethod() {
+        return Arrays.stream(PkceMethod.values()).collect(Collectors.toList());
     }
 
-    public List<String> loadUserRoles() {
-        return Arrays.stream(UserRole.values())
-                .map(UserRole::getValue).collect(Collectors.toList());
+    public List<UserRole> loadUserRoles() {
+        return Arrays.stream(UserRole.values()).collect(Collectors.toList());
     }
 }

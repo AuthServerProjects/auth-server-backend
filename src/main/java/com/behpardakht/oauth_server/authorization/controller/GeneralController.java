@@ -1,5 +1,7 @@
 package com.behpardakht.oauth_server.authorization.controller;
 
+import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
+import com.behpardakht.oauth_server.authorization.model.enums.*;
 import com.behpardakht.oauth_server.authorization.service.GeneralService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,47 +12,47 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.API_PREFIX;
+import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.ADMIN_PREFIX;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = API_PREFIX + "/general/")
+@RequestMapping(path = ADMIN_PREFIX + "/general/")
 public class GeneralController {
 
     private final GeneralService generalService;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping(path = "loadAuthenticationMethodType")
-    public ResponseEntity<List<String>> loadAuthenticationMethodType() {
-        List<String> typeList = generalService.loadAuthenticationMethodType();
-        return ResponseEntity.ok(typeList);
+    public ResponseEntity<ResponseDto<List<AuthenticationMethodTypes>>> loadAuthenticationMethodType() {
+        List<AuthenticationMethodTypes> response = generalService.loadAuthenticationMethodType();
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping(path = "loadAuthorizationGrantType")
-    public ResponseEntity<List<String>> loadAuthorizationGrantType() {
-        List<String> typeList = generalService.loadAuthorizationGrantType();
-        return ResponseEntity.ok(typeList);
+    public ResponseEntity<ResponseDto<List<AuthorizationGrantTypes>>> loadAuthorizationGrantType() {
+        List<AuthorizationGrantTypes> response = generalService.loadAuthorizationGrantType();
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping(path = "loadScopeType")
-    public ResponseEntity<List<String>> loadScopeType() {
-        List<String> typeList = generalService.loadScopeType();
-        return ResponseEntity.ok(typeList);
+    public ResponseEntity<ResponseDto<List<ScopeTypes>>> loadScopeType() {
+        List<ScopeTypes> response = generalService.loadScopeType();
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping(path = "loadPkceMethod")
-    public ResponseEntity<List<String>> loadPkceMethod() {
-        List<String> methodList = generalService.loadPkceMethod();
-        return ResponseEntity.ok(methodList);
+    public ResponseEntity<ResponseDto<List<PkceMethod>>> loadPkceMethod() {
+        List<PkceMethod> response = generalService.loadPkceMethod();
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping(path = "loadUserRoles")
-    public ResponseEntity<List<String>> loadUserRoles() {
-        List<String> roleList = generalService.loadUserRoles();
-        return ResponseEntity.ok(roleList);
+    public ResponseEntity<ResponseDto<List<UserRole>>> loadUserRoles() {
+        List<UserRole> response = generalService.loadUserRoles();
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 }

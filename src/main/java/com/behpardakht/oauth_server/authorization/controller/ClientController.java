@@ -29,49 +29,49 @@ public class ClientController {
     private final ClientService clientService;
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @PostMapping(path = "register")
-    public ResponseEntity<String> register(@RequestBody ClientDto client) {
-        clientService.insertClient(client);
-        String message = MessageResolver.getMessage(
-                ExceptionMessages.CLIENT_REGISTERED_SUCCESS.getMessage(), new Object[]{client.getClientId()});
-        return ResponseEntity.ok(message);
+    @PostMapping(path = "save")
+    public ResponseEntity<ResponseDto<String>> save(@RequestBody ClientDto request) {
+        clientService.save(request);
+        String response = MessageResolver.getMessage(
+                ExceptionMessages.CLIENT_REGISTERED_SUCCESS.getMessage(), new Object[]{request.getClientId()});
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @PutMapping(path = "update/{clientId}")
-    public ResponseEntity<ResponseDto<String>> update(@PathVariable String clientId,
-                                                      @RequestBody ClientDto clientDto) {
-        clientService.updateClient(clientId, clientDto);
+    @PutMapping(path = "update/{id}")
+    public ResponseEntity<ResponseDto<String>> update(@PathVariable String id,
+                                                      @RequestBody ClientDto request) {
+        clientService.update(id, request);
         return ResponseEntity.ok(ResponseDto.success("Client updated successfully"));
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @GetMapping(path = "find/{clientId}")
-    public ResponseEntity<ClientDto> findByClientId(@PathVariable String clientId) {
-        ClientDto client = clientService.findByClientId(clientId);
-        return ResponseEntity.ok(client);
+    @GetMapping(path = "find/{id}")
+    public ResponseEntity<ResponseDto<ClientDto>> findByClientId(@PathVariable String id) {
+        ClientDto response = clientService.findByClientId(id);
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping(path = "findAll")
     public ResponseEntity<ResponseDto<PageableResponseDto<ClientDto>>> findAll(@RequestBody
                                                                                PageableRequestDto<ClientFilterDto> request) {
-        PageableResponseDto<ClientDto> clients = clientService.findAll(request);
-        return ResponseEntity.ok(ResponseDto.success(clients));
+        PageableResponseDto<ClientDto> response = clientService.findAll(request);
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @PostMapping(path = "regenerateSecret/{clientId}")
-    public ResponseEntity<ResponseDto<String>> regenerateSecret(@PathVariable String clientId) {
-        String newSecret = clientService.regenerateSecret(clientId);
-        return ResponseEntity.ok(ResponseDto.success(newSecret));
+    @PostMapping(path = "regenerateSecret/{id}")
+    public ResponseEntity<ResponseDto<String>> regenerateSecret(@PathVariable String id) {
+        String response = clientService.regenerateSecret(id);
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping(path = "toggleStatus/{clientId}")
-    public ResponseEntity<ResponseDto<Boolean>> toggleStatus(@PathVariable String clientId) {
-        Boolean newStatus = clientService.toggleStatus(clientId);
-        return ResponseEntity.ok(ResponseDto.success(newStatus));
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PatchMapping(path = "toggleStatus/{id}")
+    public ResponseEntity<ResponseDto<Boolean>> toggleStatus(@PathVariable String id) {
+        Boolean response = clientService.toggleStatus(id);
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @GetMapping(path = "defaultRegister")
@@ -101,7 +101,7 @@ public class ClientController {
         settingDto.setRefreshTokenTimeToLive(30L);
         settingDto.setReuseRefreshTokens(false);
         clientDto.setSetting(settingDto);
-        clientService.insertClient(clientDto);
+        clientService.save(clientDto);
         String message = MessageResolver.getMessage(
                 ExceptionMessages.CLIENT_REGISTERED_SUCCESS.getMessage(), new Object[]{clientDto.getClientId()});
         return ResponseEntity.ok(message);

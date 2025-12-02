@@ -9,7 +9,6 @@ import com.behpardakht.oauth_server.authorization.service.otp.OtpService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.API_PREFIX;
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.getClientIpAddress;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = API_PREFIX + "/otp/")
@@ -36,8 +34,8 @@ public class OtpController {
     @PostMapping("send")
     public ResponseEntity<ResponseDto<String>> sendOtp(@RequestBody @Valid SendOtpRequestDto request,
                                                        HttpServletRequest httpRequest) {
-        String message = otpService.sendOtp(request, getClientIpAddress(httpRequest));
-        return ResponseEntity.ok(ResponseDto.success(message));
+        String response = otpService.sendOtp(request, getClientIpAddress(httpRequest));
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PostMapping("verify")

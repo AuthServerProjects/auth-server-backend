@@ -74,19 +74,23 @@ public class OtpService {
         try {
             if (otpStorageService.isGlobalRateLimited()) {
                 log.warn("Global rate limit exceeded");
-                return OtpResponse.rateLimited(MessageResolver.getMessage(ExceptionMessages.SYSTEM_BUSY.getMessage()));
+                return OtpResponse.rateLimited(
+                        MessageResolver.getMessage(ExceptionMessages.SYSTEM_BUSY.getMessage()));
             }
             if (otpStorageService.isIpRateLimited(ipAddress)) {
                 log.warn("Rate limit exceeded for IP: {}", ipAddress);
-                return OtpResponse.rateLimited(MessageResolver.getMessage(ExceptionMessages.RATE_LIMIT_IP.getMessage()));
+                return OtpResponse.rateLimited(
+                        MessageResolver.getMessage(ExceptionMessages.RATE_LIMIT_IP.getMessage()));
             }
             if (otpStorageService.isPhoneNumberRateLimited(phoneNumber)) {
                 log.warn("Rate limit exceeded for phone: {}", maskedPhoneNumber);
-                return OtpResponse.rateLimited(MessageResolver.getMessage(ExceptionMessages.RATE_LIMIT_PHONE.getMessage()));
+                return OtpResponse.rateLimited(
+                        MessageResolver.getMessage(ExceptionMessages.RATE_LIMIT_PHONE.getMessage()));
             }
             if (otpStorageService.hasValidOtp(phoneNumber)) {
                 log.info("Valid OTP already exists for phone: {}", maskedPhoneNumber);
-                return OtpResponse.alreadySent(MessageResolver.getMessage(ExceptionMessages.OTP_ALREADY_SENT.getMessage()));
+                return OtpResponse.alreadySent(
+                        MessageResolver.getMessage(ExceptionMessages.OTP_ALREADY_SENT.getMessage()));
             }
             if (!userService.existUserWithUsername(phoneNumber)) {
                 userService.createUserByPhoneNumber(phoneNumber);
@@ -95,11 +99,13 @@ public class OtpService {
             sendSms(phoneNumber, otp);
             otpStorageService.storeOtp(phoneNumber, otp, ipAddress);
             log.info("OTP generated and sent successfully to: {}", maskedPhoneNumber);
-            return OtpResponse.success(MessageResolver.getMessage(
-                    ExceptionMessages.OTP_SENT_SUCCESS.getMessage(), new Object[]{maskedPhoneNumber}));
+            return OtpResponse.success(
+                    MessageResolver.getMessage(ExceptionMessages.OTP_SENT_SUCCESS.getMessage(),
+                            new Object[]{maskedPhoneNumber}));
         } catch (Exception e) {
             log.error("Failed to generate OTP for phone: {}", maskedPhoneNumber, e);
-            return OtpResponse.error(MessageResolver.getMessage(ExceptionMessages.OTP_SEND_FAILED.getMessage()));
+            return OtpResponse.error(
+                    MessageResolver.getMessage(ExceptionMessages.OTP_SEND_FAILED.getMessage()));
         }
     }
 
