@@ -90,6 +90,14 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PostMapping(path = "removeRoleFromUser")
+    public ResponseEntity<ResponseDto<String>> removeRoleFromUser(@RequestParam String username,
+                                                                  @RequestParam String roleName) {
+        userService.removeRoleFromUser(username, roleName);
+        return ResponseEntity.ok(ResponseDto.success("Role removed successfully"));
+    }
+
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PatchMapping(path = "toggleStatus/{userId}")
     public ResponseEntity<ResponseDto<Boolean>> toggleStatus(@PathVariable Long userId) {
         Boolean newStatus = userService.toggleStatus(userId);

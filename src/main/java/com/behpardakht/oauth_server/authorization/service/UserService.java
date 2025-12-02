@@ -143,6 +143,13 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public void removeRoleFromUser(String username, String roleName) {
+        Users user = findByUsername(username);
+        Role role = roleService.findByName(roleName);
+        user.getRoles().remove(role);
+        userRepository.save(user);
+    }
+
     private Users findByUsername(String username) {
         if (username != null) {
             return userRepository.findByUsername(username)
