@@ -26,6 +26,9 @@ public enum ExceptionMessages {
     INVAlID_AUTH_HEADER("invalid_auth_header"),
     TOKEN_NOT_FOUND("token_not_found"),
     NO_ACTIVE_SESSIONS_FOUND("no_active_sessions_found"),
+    LOGOUT_SUCCESS("logout_success"),
+    USERNAME_CHANGED_SUCCESS("username_changed_success"),
+    PASSWORD_CHANGED_SUCCESS("password_changed_success"),
 
     // SessionService
     SESSION_REVOKED_SUCCESS("session_revoked_success"),

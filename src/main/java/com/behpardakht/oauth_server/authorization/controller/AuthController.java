@@ -1,5 +1,7 @@
 package com.behpardakht.oauth_server.authorization.controller;
 
+import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.behpardakht.oauth_server.authorization.service.AuthService;
 import com.behpardakht.oauth_server.authorization.service.UserService;
@@ -24,7 +26,8 @@ public class AuthController {
     public ResponseEntity<ResponseDto<String>> logout(@RequestHeader(value = "Authorization", required = false)
                                                       String authHeader) {
         authService.logout(authHeader);
-        return ResponseEntity.ok(ResponseDto.success("User logout successfully"));
+        String response = MessageResolver.getMessage(ExceptionMessages.LOGOUT_SUCCESS.getMessage());
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PostMapping("logoutAll")
@@ -39,7 +42,8 @@ public class AuthController {
     public ResponseEntity<ResponseDto<String>> changeUsername(@RequestParam String oldUsername,
                                                               @RequestParam String newUsername) {
         userService.changeUsername(oldUsername, newUsername);
-        return ResponseEntity.ok(ResponseDto.success("Username changed successfully"));
+        String response = MessageResolver.getMessage(ExceptionMessages.USERNAME_CHANGED_SUCCESS.getMessage());
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PreAuthorize("#username == authentication.principal.username")
@@ -48,7 +52,8 @@ public class AuthController {
                                                               @RequestParam String oldPassword,
                                                               @RequestParam String newPassword) {
         userService.changePassword(oldPassword, newPassword);
-        return ResponseEntity.ok(ResponseDto.success("Password changed successfully"));
+        String response = MessageResolver.getMessage(ExceptionMessages.PASSWORD_CHANGED_SUCCESS.getMessage());
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PostMapping(path = "forgotPassword")
@@ -64,6 +69,7 @@ public class AuthController {
                                                               @RequestParam String newPassword,
                                                               HttpServletRequest httpRequest) {
         userService.setNewPassword(phoneNumber, otp, newPassword, getClientIpAddress(httpRequest));
-        return ResponseEntity.ok(ResponseDto.success("Password changed successfully"));
+        String response = MessageResolver.getMessage(ExceptionMessages.PASSWORD_CHANGED_SUCCESS.getMessage());
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 }
