@@ -55,7 +55,7 @@ public class RoleService {
     public void delete(Long id) {
         Role role = findById(id);
         if (roleRepository.isRoleAssignedToUsers(role.getId())) {
-            throw new CustomException(ExceptionMessages.ROLE_ASSIGNED_TO_USERS);
+            throw new CustomException(ExceptionMessages.ROLE_ASSIGNED_TO_USERS, role.getName());
         }
         roleRepository.delete(role);
     }
