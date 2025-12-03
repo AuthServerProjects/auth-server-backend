@@ -25,7 +25,8 @@ public class RoleController {
     @PostMapping(path = "save")
     public ResponseEntity<ResponseDto<String>> save(@RequestBody RoleDto request) {
         roleService.save(request);
-        String response = MessageResolver.getMessage(ExceptionMessages.ROLE_ADDED_SUCCESS.getMessage());
+        String response = MessageResolver.getMessage(
+                ExceptionMessages.ROLE_ADDED_SUCCESS.getMessage(), new Object[]{request.getName()});
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
@@ -54,7 +55,8 @@ public class RoleController {
     @DeleteMapping(path = "delete/{id}")
     public ResponseEntity<ResponseDto<String>> delete(@PathVariable Long id) {
         roleService.delete(id);
-        String response = MessageResolver.getMessage(ExceptionMessages.ROLE_DELETED_SUCCESS.getMessage());
+        String response = MessageResolver.getMessage(
+                ExceptionMessages.ROLE_DELETED_SUCCESS.getMessage(), new Object[]{id});
         return ResponseEntity.ok().body(ResponseDto.success(response));
     }
 }
