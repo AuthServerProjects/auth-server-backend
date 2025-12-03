@@ -3,7 +3,7 @@ package com.behpardakht.oauth_server.authorization.exception;
 import lombok.Getter;
 
 @Getter
-public enum ExceptionMessages {
+public enum Messages {
     // GlobalException
     AUTHENTICATION_FAILED_CREDENTIALS("authentication_failed_credentials"),
     GENERAL_ERROR("general_error"),
@@ -69,7 +69,7 @@ public enum ExceptionMessages {
 
     public final String message;
 
-    ExceptionMessages(String message) {
+    Messages(String message) {
         this.message = message;
     }
 }

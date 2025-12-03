@@ -1,7 +1,7 @@
 package com.behpardakht.oauth_server.authorization.controller.admin;
 
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
-import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
+import com.behpardakht.oauth_server.authorization.exception.Messages;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
@@ -63,7 +63,7 @@ public class UserController {
     public ResponseEntity<ResponseDto<String>> save(@RequestBody UsersDto request) {
         adminUserService.save(request);
         String response = MessageResolver.getMessage(
-                ExceptionMessages.USER_REGISTERED_SUCCESS.getMessage(), new Object[]{request.getUsername()});
+                Messages.USER_REGISTERED_SUCCESS.getMessage(), new Object[]{request.getUsername()});
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
@@ -72,7 +72,7 @@ public class UserController {
     public ResponseEntity<ResponseDto<String>> update(@PathVariable Long id, @RequestBody UsersDto request) {
         adminUserService.update(id, request);
         String response = MessageResolver.getMessage(
-                ExceptionMessages.USER_UPDATED_SUCCESS.getMessage(), new Object[]{request.getUsername()});
+                Messages.USER_UPDATED_SUCCESS.getMessage(), new Object[]{request.getUsername()});
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
@@ -80,7 +80,7 @@ public class UserController {
     @PostMapping(path = "resetPassword/{id}")
     public ResponseEntity<ResponseDto<String>> resetPassword(@PathVariable Long id) {
         adminUserService.resetPassword(id);
-        String response = MessageResolver.getMessage(ExceptionMessages.PASSWORD_SENT_SUCCESS.getMessage());
+        String response = MessageResolver.getMessage(Messages.PASSWORD_SENT_SUCCESS.getMessage());
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
@@ -90,7 +90,7 @@ public class UserController {
                                                              @RequestParam String roleName) {
         adminUserService.addRoleToUser(username, roleName);
         String response = MessageResolver.getMessage(
-                ExceptionMessages.ROLE_ASSIGNED_SUCCESS.getMessage(), new Object[]{roleName, username});
+                Messages.ROLE_ASSIGNED_SUCCESS.getMessage(), new Object[]{roleName, username});
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
@@ -100,7 +100,7 @@ public class UserController {
                                                                   @RequestParam String roleName) {
         adminUserService.removeRoleFromUser(username, roleName);
         String response = MessageResolver.getMessage(
-                ExceptionMessages.ROLE_REMOVED_SUCCESS.getMessage(), new Object[]{roleName, username});
+                Messages.ROLE_REMOVED_SUCCESS.getMessage(), new Object[]{roleName, username});
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 

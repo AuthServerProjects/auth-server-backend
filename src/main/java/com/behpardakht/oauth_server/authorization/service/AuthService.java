@@ -1,7 +1,7 @@
 package com.behpardakht.oauth_server.authorization.service;
 
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
-import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
+import com.behpardakht.oauth_server.authorization.exception.Messages;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
 import com.behpardakht.oauth_server.authorization.model.dto.auth.AuthorizationDto;
@@ -46,14 +46,14 @@ public class AuthService {
             removeAndBlackListToken(authorization);
         } else {
             log.warn("Logout attempted with token that doesn't exist in database: ...");
-            throw new CustomException(ExceptionMessages.TOKEN_NOT_FOUND);
+            throw new CustomException(Messages.TOKEN_NOT_FOUND);
         }
     }
 
     private static void validateAuthHeader(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             log.warn("Logout attempt without valid Authorization header");
-            throw new CustomException(ExceptionMessages.INVAlID_AUTH_HEADER);
+            throw new CustomException(Messages.INVAlID_AUTH_HEADER);
         }
     }
 
@@ -103,7 +103,7 @@ public class AuthService {
     public String revokeSessionsByUsername(String username) {
         List<Authorizations> userAuthorizationList = authorizationRepository.findByPrincipalName(username);
         if (userAuthorizationList.isEmpty()) {
-            throw new CustomException(ExceptionMessages.NO_ACTIVE_SESSIONS_FOUND);
+            throw new CustomException(Messages.NO_ACTIVE_SESSIONS_FOUND);
         }
         return removeAndBlackListToken(userAuthorizationList, maskPhoneNumber(username));
     }
@@ -116,7 +116,7 @@ public class AuthService {
         List<Authorizations> userAuthorizationList = authorizationRepository.findByPrincipalName(principalName);
         if (userAuthorizationList.isEmpty()) {
             log.info("Logout-all: No active sessions found for user {}", maskedPrincipalName);
-            throw new CustomException(ExceptionMessages.NO_ACTIVE_SESSIONS_FOUND);
+            throw new CustomException(Messages.NO_ACTIVE_SESSIONS_FOUND);
         }
         return removeAndBlackListToken(userAuthorizationList, maskedPrincipalName);
     }
@@ -147,10 +147,10 @@ public class AuthService {
                 maskedPrincipalName, revokedCount, failedCount);
 
         String message = MessageResolver.getMessage(
-                ExceptionMessages.SESSIONS_REVOKED_SUCCESS.getMessage(), new Object[]{revokedCount});
+                Messages.SESSIONS_REVOKED_SUCCESS.getMessage(), new Object[]{revokedCount});
         if (failedCount > 0) {
             message += " " + MessageResolver.getMessage(
-                    ExceptionMessages.SESSIONS_REVOKED_FAILED.getMessage(), new Object[]{failedCount});
+                    Messages.SESSIONS_REVOKED_FAILED.getMessage(), new Object[]{failedCount});
         }
         return message;
     }

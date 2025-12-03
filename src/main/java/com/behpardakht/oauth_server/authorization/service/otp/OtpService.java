@@ -1,7 +1,7 @@
 package com.behpardakht.oauth_server.authorization.service.otp;
 
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
-import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
+import com.behpardakht.oauth_server.authorization.exception.Messages;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.request.InitOtpRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.request.SendOtpRequestDto;
@@ -51,7 +51,7 @@ public class OtpService {
     private void validateStateNotExists(String state) {
         if (otpStorageService.stateExists(state)) {
             log.warn("Duplicate state parameter detected: {}", state);
-            throw new CustomException(ExceptionMessages.INVALID_STATE);
+            throw new CustomException(Messages.INVALID_STATE);
         }
     }
 
@@ -62,7 +62,7 @@ public class OtpService {
         OtpResponse otpResponse = sendOtp(phoneNumber, ipAddress);
         if (!otpResponse.isSuccess()) {
             log.warn("Failed to send OTP for phone: {}", maskPhoneNumber(phoneNumber));
-            throw new CustomException(ExceptionMessages.OTP_SEND_FAILED);
+            throw new CustomException(Messages.OTP_SEND_FAILED);
         }
         otpStorageService.storePhoneNumber(state, phoneNumber);
         log.info("OTP sent successfully for phone: {}", maskPhoneNumber(phoneNumber));
@@ -75,22 +75,22 @@ public class OtpService {
             if (otpStorageService.isGlobalRateLimited()) {
                 log.warn("Global rate limit exceeded");
                 return OtpResponse.rateLimited(
-                        MessageResolver.getMessage(ExceptionMessages.SYSTEM_BUSY.getMessage()));
+                        MessageResolver.getMessage(Messages.SYSTEM_BUSY.getMessage()));
             }
             if (otpStorageService.isIpRateLimited(ipAddress)) {
                 log.warn("Rate limit exceeded for IP: {}", ipAddress);
                 return OtpResponse.rateLimited(
-                        MessageResolver.getMessage(ExceptionMessages.RATE_LIMIT_IP.getMessage()));
+                        MessageResolver.getMessage(Messages.RATE_LIMIT_IP.getMessage()));
             }
             if (otpStorageService.isPhoneNumberRateLimited(phoneNumber)) {
                 log.warn("Rate limit exceeded for phone: {}", maskedPhoneNumber);
                 return OtpResponse.rateLimited(
-                        MessageResolver.getMessage(ExceptionMessages.RATE_LIMIT_PHONE.getMessage()));
+                        MessageResolver.getMessage(Messages.RATE_LIMIT_PHONE.getMessage()));
             }
             if (otpStorageService.hasValidOtp(phoneNumber)) {
                 log.info("Valid OTP already exists for phone: {}", maskedPhoneNumber);
                 return OtpResponse.alreadySent(
-                        MessageResolver.getMessage(ExceptionMessages.OTP_ALREADY_SENT.getMessage()));
+                        MessageResolver.getMessage(Messages.OTP_ALREADY_SENT.getMessage()));
             }
             if (!adminUserService.existUserWithUsername(phoneNumber)) {
                 adminUserService.createUserByPhoneNumber(phoneNumber);
@@ -100,12 +100,12 @@ public class OtpService {
             otpStorageService.storeOtp(phoneNumber, otp, ipAddress);
             log.info("OTP generated and sent successfully to: {}", maskedPhoneNumber);
             return OtpResponse.success(
-                    MessageResolver.getMessage(ExceptionMessages.OTP_SENT_SUCCESS.getMessage(),
+                    MessageResolver.getMessage(Messages.OTP_SENT_SUCCESS.getMessage(),
                             new Object[]{maskedPhoneNumber}));
         } catch (Exception e) {
             log.error("Failed to generate OTP for phone: {}", maskedPhoneNumber, e);
             return OtpResponse.error(
-                    MessageResolver.getMessage(ExceptionMessages.OTP_SEND_FAILED.getMessage()));
+                    MessageResolver.getMessage(Messages.OTP_SEND_FAILED.getMessage()));
         }
     }
 
@@ -136,7 +136,7 @@ public class OtpService {
     private void validateStateExists(String state) {
         if (!otpStorageService.stateExists(state)) {
             log.warn("Invalid or expired state: {}", state);
-            throw new CustomException(ExceptionMessages.INVALID_OR_EXPIRED_SESSION);
+            throw new CustomException(Messages.INVALID_OR_EXPIRED_SESSION);
         }
     }
 
@@ -144,7 +144,7 @@ public class OtpService {
         String phoneNumber = otpStorageService.getPhoneNumber(state);
         if (phoneNumber == null) {
             log.warn("Phone number not found for state: {}", state);
-            throw new CustomException(ExceptionMessages.PHONE_NUMBER_NOT_FOUND);
+            throw new CustomException(Messages.PHONE_NUMBER_NOT_FOUND);
         }
         return phoneNumber;
     }
@@ -153,7 +153,7 @@ public class OtpService {
         boolean isValid = otpStorageService.validateAndConsumeOtp(phoneNumber, otp, ipAddress);
         if (!isValid) {
             log.warn("OTP validation failed for phone: {}", maskedPhoneNumber);
-            throw new CustomException(ExceptionMessages.INVALID_OR_EXPIRED_OTP);
+            throw new CustomException(Messages.INVALID_OR_EXPIRED_OTP);
         }
     }
 
@@ -162,7 +162,7 @@ public class OtpService {
         if (sessionDto.clientId() == null) {
             log.error("Client ID not found in session for state: {}", state);
             otpStorageService.markStateAsConsumed(state);
-            throw new CustomException(ExceptionMessages.CLIENT_ID_NOT_FOUND);
+            throw new CustomException(Messages.CLIENT_ID_NOT_FOUND);
         }
         return sessionDto;
     }
@@ -180,7 +180,7 @@ public class OtpService {
         } catch (Exception e) {
             log.error("Failed to create authorization for phone: {}", maskedPhoneNumber, e);
             otpStorageService.markStateAsConsumed(state);
-            throw new CustomException(ExceptionMessages.AUTHORIZATION_CREATION_FAILED);
+            throw new CustomException(Messages.AUTHORIZATION_CREATION_FAILED);
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.behpardakht.oauth_server.authorization.service;
 
-import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
+import com.behpardakht.oauth_server.authorization.exception.Messages;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
 import com.behpardakht.oauth_server.authorization.model.dto.RoleDto;
@@ -55,7 +55,7 @@ public class RoleService {
     public void delete(Long id) {
         Role role = findById(id);
         if (roleRepository.isRoleAssignedToUsers(role.getId())) {
-            throw new CustomException(ExceptionMessages.ROLE_ASSIGNED_TO_USERS, role.getName());
+            throw new CustomException(Messages.ROLE_ASSIGNED_TO_USERS, role.getName());
         }
         roleRepository.delete(role);
     }

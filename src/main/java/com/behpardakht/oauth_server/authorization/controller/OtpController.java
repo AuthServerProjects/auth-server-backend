@@ -1,7 +1,7 @@
 package com.behpardakht.oauth_server.authorization.controller;
 
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
-import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
+import com.behpardakht.oauth_server.authorization.exception.Messages;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.request.InitOtpRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.request.SendOtpRequestDto;
@@ -30,7 +30,7 @@ public class OtpController {
     @PostMapping("initialize")
     public ResponseEntity<ResponseDto<String>> initializeOtpSession(@RequestBody @Valid InitOtpRequestDto request) {
         otpService.initializeOtpSession(request);
-        String response = MessageResolver.getMessage(ExceptionMessages.OTP_SESSION_INITIALIZED_SUCCESS.getMessage());
+        String response = MessageResolver.getMessage(Messages.OTP_SESSION_INITIALIZED_SUCCESS.getMessage());
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 

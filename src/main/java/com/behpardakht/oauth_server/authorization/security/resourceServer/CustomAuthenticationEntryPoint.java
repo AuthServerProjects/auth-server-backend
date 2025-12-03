@@ -1,7 +1,7 @@
 package com.behpardakht.oauth_server.authorization.security.resourceServer;
 
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
-import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
+import com.behpardakht.oauth_server.authorization.exception.Messages;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,34 +37,34 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         String exceptionMessage = authException.getMessage();
         String causeMessage = authException.getCause() != null ? authException.getCause().getMessage() : "";
         String fullMessage = (exceptionMessage + " " + causeMessage).toLowerCase();
-        ExceptionMessages exceptionType = detectExceptionType(fullMessage);
+        Messages exceptionType = detectExceptionType(fullMessage);
         String message = MessageResolver.getMessage(exceptionType.getMessage());
         return ResponseDto.failed(exceptionType.getMessage(), message, null);
     }
 
-    private ExceptionMessages detectExceptionType(String fullMessage) {
+    private Messages detectExceptionType(String fullMessage) {
         if (containsAny(fullMessage, "expired", "jwt expired")) {
-            return ExceptionMessages.TOKEN_EXPIRED;
+            return Messages.TOKEN_EXPIRED;
         }
         if (containsAny(fullMessage, "signature", "no matching key", "another algorithm expected", "invalid signature")) {
-            return ExceptionMessages.TOKEN_INVALID_SIGNATURE;
+            return Messages.TOKEN_INVALID_SIGNATURE;
         }
         if (containsAny(fullMessage, "not yet valid", "before", "nbf")) {
-            return ExceptionMessages.TOKEN_NOT_VALID;
+            return Messages.TOKEN_NOT_VALID;
         }
         if (containsAny(fullMessage, "malformed", "invalid jwt", "cannot decode")) {
-            return ExceptionMessages.TOKEN_MALFORMED;
+            return Messages.TOKEN_MALFORMED;
         }
         if (containsAny(fullMessage, "bearer token", "missing", "credentials not found")) {
-            return ExceptionMessages.TOKEN_MISSING;
+            return Messages.TOKEN_MISSING;
         }
         if (containsAny(fullMessage, "issuer", "iss")) {
-            return ExceptionMessages.TOKEN_INVALID_ISSUER;
+            return Messages.TOKEN_INVALID_ISSUER;
         }
         if (containsAny(fullMessage, "audience", "aud")) {
-            return ExceptionMessages.TOKEN_INVALID_AUDIENCE;
+            return Messages.TOKEN_INVALID_AUDIENCE;
         }
-        return ExceptionMessages.AUTHENTICATION_FAILED;
+        return Messages.AUTHENTICATION_FAILED;
     }
 
     private boolean containsAny(String text, String... keywords) {

@@ -1,7 +1,7 @@
 package com.behpardakht.oauth_server.authorization.controller.admin;
 
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
-import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
+import com.behpardakht.oauth_server.authorization.exception.Messages;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
@@ -33,7 +33,7 @@ public class ClientController {
     public ResponseEntity<ResponseDto<String>> save(@RequestBody ClientDto request) {
         clientService.save(request);
         String response = MessageResolver.getMessage(
-                ExceptionMessages.CLIENT_REGISTERED_SUCCESS.getMessage(), new Object[]{request.getClientId()});
+                Messages.CLIENT_REGISTERED_SUCCESS.getMessage(), new Object[]{request.getClientId()});
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
@@ -43,7 +43,7 @@ public class ClientController {
                                                       @RequestBody ClientDto request) {
         clientService.update(clientId, request);
         String response = MessageResolver.getMessage(
-                ExceptionMessages.CLIENT_UPDATED_SUCCESS.getMessage(), new Object[]{clientId});
+                Messages.CLIENT_UPDATED_SUCCESS.getMessage(), new Object[]{clientId});
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
@@ -67,7 +67,7 @@ public class ClientController {
     public ResponseEntity<ResponseDto<String>> regenerateSecret(@PathVariable String clientId) {
         clientService.regenerateSecret(clientId);
         String response = MessageResolver.getMessage(
-                ExceptionMessages.CLIENT_SECRET_REGENERATED_SUCCESS.getMessage(), new Object[]{clientId});
+                Messages.CLIENT_SECRET_REGENERATED_SUCCESS.getMessage(), new Object[]{clientId});
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
@@ -107,7 +107,7 @@ public class ClientController {
         clientDto.setSetting(settingDto);
         clientService.save(clientDto);
         String message = MessageResolver.getMessage(
-                ExceptionMessages.CLIENT_REGISTERED_SUCCESS.getMessage(), new Object[]{clientDto.getClientId()});
+                Messages.CLIENT_REGISTERED_SUCCESS.getMessage(), new Object[]{clientDto.getClientId()});
         return ResponseEntity.ok(message);
     }
 }

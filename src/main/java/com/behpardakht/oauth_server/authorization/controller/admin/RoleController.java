@@ -1,7 +1,7 @@
 package com.behpardakht.oauth_server.authorization.controller.admin;
 
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
-import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
+import com.behpardakht.oauth_server.authorization.exception.Messages;
 import com.behpardakht.oauth_server.authorization.model.dto.RoleDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.behpardakht.oauth_server.authorization.service.RoleService;
@@ -26,7 +26,7 @@ public class RoleController {
     public ResponseEntity<ResponseDto<String>> save(@RequestBody RoleDto request) {
         roleService.save(request);
         String response = MessageResolver.getMessage(
-                ExceptionMessages.ROLE_ADDED_SUCCESS.getMessage(), new Object[]{request.getName()});
+                Messages.ROLE_ADDED_SUCCESS.getMessage(), new Object[]{request.getName()});
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
@@ -56,7 +56,7 @@ public class RoleController {
     public ResponseEntity<ResponseDto<String>> delete(@PathVariable Long id) {
         roleService.delete(id);
         String response = MessageResolver.getMessage(
-                ExceptionMessages.ROLE_DELETED_SUCCESS.getMessage(), new Object[]{id});
+                Messages.ROLE_DELETED_SUCCESS.getMessage(), new Object[]{id});
         return ResponseEntity.ok().body(ResponseDto.success(response));
     }
 }
