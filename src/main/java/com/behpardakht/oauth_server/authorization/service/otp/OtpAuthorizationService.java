@@ -4,7 +4,7 @@ import com.behpardakht.oauth_server.authorization.config.Properties;
 import com.behpardakht.oauth_server.authorization.model.dto.user.UsersDto;
 import com.behpardakht.oauth_server.authorization.model.enums.PkceMethod;
 import com.behpardakht.oauth_server.authorization.service.ClientService;
-import com.behpardakht.oauth_server.authorization.service.UserService;
+import com.behpardakht.oauth_server.authorization.service.AdminUserService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService.SessionDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,14 +41,14 @@ public class OtpAuthorizationService {
     private String issuerUri;
     private final Properties properties;
 
-    private final UserService userService;
+    private final AdminUserService adminUserService;
     private final ClientService clientService;
     private final OAuth2AuthorizationService authorizationService;
 
     public String createAuthorization(String authorizationCode, SessionDto sessionDto) {
         String phoneNumber = sessionDto.phoneNumber();
         try {
-            UsersDto user = userService.findByPhoneNumber(phoneNumber);
+            UsersDto user = adminUserService.findByPhoneNumber(phoneNumber);
             Authentication principal =
                     new UsernamePasswordAuthenticationToken(phoneNumber, null, user.getAuthorities());
 

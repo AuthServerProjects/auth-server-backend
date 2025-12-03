@@ -1,4 +1,4 @@
-package com.behpardakht.oauth_server.authorization.controller;
+package com.behpardakht.oauth_server.authorization.controller.admin;
 
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.behpardakht.oauth_server.authorization.model.enums.*;

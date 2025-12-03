@@ -2,14 +2,15 @@ package com.behpardakht.oauth_server.authorization.controller;
 
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.behpardakht.oauth_server.authorization.service.AuthService;
+import com.behpardakht.oauth_server.authorization.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.API_PREFIX;
+import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.getClientIpAddress;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,6 +18,7 @@ import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.API_PR
 public class AuthController {
 
     private final AuthService authService;
+    private final UserService userService;
 
     @PostMapping("logout")
     public ResponseEntity<ResponseDto<?>> logout(@RequestHeader(value = "Authorization", required = false)
@@ -30,5 +32,38 @@ public class AuthController {
                                                                 String authHeader) {
         String response = authService.logoutFromAllDevices(authHeader);
         return ResponseEntity.ok(ResponseDto.success(response));
+    }
+
+    @PreAuthorize("#oldUsername == authentication.principal.username")
+    @PostMapping(path = "changeUsername")
+    public ResponseEntity<ResponseDto<?>> changeUsername(@RequestParam String oldUsername,
+                                                         @RequestParam String newUsername) {
+        userService.changeUsername(oldUsername, newUsername);
+        return ResponseEntity.ok(ResponseDto.success("Username changed successfully"));
+    }
+
+    @PreAuthorize("#username == authentication.principal.username")
+    @PostMapping(path = "changePassword")
+    public ResponseEntity<ResponseDto<?>> changePassword(@RequestParam String username,
+                                                         @RequestParam String oldPassword,
+                                                         @RequestParam String newPassword) {
+        userService.changePassword(oldPassword, newPassword);
+        return ResponseEntity.ok(ResponseDto.success("Password changed successfully"));
+    }
+
+    @PostMapping(path = "forgotPassword")
+    public ResponseEntity<ResponseDto<String>> forgotPassword(@RequestParam String phoneNumber,
+                                                              HttpServletRequest httpRequest) {
+        String response = userService.forgotPassword(phoneNumber, getClientIpAddress(httpRequest));
+        return ResponseEntity.ok(ResponseDto.success(response));
+    }
+
+    @PostMapping(path = "setNewPassword")
+    public ResponseEntity<ResponseDto<String>> setNewPassword(@RequestParam String phoneNumber,
+                                                              @RequestParam String otp,
+                                                              @RequestParam String newPassword,
+                                                              HttpServletRequest httpRequest) {
+        userService.setNewPassword(phoneNumber, otp, newPassword, getClientIpAddress(httpRequest));
+        return ResponseEntity.ok(ResponseDto.success("Password changed successfully"));
     }
 }

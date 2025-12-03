@@ -1,7 +1,7 @@
 package com.behpardakht.oauth_server.authorization.unitTest.security.otp;
 
 import com.behpardakht.oauth_server.authorization.model.dto.otp.response.OtpResponse;
-import com.behpardakht.oauth_server.authorization.service.UserService;
+import com.behpardakht.oauth_server.authorization.service.AdminUserService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService;
 import com.behpardakht.oauth_server.authorization.sms.ISmsService;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.*;
 class OtpServiceSecurityTest {
 
     @Mock
-    private UserService userService;
+    private AdminUserService adminUserService;
 
     @Mock
     private ISmsService iSmsService;
@@ -52,7 +52,7 @@ class OtpServiceSecurityTest {
         when(otpStorageService.isIpRateLimited(anyString())).thenReturn(false);
         when(otpStorageService.isPhoneNumberRateLimited(anyString())).thenReturn(false);
         when(otpStorageService.hasValidOtp(anyString())).thenReturn(false);
-        when(userService.existUserWithUsername(anyString())).thenReturn(true);
+        when(adminUserService.existUserWithUsername(anyString())).thenReturn(true);
         doNothing().when(otpStorageService).storeOtp(anyString(), anyString(), anyString());
         doNothing().when(iSmsService).send(anyString(), anyString());
     }
@@ -76,26 +76,26 @@ class OtpServiceSecurityTest {
     @DisplayName("SUCCESS: New user created when not exists")
     void testSendOtp_CreatesNewUser() {
         // Given
-        when(userService.existUserWithUsername(TEST_PHONE)).thenReturn(false);
+        when(adminUserService.existUserWithUsername(TEST_PHONE)).thenReturn(false);
 
         // When
         otpService.sendOtp(TEST_PHONE, TEST_IP);
 
         // Then
-        verify(userService).createUserByPhoneNumber(TEST_PHONE);
+        verify(adminUserService).createUserByPhoneNumber(TEST_PHONE);
     }
 
     @Test
     @DisplayName("SUCCESS: Existing user doesn't get recreated")
     void testSendOtp_ExistingUser_NotRecreated() {
         // Given
-        when(userService.existUserWithUsername(TEST_PHONE)).thenReturn(true);
+        when(adminUserService.existUserWithUsername(TEST_PHONE)).thenReturn(true);
 
         // When
         otpService.sendOtp(TEST_PHONE, TEST_IP);
 
         // Then
-        verify(userService, never()).createUserByPhoneNumber(TEST_PHONE);
+        verify(adminUserService, never()).createUserByPhoneNumber(TEST_PHONE);
     }
 
     // ==================== OTP GENERATION SECURITY TESTS ====================
@@ -274,7 +274,7 @@ class OtpServiceSecurityTest {
     @DisplayName("RELIABILITY: Exception during OTP generation handled gracefully")
     void testSendOtp_GenerationException() {
         // Given
-        when(userService.existUserWithUsername(TEST_PHONE))
+        when(adminUserService.existUserWithUsername(TEST_PHONE))
                 .thenThrow(new RuntimeException("Database error"));
 
         // When
@@ -358,14 +358,14 @@ class OtpServiceSecurityTest {
     void testSendOtp_SQLInjectionInPhone() {
         // Given
         String sqlInjection = "' OR '1'='1";
-        when(userService.existUserWithUsername(sqlInjection)).thenReturn(false);
+        when(adminUserService.existUserWithUsername(sqlInjection)).thenReturn(false);
 
         // When
         OtpResponse response = otpService.sendOtp(sqlInjection, TEST_IP);
 
         // Then - Should be treated as literal string
         assertThat(response).isNotNull();
-        verify(userService).existUserWithUsername(sqlInjection);
+        verify(adminUserService).existUserWithUsername(sqlInjection);
     }
 
     @Test
@@ -373,7 +373,7 @@ class OtpServiceSecurityTest {
     void testSendOtp_VeryLongPhoneNumber() {
         // Given
         String longPhone = "0".repeat(10000);
-        when(userService.existUserWithUsername(longPhone)).thenReturn(false);
+        when(adminUserService.existUserWithUsername(longPhone)).thenReturn(false);
 
         // When
         OtpResponse response = otpService.sendOtp(longPhone, TEST_IP);
@@ -387,7 +387,7 @@ class OtpServiceSecurityTest {
     void testSendOtp_InternationalFormat() {
         // Given
         String internationalPhone = "+989123456789";
-        when(userService.existUserWithUsername(internationalPhone)).thenReturn(true);
+        when(adminUserService.existUserWithUsername(internationalPhone)).thenReturn(true);
 
         // When
         OtpResponse response = otpService.sendOtp(internationalPhone, TEST_IP);
@@ -565,8 +565,8 @@ class OtpServiceSecurityTest {
     @DisplayName("SECURITY: Consistent response time regardless of user existence")
     void testSendOtp_TimingAttackPrevention() {
         // Given - Measure time for existing vs non-existing user
-        when(userService.existUserWithUsername(TEST_PHONE + "1")).thenReturn(true);
-        when(userService.existUserWithUsername(TEST_PHONE + "2")).thenReturn(false);
+        when(adminUserService.existUserWithUsername(TEST_PHONE + "1")).thenReturn(true);
+        when(adminUserService.existUserWithUsername(TEST_PHONE + "2")).thenReturn(false);
 
         // When
         long start1 = System.nanoTime();

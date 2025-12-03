@@ -8,7 +8,7 @@ import com.behpardakht.oauth_server.authorization.model.dto.otp.request.SendOtpR
 import com.behpardakht.oauth_server.authorization.model.dto.otp.request.VerifyOtpRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.response.OtpResponse;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.response.VerifyOtpResponseDto;
-import com.behpardakht.oauth_server.authorization.service.UserService;
+import com.behpardakht.oauth_server.authorization.service.AdminUserService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService.SessionDto;
 import com.behpardakht.oauth_server.authorization.sms.ISmsService;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.maskPh
 @RequiredArgsConstructor
 public class OtpService {
 
-    private final UserService userService;
+    private final AdminUserService adminUserService;
     private final ISmsService iSmsService;
     private final OtpStorageService otpStorageService;
     private final OtpAuthorizationService otpAuthorizationService;
@@ -92,8 +92,8 @@ public class OtpService {
                 return OtpResponse.alreadySent(
                         MessageResolver.getMessage(ExceptionMessages.OTP_ALREADY_SENT.getMessage()));
             }
-            if (!userService.existUserWithUsername(phoneNumber)) {
-                userService.createUserByPhoneNumber(phoneNumber);
+            if (!adminUserService.existUserWithUsername(phoneNumber)) {
+                adminUserService.createUserByPhoneNumber(phoneNumber);
             }
             String otp = String.valueOf(100000 + SECURE_RANDOM.get().nextInt(900000));
             sendSms(phoneNumber, otp);

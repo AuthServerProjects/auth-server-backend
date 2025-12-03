@@ -1,4 +1,4 @@
-package com.behpardakht.oauth_server.authorization.controller;
+package com.behpardakht.oauth_server.authorization.controller.admin;
 
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
