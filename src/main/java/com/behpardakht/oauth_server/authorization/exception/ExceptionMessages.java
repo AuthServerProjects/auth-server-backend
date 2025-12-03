@@ -27,6 +27,11 @@ public enum ExceptionMessages {
     TOKEN_NOT_FOUND("token_not_found"),
     NO_ACTIVE_SESSIONS_FOUND("no_active_sessions_found"),
 
+    // SessionService
+    SESSION_REVOKED_SUCCESS("session_revoked_success"),
+    SESSIONS_REVOKED_SUCCESS("sessions_revoked_success"),
+    SESSIONS_REVOKED_FAILED("sessions_revoked_failed"),
+
     // OtpService
     INVALID_STATE("invalid_state"),
     OTP_SEND_FAILED("otp_send_failed"),

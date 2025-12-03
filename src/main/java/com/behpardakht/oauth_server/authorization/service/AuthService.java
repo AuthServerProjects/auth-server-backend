@@ -1,5 +1,6 @@
 package com.behpardakht.oauth_server.authorization.service;
 
+import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
@@ -145,9 +146,11 @@ public class AuthService {
         log.info("LOGOUT-ALL SUCCESS: User {} logged out from {} device(s) ({} failed)",
                 maskedPrincipalName, revokedCount, failedCount);
 
-        String message = String.format("Logged out from %d device(s) successfully", revokedCount);
+        String message = MessageResolver.getMessage(
+                ExceptionMessages.SESSIONS_REVOKED_SUCCESS.getMessage(), new Object[]{revokedCount});
         if (failedCount > 0) {
-            message += String.format(" (%d failed)", failedCount);
+            message += " " + MessageResolver.getMessage(
+                    ExceptionMessages.SESSIONS_REVOKED_FAILED.getMessage(), new Object[]{failedCount});
         }
         return message;
     }

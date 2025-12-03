@@ -1,5 +1,7 @@
 package com.behpardakht.oauth_server.authorization.controller.admin;
 
+import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
 import com.behpardakht.oauth_server.authorization.model.dto.auth.AuthorizationDto;
 import com.behpardakht.oauth_server.authorization.model.dto.auth.AuthorizationFilterDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
@@ -26,7 +28,9 @@ public class SessionController {
     @DeleteMapping("revoke/{authorizationId}")
     public ResponseEntity<ResponseDto<String>> revokeSession(@PathVariable String authorizationId) {
         authService.revokeSession(authorizationId);
-        return ResponseEntity.ok(ResponseDto.success("Session revoked successfully"));
+        String response = MessageResolver.getMessage(
+                ExceptionMessages.SESSION_REVOKED_SUCCESS.getMessage(), new Object[]{authorizationId});
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
