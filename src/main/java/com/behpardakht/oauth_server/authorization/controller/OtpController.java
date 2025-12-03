@@ -28,7 +28,7 @@ public class OtpController {
     private final OtpService otpService;
 
     @PostMapping("initialize")
-    public ResponseEntity<ResponseDto<?>> initializeOtpSession(@RequestBody @Valid InitOtpRequestDto request) {
+    public ResponseEntity<ResponseDto<String>> initializeOtpSession(@RequestBody @Valid InitOtpRequestDto request) {
         otpService.initializeOtpSession(request);
         String response = MessageResolver.getMessage(ExceptionMessages.OTP_SESSION_INITIALIZED_SUCCESS.getMessage());
         return ResponseEntity.ok(ResponseDto.success(response));
