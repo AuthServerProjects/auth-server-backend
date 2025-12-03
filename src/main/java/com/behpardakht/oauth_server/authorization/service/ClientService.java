@@ -80,12 +80,11 @@ public class ClientService {
         return PageableResponseDto.build(responses, page);
     }
 
-    public String regenerateSecret(String clientId) {
+    public void regenerateSecret(String clientId) {
         Client client = getClient(clientId);
         String rawSecret = UUID.randomUUID().toString();
         client.setClientSecret(passwordEncoder.encode(rawSecret));
         clientRepository.save(client);
-        return rawSecret;
     }
 
     public Boolean toggleStatus(String clientId) {

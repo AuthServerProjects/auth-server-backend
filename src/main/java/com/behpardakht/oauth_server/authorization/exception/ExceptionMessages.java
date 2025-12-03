@@ -41,8 +41,12 @@ public enum ExceptionMessages {
     CLIENT_ID_NOT_FOUND("client_id_not_found"),
     AUTHORIZATION_CREATION_FAILED("authorization_creation_failed"),
 
-    // Client/Role
+    // Client
     CLIENT_REGISTERED_SUCCESS("client_registered_success"),
+    CLIENT_UPDATED_SUCCESS("client_updated_success"),
+    CLIENT_SECRET_REGENERATED_SUCCESS("client_secret_regenerated_success"),
+
+    // Role
     ROLE_ADDED_SUCCESS("role_added_success"),
     ROLE_ASSIGNED_TO_USERS("role_assigned_to_users"),
     ROLE_DELETED_SUCCESS("role_deleted_success");

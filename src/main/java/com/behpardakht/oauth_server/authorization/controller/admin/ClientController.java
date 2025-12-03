@@ -38,17 +38,19 @@ public class ClientController {
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @PutMapping(path = "update/{id}")
-    public ResponseEntity<ResponseDto<String>> update(@PathVariable String id,
+    @PutMapping(path = "update/{clientId}")
+    public ResponseEntity<ResponseDto<String>> update(@PathVariable String clientId,
                                                       @RequestBody ClientDto request) {
-        clientService.update(id, request);
-        return ResponseEntity.ok(ResponseDto.success("Client updated successfully"));
+        clientService.update(clientId, request);
+        String response = MessageResolver.getMessage(
+                ExceptionMessages.CLIENT_UPDATED_SUCCESS.getMessage(), new Object[]{clientId});
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @GetMapping(path = "find/{id}")
-    public ResponseEntity<ResponseDto<ClientDto>> findByClientId(@PathVariable String id) {
-        ClientDto response = clientService.findByClientId(id);
+    @GetMapping(path = "find/{clientId}")
+    public ResponseEntity<ResponseDto<ClientDto>> findByClientId(@PathVariable String clientId) {
+        ClientDto response = clientService.findByClientId(clientId);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
@@ -61,16 +63,18 @@ public class ClientController {
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @PostMapping(path = "regenerateSecret/{id}")
-    public ResponseEntity<ResponseDto<String>> regenerateSecret(@PathVariable String id) {
-        String response = clientService.regenerateSecret(id);
+    @PostMapping(path = "regenerateSecret/{clientId}")
+    public ResponseEntity<ResponseDto<String>> regenerateSecret(@PathVariable String clientId) {
+        clientService.regenerateSecret(clientId);
+        String response = MessageResolver.getMessage(
+                ExceptionMessages.CLIENT_SECRET_REGENERATED_SUCCESS.getMessage(), new Object[]{clientId});
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @PatchMapping(path = "toggleStatus/{id}")
-    public ResponseEntity<ResponseDto<Boolean>> toggleStatus(@PathVariable String id) {
-        Boolean response = clientService.toggleStatus(id);
+    @PatchMapping(path = "toggleStatus/{clientId}")
+    public ResponseEntity<ResponseDto<Boolean>> toggleStatus(@PathVariable String clientId) {
+        Boolean response = clientService.toggleStatus(clientId);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
