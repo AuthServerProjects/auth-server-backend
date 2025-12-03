@@ -1,5 +1,7 @@
 package com.behpardakht.oauth_server.authorization.controller.admin;
 
+import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
@@ -23,8 +25,7 @@ public class UserController {
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping(path = "findAll")
     public ResponseEntity<ResponseDto<PageableResponseDto<UsersDto>>> findAll(@RequestBody
-                                                                                  PageableRequestDto<UserFilterDto>
-                                                                                          request) {
+                                                                              PageableRequestDto<UserFilterDto> request) {
         PageableResponseDto<UsersDto> response = adminUserService.findAll(request);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
@@ -61,21 +62,26 @@ public class UserController {
     @PostMapping(path = "save")
     public ResponseEntity<ResponseDto<String>> save(@RequestBody UsersDto request) {
         adminUserService.save(request);
-        return ResponseEntity.ok(ResponseDto.success("User registered successfully"));
+        String response = MessageResolver.getMessage(
+                ExceptionMessages.USER_REGISTERED_SUCCESS.getMessage(), new Object[]{request.getUsername()});
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PutMapping(path = "update/{id}")
     public ResponseEntity<ResponseDto<String>> update(@PathVariable Long id, @RequestBody UsersDto request) {
         adminUserService.update(id, request);
-        return ResponseEntity.ok(ResponseDto.success("User updated successfully"));
+        String response = MessageResolver.getMessage(
+                ExceptionMessages.USER_UPDATED_SUCCESS.getMessage(), new Object[]{request.getUsername()});
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping(path = "resetPassword/{id}")
     public ResponseEntity<ResponseDto<String>> resetPassword(@PathVariable Long id) {
         adminUserService.resetPassword(id);
-        return ResponseEntity.ok(ResponseDto.success("Password sent to your mobile"));
+        String response = MessageResolver.getMessage(ExceptionMessages.PASSWORD_SENT_SUCCESS.getMessage());
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
@@ -83,7 +89,9 @@ public class UserController {
     public ResponseEntity<ResponseDto<String>> addRoleToUser(@RequestParam String username,
                                                              @RequestParam String roleName) {
         adminUserService.addRoleToUser(username, roleName);
-        return ResponseEntity.ok(ResponseDto.success("Role added successfully"));
+        String response = MessageResolver.getMessage(
+                ExceptionMessages.ROLE_ASSIGNED_SUCCESS.getMessage(), new Object[]{roleName, username});
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
@@ -91,7 +99,9 @@ public class UserController {
     public ResponseEntity<ResponseDto<String>> removeRoleFromUser(@RequestParam String username,
                                                                   @RequestParam String roleName) {
         adminUserService.removeRoleFromUser(username, roleName);
-        return ResponseEntity.ok(ResponseDto.success("Role removed successfully"));
+        String response = MessageResolver.getMessage(
+                ExceptionMessages.ROLE_REMOVED_SUCCESS.getMessage(), new Object[]{roleName, username});
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
