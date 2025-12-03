@@ -36,6 +36,7 @@ public enum ExceptionMessages {
     SESSIONS_REVOKED_FAILED("sessions_revoked_failed"),
 
     // OtpService
+    OTP_SESSION_INITIALIZED_SUCCESS("otp_session_initialized_success"),
     INVALID_STATE("invalid_state"),
     OTP_SEND_FAILED("otp_send_failed"),
     SYSTEM_BUSY("system_busy"),
