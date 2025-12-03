@@ -21,10 +21,10 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("logout")
-    public ResponseEntity<ResponseDto<?>> logout(@RequestHeader(value = "Authorization", required = false)
-                                                 String authHeader) {
+    public ResponseEntity<ResponseDto<String>> logout(@RequestHeader(value = "Authorization", required = false)
+                                                      String authHeader) {
         authService.logout(authHeader);
-        return ResponseEntity.ok(ResponseDto.success(null));
+        return ResponseEntity.ok(ResponseDto.success("User logout successfully"));
     }
 
     @PostMapping("logoutAll")
@@ -36,17 +36,17 @@ public class AuthController {
 
     @PreAuthorize("#oldUsername == authentication.principal.username")
     @PostMapping(path = "changeUsername")
-    public ResponseEntity<ResponseDto<?>> changeUsername(@RequestParam String oldUsername,
-                                                         @RequestParam String newUsername) {
+    public ResponseEntity<ResponseDto<String>> changeUsername(@RequestParam String oldUsername,
+                                                              @RequestParam String newUsername) {
         userService.changeUsername(oldUsername, newUsername);
         return ResponseEntity.ok(ResponseDto.success("Username changed successfully"));
     }
 
     @PreAuthorize("#username == authentication.principal.username")
     @PostMapping(path = "changePassword")
-    public ResponseEntity<ResponseDto<?>> changePassword(@RequestParam String username,
-                                                         @RequestParam String oldPassword,
-                                                         @RequestParam String newPassword) {
+    public ResponseEntity<ResponseDto<String>> changePassword(@RequestParam String username,
+                                                              @RequestParam String oldPassword,
+                                                              @RequestParam String newPassword) {
         userService.changePassword(oldPassword, newPassword);
         return ResponseEntity.ok(ResponseDto.success("Password changed successfully"));
     }

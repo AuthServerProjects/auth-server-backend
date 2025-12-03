@@ -36,7 +36,7 @@ public class UserController {
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasRole('SUPER_ADMIN') or #username == authentication.principal.username")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping(path = "findByUsername")
     public ResponseEntity<ResponseDto<UsersDto>> findByUsername(@RequestParam String username) {
         UsersDto response = adminUserService.findUserByUsername(username);
@@ -80,8 +80,8 @@ public class UserController {
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping(path = "addRoleToUser")
-    public ResponseEntity<ResponseDto<?>> addRoleToUser(@RequestParam String username,
-                                                        @RequestParam String roleName) {
+    public ResponseEntity<ResponseDto<String>> addRoleToUser(@RequestParam String username,
+                                                             @RequestParam String roleName) {
         adminUserService.addRoleToUser(username, roleName);
         return ResponseEntity.ok(ResponseDto.success("Role added successfully"));
     }
