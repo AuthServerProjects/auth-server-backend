@@ -1,4 +1,4 @@
-package com.behpardakht.oauth_server.authorization.model.dto.otp.request;
+package com.behpardakht.oauth_server.authorization.model.dto.otp;
 
 import com.behpardakht.oauth_server.authorization.model.enums.PkceMethod;
 import jakarta.validation.constraints.NotBlank;
