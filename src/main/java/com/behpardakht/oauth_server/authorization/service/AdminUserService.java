@@ -1,8 +1,6 @@
 package com.behpardakht.oauth_server.authorization.service;
 
-import com.behpardakht.oauth_server.authorization.exception.ExceptionMessages;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.AlreadyExistException;
-import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
@@ -14,20 +12,16 @@ import com.behpardakht.oauth_server.authorization.model.enums.UserRole;
 import com.behpardakht.oauth_server.authorization.model.mapper.UserMapper;
 import com.behpardakht.oauth_server.authorization.repository.UserFilterSpecification;
 import com.behpardakht.oauth_server.authorization.repository.UserRepository;
-import com.behpardakht.oauth_server.authorization.service.otp.OtpService;
-import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService;
 import com.behpardakht.oauth_server.authorization.sms.ISmsService;
+import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
-import java.util.Base64;
 import java.util.List;
 
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.maskPhoneNumber;
@@ -44,7 +38,6 @@ public class AdminUserService {
     private final ISmsService iSmsService;
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
-    private final SecureRandom secureRandom = new SecureRandom();
 
     public PageableResponseDto<UsersDto> findAll(PageableRequestDto<UserFilterDto> request) {
         Specification<Users> spec = userFilterSpecification.toSpecification(request.getFilters());
@@ -78,7 +71,7 @@ public class AdminUserService {
     public void createUserByPhoneNumber(String phoneNumber) {
         UsersDto usersDto = UsersDto.builder()
                 .username(phoneNumber)
-                .password(generateSecureRandomPassword())
+                .password(GeneralUtil.generateRandomPassword())
                 .phoneNumber(phoneNumber)
                 .isAccountNonExpired(true)
                 .isAccountNonLocked(true)
@@ -87,12 +80,6 @@ public class AdminUserService {
                 .build();
         save(usersDto);
         log.info("New user account created for phone: {}", maskPhoneNumber(phoneNumber));
-    }
-
-    private String generateSecureRandomPassword() {
-        byte[] randomBytes = new byte[32];
-        secureRandom.nextBytes(randomBytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
     }
 
     public void save(UsersDto usersDto) {
@@ -117,7 +104,7 @@ public class AdminUserService {
 
     public void resetPassword(Long id) {
         Users user = getUser(id);
-        String newPassword = generateSecureRandomPassword();
+        String newPassword = GeneralUtil.generateRandomPassword();
         iSmsService.send(user.getPhoneNumber(), newPassword);
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
