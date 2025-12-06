@@ -26,7 +26,7 @@ public class RegisteredClientRepositoryImpl implements RegisteredClientRepositor
 
     @Override
     public RegisteredClient findById(String id) {
-        return clientRepository.findById(id)
+        return clientRepository.findByRegisteredClientId(id)
                 .map(clientMapper::entityToRegisteredClient).orElse(null);
     }
 

@@ -114,7 +114,7 @@ public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
     @Override
     @Transactional(readOnly = true)
     public OAuth2Authorization findById(String id) {
-        return authorizationRepository.findById(id)
+        return authorizationRepository.findByAuthorizationId(id)
                 .map(this::buildOAuth2Authorization)
                 .orElse(null);
     }
