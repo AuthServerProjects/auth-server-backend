@@ -1,10 +1,7 @@
 package com.behpardakht.oauth_server.authorization.model.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,12 +10,13 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Table(name = "Users")
+@Getter
+@Setter
 @Entity
-@Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "Users")
 @EqualsAndHashCode(callSuper = true)
 public class Users extends BaseEntity implements UserDetails {
 

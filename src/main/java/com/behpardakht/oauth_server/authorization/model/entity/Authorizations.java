@@ -3,15 +3,19 @@ package com.behpardakht.oauth_server.authorization.model.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
 
 @Getter
 @Setter
 @Entity
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "authorizations")
+@EqualsAndHashCode(callSuper = true)
 public class Authorizations extends BaseEntity {
 
     @Column(name = "authorization_id")

@@ -1,14 +1,16 @@
 package com.behpardakht.oauth_server.authorization.model.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-@Data
+@Getter
+@Setter
+@SuperBuilder
 @MappedSuperclass
 @NoArgsConstructor
-@SuperBuilder
 public abstract class BaseEntity {
 
     @Id

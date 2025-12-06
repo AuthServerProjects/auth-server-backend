@@ -9,12 +9,13 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @Entity
-@Table(name = "client")
 @SuperBuilder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "client")
 @EqualsAndHashCode(callSuper = true)
 public class Client extends BaseEntity {
 

@@ -3,14 +3,18 @@ package com.behpardakht.oauth_server.authorization.model.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
 
-@Data
+@Getter
+@Setter
 @Entity
-@Table(name = "Role")
+@SuperBuilder
 @NoArgsConstructor
+
+@Table(name = "Role")
+@EqualsAndHashCode(callSuper = true)
 public class Role extends BaseEntity implements GrantedAuthority {
 
     public Role(String name) {
