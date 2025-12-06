@@ -1,10 +1,10 @@
 package com.behpardakht.oauth_server.authorization.model.enums;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public enum ScopeTypes {
 
     OPENID("OPENID"),
