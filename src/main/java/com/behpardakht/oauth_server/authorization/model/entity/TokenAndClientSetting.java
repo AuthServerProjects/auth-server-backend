@@ -2,11 +2,13 @@ package com.behpardakht.oauth_server.authorization.model.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Embeddable
 public class TokenAndClientSetting {
 

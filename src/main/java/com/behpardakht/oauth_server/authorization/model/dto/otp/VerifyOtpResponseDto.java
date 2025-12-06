@@ -6,8 +6,8 @@ import lombok.Data;
 @Data
 @Builder
 public class VerifyOtpResponseDto {
-    String state;
-    String redirectUri;
-    String authorizationCode;
-    String phoneNumber;
+    private String state;
+    private String redirectUri;
+    private String authorizationCode;
+    private String phoneNumber;
 }

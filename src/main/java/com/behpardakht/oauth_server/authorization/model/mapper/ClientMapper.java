@@ -23,15 +23,15 @@ import java.util.stream.Collectors;
 public class ClientMapper {
 
     public Client registeredClientToEntity(RegisteredClient registeredClient) {
-        Client entity = new Client();
-        entity.setRegisteredClientId(registeredClient.getId());
-        entity.setClientId(registeredClient.getClientId());
-        entity.setClientSecret(registeredClient.getClientSecret());
-        entity.setClientAuthenticationMethods(getClientAuthenticationMethods(registeredClient));
-        entity.setAuthorizationGrantTypes(getAuthorizationGrantTypes(registeredClient));
-        entity.setScopes(getScopeTypes(registeredClient.getScopes()));
-        entity.setSetting(getSetting(registeredClient));
-        return entity;
+        return Client.builder()
+                .registeredClientId(registeredClient.getId())
+                .clientId(registeredClient.getClientId())
+                .clientSecret(registeredClient.getClientSecret())
+                .clientAuthenticationMethods(getClientAuthenticationMethods(registeredClient))
+                .authorizationGrantTypes(getAuthorizationGrantTypes(registeredClient))
+                .scopes(getScopeTypes(registeredClient.getScopes()))
+                .setting(getSetting(registeredClient))
+                .build();
     }
 
     public RegisteredClient entityToRegisteredClient(Client entity) {
@@ -48,17 +48,18 @@ public class ClientMapper {
     }
 
     // -----------------------------------------------------------------------
+
     public ClientDto registeredClientToDto(RegisteredClient registeredClient) {
-        ClientDto dto = new ClientDto();
-        dto.setRegisteredClientId(registeredClient.getId());
-        dto.setClientId(registeredClient.getClientId());
-        dto.setClientSecret(registeredClient.getClientSecret());
-        dto.setClientAuthenticationMethods(getClientAuthenticationMethods(registeredClient));
-        dto.setAuthorizationGrantTypes(getAuthorizationGrantTypes(registeredClient));
-        dto.setRedirectUris(registeredClient.getRedirectUris());
-        dto.setScopes(getScopeTypes(registeredClient.getScopes()));
-        dto.setSetting(getSettingDto(registeredClient));
-        return dto;
+        return ClientDto.builder()
+                .registeredClientId(registeredClient.getId())
+                .clientId(registeredClient.getClientId())
+                .clientSecret(registeredClient.getClientSecret())
+                .clientAuthenticationMethods(getClientAuthenticationMethods(registeredClient))
+                .authorizationGrantTypes(getAuthorizationGrantTypes(registeredClient))
+                .redirectUris(registeredClient.getRedirectUris())
+                .scopes(getScopeTypes(registeredClient.getScopes()))
+                .setting(getSettingDto(registeredClient))
+                .build();
     }
 
     public RegisteredClient dtoToRegisteredClient(ClientDto dto) {
@@ -77,21 +78,19 @@ public class ClientMapper {
     // -----------------------------------------------------------------------
 
     public ClientDto entityToDto(Client entity) {
-        if (entity != null) {
-            ClientDto dto = new ClientDto();
-            dto.setId(entity.getId());
-            dto.setRegisteredClientId(entity.getRegisteredClientId());
-            dto.setClientId(entity.getClientId());
-            dto.setClientSecret(entity.getClientSecret());
-            dto.setClientAuthenticationMethods(entity.getClientAuthenticationMethods());
-            dto.setAuthorizationGrantTypes(entity.getAuthorizationGrantTypes());
-            dto.setRedirectUris(entity.getRedirectUris());
-            dto.setScopes(entity.getScopes());
-            dto.setSetting(toSettingDto(entity.getSetting()));
-            dto.setIsEnabled(entity.getIsEnabled());
-            return dto;
-        }
-        return null;
+        if (entity == null) return null;
+        return ClientDto.builder()
+                .id(entity.getId())
+                .registeredClientId(entity.getRegisteredClientId())
+                .clientId(entity.getClientId())
+                .clientSecret(entity.getClientSecret())
+                .clientAuthenticationMethods(entity.getClientAuthenticationMethods())
+                .authorizationGrantTypes(entity.getAuthorizationGrantTypes())
+                .redirectUris(entity.getRedirectUris())
+                .scopes(entity.getScopes())
+                .setting(toSettingDto(entity.getSetting()))
+                .isEnabled(entity.getIsEnabled())
+                .build();
     }
 
     public List<ClientDto> entityToDtoList(List<Client> entities) {
@@ -100,20 +99,18 @@ public class ClientMapper {
     }
 
     public Client dtoToEntity(ClientDto dto) {
-        if (dto != null) {
-            Client entity = new Client();
-            entity.setRegisteredClientId(dto.getRegisteredClientId());
-            entity.setClientId(dto.getClientId());
-            entity.setClientSecret(dto.getClientSecret());
-            entity.setClientAuthenticationMethods(dto.getClientAuthenticationMethods());
-            entity.setAuthorizationGrantTypes(dto.getAuthorizationGrantTypes());
-            entity.setRedirectUris(dto.getRedirectUris());
-            entity.setScopes(dto.getScopes());
-            entity.setSetting(toSettingEntity(dto.getSetting()));
-            entity.setIsEnabled(dto.getIsEnabled() != null ? dto.getIsEnabled() : true);
-            return entity;
-        }
-        return null;
+        if (dto == null) return null;
+        return Client.builder()
+                .registeredClientId(dto.getRegisteredClientId())
+                .clientId(dto.getClientId())
+                .clientSecret(dto.getClientSecret())
+                .clientAuthenticationMethods(dto.getClientAuthenticationMethods())
+                .authorizationGrantTypes(dto.getAuthorizationGrantTypes())
+                .redirectUris(dto.getRedirectUris())
+                .scopes(dto.getScopes())
+                .setting(toSettingEntity(dto.getSetting()))
+                .isEnabled(dto.getIsEnabled() != null ? dto.getIsEnabled() : true)
+                .build();
     }
 
     public void dtoToEntity(Client entity, ClientDto dto) {
@@ -149,39 +146,35 @@ public class ClientMapper {
     }
 
     private TokenAndClientSetting getSetting(RegisteredClient registeredClient) {
-        TokenAndClientSetting setting = new TokenAndClientSetting();
-
         ClientSettings clientSettings = registeredClient.getClientSettings();
-        setting.setRequireProofKey(clientSettings.isRequireProofKey());
-        setting.setRequireAuthorizationConsent(clientSettings.isRequireAuthorizationConsent());
-
         TokenSettings tokenSettings = registeredClient.getTokenSettings();
-        setting.setAccessTokenTimeToLive(tokenSettings.getAccessTokenTimeToLive().toMinutes());
-        setting.setX509CertificateBoundAccessTokens(tokenSettings.isX509CertificateBoundAccessTokens());
-        setting.setRefreshTokenTimeToLive(tokenSettings.getRefreshTokenTimeToLive().toMinutes());
-        setting.setReuseRefreshTokens(tokenSettings.isReuseRefreshTokens());
-        setting.setIdTokenSignatureAlgorithm(tokenSettings.getIdTokenSignatureAlgorithm().getName());
-        setting.setAuthorizationCodeTimeToLive(tokenSettings.getAuthorizationCodeTimeToLive().toMinutes());
-        setting.setDeviceCodeTimeToLive(tokenSettings.getDeviceCodeTimeToLive().toMinutes());
-        return setting;
+        return TokenAndClientSetting.builder()
+                .requireProofKey(clientSettings.isRequireProofKey())
+                .requireAuthorizationConsent(clientSettings.isRequireAuthorizationConsent())
+                .accessTokenTimeToLive(tokenSettings.getAccessTokenTimeToLive().toMinutes())
+                .x509CertificateBoundAccessTokens(tokenSettings.isX509CertificateBoundAccessTokens())
+                .refreshTokenTimeToLive(tokenSettings.getRefreshTokenTimeToLive().toMinutes())
+                .reuseRefreshTokens(tokenSettings.isReuseRefreshTokens())
+                .idTokenSignatureAlgorithm(tokenSettings.getIdTokenSignatureAlgorithm().getName())
+                .authorizationCodeTimeToLive(tokenSettings.getAuthorizationCodeTimeToLive().toMinutes())
+                .deviceCodeTimeToLive(tokenSettings.getDeviceCodeTimeToLive().toMinutes())
+                .build();
     }
 
     private TokenAndClientSettingDto getSettingDto(RegisteredClient registeredClient) {
-        TokenAndClientSettingDto setting = new TokenAndClientSettingDto();
-
         ClientSettings clientSettings = registeredClient.getClientSettings();
-        setting.setRequireProofKey(clientSettings.isRequireProofKey());
-        setting.setRequireAuthorizationConsent(clientSettings.isRequireAuthorizationConsent());
-
         TokenSettings tokenSettings = registeredClient.getTokenSettings();
-        setting.setAccessTokenTimeToLive(tokenSettings.getAccessTokenTimeToLive().toMinutes());
-        setting.setX509CertificateBoundAccessTokens(tokenSettings.isX509CertificateBoundAccessTokens());
-        setting.setRefreshTokenTimeToLive(tokenSettings.getRefreshTokenTimeToLive().toMinutes());
-        setting.setReuseRefreshTokens(tokenSettings.isReuseRefreshTokens());
-        setting.setIdTokenSignatureAlgorithm(tokenSettings.getIdTokenSignatureAlgorithm().getName());
-        setting.setAuthorizationCodeTimeToLive(tokenSettings.getAuthorizationCodeTimeToLive().toMinutes());
-        setting.setDeviceCodeTimeToLive(tokenSettings.getDeviceCodeTimeToLive().toMinutes());
-        return setting;
+        return TokenAndClientSettingDto.builder()
+                .requireProofKey(clientSettings.isRequireProofKey())
+                .requireAuthorizationConsent(clientSettings.isRequireAuthorizationConsent())
+                .accessTokenTimeToLive(tokenSettings.getAccessTokenTimeToLive().toMinutes())
+                .x509CertificateBoundAccessTokens(tokenSettings.isX509CertificateBoundAccessTokens())
+                .refreshTokenTimeToLive(tokenSettings.getRefreshTokenTimeToLive().toMinutes())
+                .reuseRefreshTokens(tokenSettings.isReuseRefreshTokens())
+                .idTokenSignatureAlgorithm(tokenSettings.getIdTokenSignatureAlgorithm().getName())
+                .authorizationCodeTimeToLive(tokenSettings.getAuthorizationCodeTimeToLive().toMinutes())
+                .deviceCodeTimeToLive(tokenSettings.getDeviceCodeTimeToLive().toMinutes())
+                .build();
     }
 
     // -----------------------------------------------------------------------
@@ -230,134 +223,99 @@ public class ClientMapper {
     }
 
     private ClientSettings getClientSetting(Client entity) {
-        boolean proofKey =
-                entity.getSetting().getRequireProofKey() != null ?
-                        entity.getSetting().getRequireProofKey() : true;
-        boolean authorizationConsent =
-                entity.getSetting().getRequireAuthorizationConsent() != null ?
-                        entity.getSetting().getRequireAuthorizationConsent() : false;
-
         return ClientSettings.builder()
-                .requireProofKey(proofKey)
-                .requireAuthorizationConsent(authorizationConsent)
+                .requireProofKey(
+                        entity.getSetting().getRequireProofKey() != null ?
+                                entity.getSetting().getRequireProofKey() : true)
+                .requireAuthorizationConsent(
+                        entity.getSetting().getRequireAuthorizationConsent() != null ?
+                                entity.getSetting().getRequireAuthorizationConsent() : false)
                 .build();
     }
 
     private TokenSettings getTokenSetting(Client entity) {
-        long accessTokenTime =
-                entity.getSetting().getAccessTokenTimeToLive() != null ?
-                        entity.getSetting().getAccessTokenTimeToLive() : 5L;
-        boolean x509Certificate =
-                entity.getSetting().getX509CertificateBoundAccessTokens() != null ?
-                        entity.getSetting().getX509CertificateBoundAccessTokens() : false;
-        long refreshTokenTime =
-                entity.getSetting().getRefreshTokenTimeToLive() != null ?
-                        entity.getSetting().getRefreshTokenTimeToLive() : 60L;
-        boolean reuseRefreshTokens =
-                entity.getSetting().getReuseRefreshTokens() != null ?
-                        entity.getSetting().getReuseRefreshTokens() : true;
-        SignatureAlgorithm idToken =
-                entity.getSetting().getIdTokenSignatureAlgorithm() != null ?
-                        SignatureAlgorithm.from(entity.getSetting().getIdTokenSignatureAlgorithm()) : SignatureAlgorithm.RS256;
-        long authorizationCodeTime =
-                entity.getSetting().getAuthorizationCodeTimeToLive() != null ?
-                        entity.getSetting().getAuthorizationCodeTimeToLive() : 5L;
-        long deviceCodeTime =
-                entity.getSetting().getDeviceCodeTimeToLive() != null ?
-                        entity.getSetting().getDeviceCodeTimeToLive() : 5L;
+        TokenAndClientSetting setting = entity.getSetting();
+        return getTokenSettings(
+                setting.getAccessTokenTimeToLive(),
+                setting.getX509CertificateBoundAccessTokens(),
+                setting.getRefreshTokenTimeToLive(),
+                setting.getReuseRefreshTokens(),
+                setting.getIdTokenSignatureAlgorithm(),
+                setting.getAuthorizationCodeTimeToLive(),
+                setting.getDeviceCodeTimeToLive());
+    }
 
+    private TokenSettings getTokenSettings(Long accessTokenTimeToLive, Boolean x509CertificateBoundAccessTokens, Long refreshTokenTimeToLive, Boolean reuseRefreshTokens, String idTokenSignatureAlgorithm, Long authorizationCodeTimeToLive, Long deviceCodeTimeToLive) {
         return TokenSettings.builder()
-                .accessTokenTimeToLive(Duration.ofMinutes(accessTokenTime))
-                .x509CertificateBoundAccessTokens(x509Certificate)
-                .refreshTokenTimeToLive(Duration.ofMinutes(refreshTokenTime))
-                .reuseRefreshTokens(reuseRefreshTokens)
-                .idTokenSignatureAlgorithm(idToken)
-                .authorizationCodeTimeToLive(Duration.ofMinutes(authorizationCodeTime))
-                .deviceCodeTimeToLive(Duration.ofMinutes(deviceCodeTime))
+                .accessTokenTimeToLive(
+                        Duration.ofMinutes(accessTokenTimeToLive != null ? accessTokenTimeToLive : 5L))
+                .x509CertificateBoundAccessTokens(
+                        x509CertificateBoundAccessTokens != null ? x509CertificateBoundAccessTokens : false)
+                .refreshTokenTimeToLive(
+                        Duration.ofMinutes(refreshTokenTimeToLive != null ? refreshTokenTimeToLive : 60L))
+                .reuseRefreshTokens(
+                        reuseRefreshTokens != null ? reuseRefreshTokens : true)
+                .idTokenSignatureAlgorithm(
+                        idTokenSignatureAlgorithm != null ?
+                                SignatureAlgorithm.from(idTokenSignatureAlgorithm) : SignatureAlgorithm.RS256)
+                .authorizationCodeTimeToLive(
+                        Duration.ofMinutes(authorizationCodeTimeToLive != null ? authorizationCodeTimeToLive : 5L))
+                .deviceCodeTimeToLive(
+                        Duration.ofMinutes(deviceCodeTimeToLive != null ? deviceCodeTimeToLive : 5L))
                 .build();
     }
 
     private ClientSettings getClientSetting(ClientDto dto) {
-        boolean proofKey =
-                dto.getSetting().getRequireProofKey() != null ?
-                        dto.getSetting().getRequireProofKey() : true;
-        boolean authorizationConsent =
-                dto.getSetting().getRequireAuthorizationConsent() != null ?
-                        dto.getSetting().getRequireAuthorizationConsent() : false;
-
         return ClientSettings.builder()
-                .requireProofKey(proofKey)
-                .requireAuthorizationConsent(authorizationConsent)
+                .requireProofKey(
+                        dto.getSetting().getRequireProofKey() != null ? dto.getSetting().getRequireProofKey() : true)
+                .requireAuthorizationConsent(
+                        dto.getSetting().getRequireAuthorizationConsent() != null ?
+                                dto.getSetting().getRequireAuthorizationConsent() : false)
                 .build();
     }
 
     private TokenSettings getTokenSetting(ClientDto dto) {
-        long accessTokenTime =
-                dto.getSetting().getAccessTokenTimeToLive() != null ?
-                        dto.getSetting().getAccessTokenTimeToLive() : 5L;
-        boolean x509Certificate =
-                dto.getSetting().getX509CertificateBoundAccessTokens() != null ?
-                        dto.getSetting().getX509CertificateBoundAccessTokens() : false;
-        long refreshTokenTime =
-                dto.getSetting().getRefreshTokenTimeToLive() != null ?
-                        dto.getSetting().getRefreshTokenTimeToLive() : 60L;
-        boolean reuseRefreshTokens =
-                dto.getSetting().getReuseRefreshTokens() != null ?
-                        dto.getSetting().getReuseRefreshTokens() : true;
-        SignatureAlgorithm idToken =
-                dto.getSetting().getIdTokenSignatureAlgorithm() != null ?
-                        SignatureAlgorithm.from(dto.getSetting().getIdTokenSignatureAlgorithm()) : SignatureAlgorithm.RS256;
-        long authorizationCodeTime =
-                dto.getSetting().getAuthorizationCodeTimeToLive() != null ?
-                        dto.getSetting().getAuthorizationCodeTimeToLive() : 5L;
-        long deviceCodeTime =
-                dto.getSetting().getDeviceCodeTimeToLive() != null ?
-                        dto.getSetting().getDeviceCodeTimeToLive() : 5L;
-
-        return TokenSettings.builder()
-                .accessTokenTimeToLive(Duration.ofMinutes(accessTokenTime))
-                .x509CertificateBoundAccessTokens(x509Certificate)
-                .refreshTokenTimeToLive(Duration.ofMinutes(refreshTokenTime))
-                .reuseRefreshTokens(reuseRefreshTokens)
-                .idTokenSignatureAlgorithm(idToken)
-                .authorizationCodeTimeToLive(Duration.ofMinutes(authorizationCodeTime))
-                .deviceCodeTimeToLive(Duration.ofMinutes(deviceCodeTime))
-                .build();
+        TokenAndClientSettingDto setting = dto.getSetting();
+        return getTokenSettings(
+                setting.getAccessTokenTimeToLive(),
+                setting.getX509CertificateBoundAccessTokens(),
+                setting.getRefreshTokenTimeToLive(),
+                setting.getReuseRefreshTokens(),
+                setting.getIdTokenSignatureAlgorithm(),
+                setting.getAuthorizationCodeTimeToLive(),
+                setting.getDeviceCodeTimeToLive());
     }
 
     // -----------------------------------------------------------------------
 
     private TokenAndClientSettingDto toSettingDto(TokenAndClientSetting entity) {
-        if (entity != null) {
-            TokenAndClientSettingDto dto = new TokenAndClientSettingDto();
-            dto.setRequireProofKey(entity.getRequireProofKey());
-            dto.setRequireAuthorizationConsent(entity.getRequireAuthorizationConsent());
-            dto.setAccessTokenTimeToLive(entity.getAccessTokenTimeToLive());
-            dto.setX509CertificateBoundAccessTokens(entity.getX509CertificateBoundAccessTokens());
-            dto.setRefreshTokenTimeToLive(entity.getRefreshTokenTimeToLive());
-            dto.setReuseRefreshTokens(entity.getReuseRefreshTokens());
-            dto.setIdTokenSignatureAlgorithm(entity.getIdTokenSignatureAlgorithm());
-            dto.setAuthorizationCodeTimeToLive(entity.getAuthorizationCodeTimeToLive());
-            dto.setDeviceCodeTimeToLive(entity.getDeviceCodeTimeToLive());
-            return dto;
-        }
-        return null;
+        if (entity == null) return null;
+        return TokenAndClientSettingDto.builder()
+                .requireProofKey(entity.getRequireProofKey())
+                .requireAuthorizationConsent(entity.getRequireAuthorizationConsent())
+                .accessTokenTimeToLive(entity.getAccessTokenTimeToLive())
+                .x509CertificateBoundAccessTokens(entity.getX509CertificateBoundAccessTokens())
+                .refreshTokenTimeToLive(entity.getRefreshTokenTimeToLive())
+                .reuseRefreshTokens(entity.getReuseRefreshTokens())
+                .idTokenSignatureAlgorithm(entity.getIdTokenSignatureAlgorithm())
+                .authorizationCodeTimeToLive(entity.getAuthorizationCodeTimeToLive())
+                .deviceCodeTimeToLive(entity.getDeviceCodeTimeToLive())
+                .build();
     }
 
     private TokenAndClientSetting toSettingEntity(TokenAndClientSettingDto dto) {
-        if (dto != null) {
-            TokenAndClientSetting entity = new TokenAndClientSetting();
-            entity.setRequireProofKey(dto.getRequireProofKey());
-            entity.setRequireAuthorizationConsent(dto.getRequireAuthorizationConsent());
-            entity.setAccessTokenTimeToLive(dto.getAccessTokenTimeToLive());
-            entity.setX509CertificateBoundAccessTokens(dto.getX509CertificateBoundAccessTokens());
-            entity.setRefreshTokenTimeToLive(dto.getRefreshTokenTimeToLive());
-            entity.setReuseRefreshTokens(dto.getReuseRefreshTokens());
-            entity.setIdTokenSignatureAlgorithm(dto.getIdTokenSignatureAlgorithm());
-            entity.setAuthorizationCodeTimeToLive(dto.getAuthorizationCodeTimeToLive());
-            entity.setDeviceCodeTimeToLive(dto.getDeviceCodeTimeToLive());
-            return entity;
-        }
-        return null;
+        if (dto == null) return null;
+        return TokenAndClientSetting.builder()
+                .requireProofKey(dto.getRequireProofKey())
+                .requireAuthorizationConsent(dto.getRequireAuthorizationConsent())
+                .accessTokenTimeToLive(dto.getAccessTokenTimeToLive())
+                .x509CertificateBoundAccessTokens(dto.getX509CertificateBoundAccessTokens())
+                .refreshTokenTimeToLive(dto.getRefreshTokenTimeToLive())
+                .reuseRefreshTokens(dto.getReuseRefreshTokens())
+                .idTokenSignatureAlgorithm(dto.getIdTokenSignatureAlgorithm())
+                .authorizationCodeTimeToLive(dto.getAuthorizationCodeTimeToLive())
+                .deviceCodeTimeToLive(dto.getDeviceCodeTimeToLive())
+                .build();
     }
 }

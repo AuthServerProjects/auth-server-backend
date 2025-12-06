@@ -4,14 +4,17 @@ import com.behpardakht.oauth_server.authorization.model.enums.AuthenticationMeth
 import com.behpardakht.oauth_server.authorization.model.enums.AuthorizationGrantTypes;
 import com.behpardakht.oauth_server.authorization.model.enums.ScopeTypes;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.Set;
 
 @Data
 @Entity
 @Table(name = "client")
+@SuperBuilder
+@AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class Client extends BaseEntity {
 

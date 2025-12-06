@@ -20,10 +20,10 @@ public class RoleMapper {
 
     public RoleDto toDto(Role entity) {
         if (entity != null) {
-            RoleDto dto = new RoleDto();
-            dto.setId(entity.getId());
-            dto.setName(entity.getName());
-            return dto;
+            return RoleDto.builder()
+                    .id(entity.getId())
+                    .name(entity.getName())
+                    .build();
         }
         return null;
     }
