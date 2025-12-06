@@ -11,7 +11,7 @@ import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequest
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Authorizations;
 import com.behpardakht.oauth_server.authorization.model.mapper.AuthorizationMapper;
-import com.behpardakht.oauth_server.authorization.repository.AuthorizationFilterSpecification;
+import com.behpardakht.oauth_server.authorization.repository.filter.AuthorizationFilterSpecification;
 import com.behpardakht.oauth_server.authorization.repository.AuthorizationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

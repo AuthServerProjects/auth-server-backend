@@ -1,4 +1,4 @@
-package com.behpardakht.oauth_server.authorization.repository;
+package com.behpardakht.oauth_server.authorization.repository.filter;
 
 import com.behpardakht.oauth_server.authorization.model.dto.auth.AuthorizationFilterDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Authorizations;

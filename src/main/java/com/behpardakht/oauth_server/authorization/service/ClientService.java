@@ -8,7 +8,7 @@ import com.behpardakht.oauth_server.authorization.model.dto.client.ClientDto;
 import com.behpardakht.oauth_server.authorization.model.dto.client.ClientFilterDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Client;
 import com.behpardakht.oauth_server.authorization.model.mapper.ClientMapper;
-import com.behpardakht.oauth_server.authorization.repository.ClientFilterSpecification;
+import com.behpardakht.oauth_server.authorization.repository.filter.ClientFilterSpecification;
 import com.behpardakht.oauth_server.authorization.repository.ClientRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;

@@ -11,7 +11,7 @@ import java.util.Optional;
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
 
-    Optional<Role> findRoleByName(String name);
+    Optional<Role> findByName(String name);
 
     @Query("SELECT COUNT(user) > 0 FROM Users user JOIN user.roles role WHERE role.id = :roleId")
     boolean isRoleAssignedToUsers(@Param("roleId") Long roleId);

@@ -5,12 +5,14 @@ import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-public interface AuthorizationRepository extends JpaRepository<Authorizations, String>, JpaSpecificationExecutor<Authorizations> {
+@Repository
+public interface AuthorizationRepository extends JpaRepository<Authorizations, Long>, JpaSpecificationExecutor<Authorizations> {
 
     Optional<Authorizations> findByAuthorizationId(String authorizationId);
 

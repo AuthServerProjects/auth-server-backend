@@ -49,7 +49,7 @@ public class RoleMapper {
 
     public Role loadEntity(RoleDto dto) {
         if (dto != null) {
-            return roleRepository.findRoleByName(dto.getName()).orElse(null);
+            return roleRepository.findByName(dto.getName()).orElse(null);
         }
         return null;
     }
