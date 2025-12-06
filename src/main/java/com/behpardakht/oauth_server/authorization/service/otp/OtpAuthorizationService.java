@@ -1,10 +1,12 @@
 package com.behpardakht.oauth_server.authorization.service.otp;
 
 import com.behpardakht.oauth_server.authorization.config.Properties;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.model.dto.user.UsersDto;
 import com.behpardakht.oauth_server.authorization.model.enums.PkceMethod;
-import com.behpardakht.oauth_server.authorization.service.ClientService;
 import com.behpardakht.oauth_server.authorization.service.AdminUserService;
+import com.behpardakht.oauth_server.authorization.service.ClientService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService.SessionDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -72,7 +74,7 @@ public class OtpAuthorizationService {
             return redirectUrl;
         } catch (Exception e) {
             log.error("Failed to create OAuth2Authorization for phone: {}", maskPhoneNumber(phoneNumber), e);
-            throw new RuntimeException("Failed to create authorization", e);
+            throw new CustomException(ExceptionMessage.AUTHORIZATION_CREATION_FAILED);
         }
     }
 
@@ -82,7 +84,7 @@ public class OtpAuthorizationService {
                 return requestedUri;
             } else {
                 log.warn("Invalid redirect_uri attempted: {}", requestedUri);
-                throw new IllegalArgumentException("Invalid redirect_uri");
+                throw new CustomException(ExceptionMessage.INVALID_REDIRECT_URI);
             }
         }
         return registeredUris.iterator().next();
@@ -120,13 +122,13 @@ public class OtpAuthorizationService {
 
     private void validatePkceParameters(String codeChallenge, String codeChallengeMethod) {
         if (codeChallengeMethod == null || codeChallengeMethod.isEmpty()) {
-            throw new IllegalArgumentException("code_challenge_method is required when code_challenge is provided");
+            throw new CustomException(ExceptionMessage.INVALID_PKCE_PARAMETERS);
         }
         PkceMethod pkceMethod;
         try {
             pkceMethod = PkceMethod.fromValue(codeChallengeMethod);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(e.getMessage());
+            throw new CustomException(ExceptionMessage.INVALID_PKCE_PARAMETERS);
         }
 
         if (pkceMethod.hasFixedChallengeLength()) {
@@ -134,7 +136,7 @@ public class OtpAuthorizationService {
             if (codeChallenge.length() != expectedLength) {
                 log.warn("Invalid code_challenge length for method: {}. Expected: {}, Got: {}",
                         pkceMethod.getValue(), expectedLength, codeChallenge.length());
-                throw new IllegalArgumentException("Invalid code_challenge length");
+                throw new CustomException(ExceptionMessage.INVALID_PKCE_PARAMETERS);
             }
         }
         log.debug("PKCE validation successful for method: {}", pkceMethod.getValue());

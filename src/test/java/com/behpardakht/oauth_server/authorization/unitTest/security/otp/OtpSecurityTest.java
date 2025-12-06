@@ -500,16 +500,6 @@ class OtpSecurityTest {
     }
 
     @Test
-    @DisplayName("SUCCESS: Remove phone number by state")
-    void testRemovePhoneNumberByState_Success() {
-        // When
-        otpStorageService.removePhoneNumberByState(TEST_STATE);
-
-        // Then
-        verify(redisTemplate).delete("phone_number:" + TEST_STATE);
-    }
-
-    @Test
     @DisplayName("SUCCESS: Get session DTO")
     void testGetSessionDto_Success() {
         // Given

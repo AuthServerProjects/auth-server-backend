@@ -3,11 +3,11 @@ package com.behpardakht.oauth_server.authorization.service.otp;
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
-import com.behpardakht.oauth_server.authorization.util.Messages;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.*;
 import com.behpardakht.oauth_server.authorization.service.AdminUserService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService.SessionDto;
 import com.behpardakht.oauth_server.authorization.sms.ISmsService;
+import com.behpardakht.oauth_server.authorization.util.Messages;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -112,7 +112,7 @@ public class OtpService {
             log.info("OTP SMS sent successfully. To: {}", maskPhoneNumber(phoneNumber));
         } catch (Exception e) {
             log.error("Failed to send OTP SMS to {}: {}", maskPhoneNumber(phoneNumber), e.getMessage(), e);
-            throw new RuntimeException("Failed to send OTP SMS", e);
+            throw new CustomException(ExceptionMessage.OTP_SEND_FAILED, e);
         }
     }
 

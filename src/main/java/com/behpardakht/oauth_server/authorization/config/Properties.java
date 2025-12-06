@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "storage", ignoreUnknownFields = false)
 public class Properties {
 
-    public final ExpirationTimeMin expirationTimeMin = new ExpirationTimeMin();
+    private final ExpirationTimeMin expirationTimeMin = new ExpirationTimeMin();
     private final Times times = new Times();
 
     @Data
