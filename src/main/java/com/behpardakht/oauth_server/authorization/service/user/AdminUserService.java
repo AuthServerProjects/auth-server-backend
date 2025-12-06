@@ -1,4 +1,4 @@
-package com.behpardakht.oauth_server.authorization.service;
+package com.behpardakht.oauth_server.authorization.service.user;
 
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.AlreadyExistException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
@@ -12,6 +12,7 @@ import com.behpardakht.oauth_server.authorization.model.enums.UserRole;
 import com.behpardakht.oauth_server.authorization.model.mapper.UserMapper;
 import com.behpardakht.oauth_server.authorization.repository.filter.UserFilterSpecification;
 import com.behpardakht.oauth_server.authorization.repository.UserRepository;
+import com.behpardakht.oauth_server.authorization.service.RoleService;
 import com.behpardakht.oauth_server.authorization.sms.ISmsService;
 import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
 import lombok.AllArgsConstructor;

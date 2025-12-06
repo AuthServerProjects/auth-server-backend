@@ -1,7 +1,7 @@
 package com.behpardakht.oauth_server.authorization.unitTest.security.otp;
 
 import com.behpardakht.oauth_server.authorization.model.dto.otp.OtpResponse;
-import com.behpardakht.oauth_server.authorization.service.AdminUserService;
+import com.behpardakht.oauth_server.authorization.service.user.AdminUserService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService;
 import com.behpardakht.oauth_server.authorization.sms.ISmsService;

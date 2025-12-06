@@ -1,4 +1,4 @@
-package com.behpardakht.oauth_server.authorization.service;
+package com.behpardakht.oauth_server.authorization.service.user;
 
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper;

@@ -7,7 +7,7 @@ import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRespons
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.user.UserFilterDto;
 import com.behpardakht.oauth_server.authorization.model.dto.user.UsersDto;
-import com.behpardakht.oauth_server.authorization.service.AdminUserService;
+import com.behpardakht.oauth_server.authorization.service.user.AdminUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
