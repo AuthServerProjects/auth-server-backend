@@ -10,16 +10,15 @@ import com.behpardakht.oauth_server.authorization.model.entity.Role;
 import com.behpardakht.oauth_server.authorization.model.entity.Users;
 import com.behpardakht.oauth_server.authorization.model.enums.UserRole;
 import com.behpardakht.oauth_server.authorization.model.mapper.UserMapper;
-import com.behpardakht.oauth_server.authorization.repository.filter.UserFilterSpecification;
 import com.behpardakht.oauth_server.authorization.repository.UserRepository;
+import com.behpardakht.oauth_server.authorization.repository.filter.UserFilterSpecification;
 import com.behpardakht.oauth_server.authorization.service.RoleService;
 import com.behpardakht.oauth_server.authorization.sms.ISmsService;
 import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +28,7 @@ import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.maskPh
 
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AdminUserService {
 
     private final UserMapper userMapper;
@@ -59,13 +58,13 @@ public class AdminUserService {
 
     public UsersDto findUserByUsername(String username) {
         Users user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+                .orElseThrow(() -> new NotFoundException("User", "username", username));
         return userMapper.toDto(user);
     }
 
     public UsersDto findByPhoneNumber(String phoneNumber) {
         Users user = userRepository.findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+                .orElseThrow(() -> new NotFoundException("User", "phoneNumber", phoneNumber));
         return userMapper.toDto(user);
     }
 
@@ -125,21 +124,17 @@ public class AdminUserService {
         userRepository.save(user);
     }
 
-    private Users findByUsername(String username) {
-        if (username != null) {
-            return userRepository.findByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("User Not Found!"));
-        } else {
-            throw new IllegalArgumentException("username is null");
-        }
+    public Users findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User", "username", username));
     }
 
     public boolean existUserWithUsername(String username) {
-        return userRepository.findByUsername(username).isPresent();
+        return userRepository.existsByUsername(username);
     }
 
     public boolean existUserWithPhoneNumber(String phoneNumber) {
-        return userRepository.findByPhoneNumber(phoneNumber).isPresent();
+        return userRepository.existsByPhoneNumber(phoneNumber);
     }
 
     public Boolean toggleStatus(Long id) {

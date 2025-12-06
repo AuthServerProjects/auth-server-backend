@@ -41,6 +41,12 @@ public enum ExceptionMessage {
     INVALID_REDIRECT_URI("invalid_redirect_uri"),
     INVALID_PKCE_PARAMETERS("invalid_pkce_parameters"),
 
+    // User
+    USERNAME_SAME_AS_OLD("username_same_as_old"),
+    USERNAME_INCORRECT("username_incorrect"),
+    PASSWORD_SAME_AS_OLD("password_same_as_old"),
+    PASSWORD_INCORRECT("password_incorrect"),
+
     // Role
     ROLE_ASSIGNED_TO_USERS("role_assigned_to_users");
 

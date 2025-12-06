@@ -1,11 +1,9 @@
 package com.behpardakht.oauth_server.authorization.service.user;
 
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
-import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
-import com.behpardakht.oauth_server.authorization.model.dto.user.UsersDto;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
 import com.behpardakht.oauth_server.authorization.model.entity.Users;
-import com.behpardakht.oauth_server.authorization.model.mapper.UserMapper;
 import com.behpardakht.oauth_server.authorization.repository.UserRepository;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService;
@@ -24,40 +22,39 @@ public class UserService {
     private final OtpStorageService otpStorageService;
     private final PasswordEncoder passwordEncoder;
 
-    private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final AdminUserService adminUserService;
 
     public void changeUsername(String oldUsername, String newUsername) {
         if (oldUsername.equals(newUsername)) {
-            throw new IllegalArgumentException("New username can not be the same as old one");
+            throw new CustomException(ExceptionMessage.USERNAME_SAME_AS_OLD);
         }
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!username.equals(oldUsername)) {
-            throw new IllegalArgumentException("Old username is incorrect");
+            throw new CustomException(ExceptionMessage.USERNAME_INCORRECT);
         }
-        UsersDto users = adminUserService.findUserByUsername(username);
-        users.setUsername(newUsername);
-        userRepository.save(userMapper.toEntity(users));
+        Users user = adminUserService.findByUsername(username);
+        user.setUsername(newUsername);
+        userRepository.save(user);
     }
 
     public void changePassword(String oldPassword, String newPassword) {
         String encodeNewPassword = passwordEncoder.encode(newPassword);
         if (passwordEncoder.matches(oldPassword, encodeNewPassword)) {
-            throw new IllegalArgumentException("New Password can not be the same as old one");
+            throw new CustomException(ExceptionMessage.PASSWORD_SAME_AS_OLD);
         }
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        UsersDto users = adminUserService.findUserByUsername(username);
-        if (!passwordEncoder.matches(oldPassword, users.getPassword())) {
-            throw new IllegalArgumentException("Old Password is incorrect");
+        Users user = adminUserService.findByUsername(username);
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new CustomException(ExceptionMessage.PASSWORD_INCORRECT);
         }
-        users.setPassword(encodeNewPassword);
-        userRepository.save(userMapper.toEntity(users));
+        user.setPassword(encodeNewPassword);
+        userRepository.save(user);
     }
 
     public String forgotPassword(String phoneNumber, String ipAddress) {
         if (!adminUserService.existUserWithPhoneNumber(phoneNumber)) {
-            throw new ExceptionWrapper.NotFoundException("User", "phoneNumber", phoneNumber);
+            throw new NotFoundException("User", "phoneNumber", phoneNumber);
         }
         return otpService.sendOtp(phoneNumber, ipAddress).getMessage();
     }
@@ -68,7 +65,7 @@ public class UserService {
             throw new CustomException(ExceptionMessage.INVALID_OR_EXPIRED_OTP);
         }
         Users user = userRepository.findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new ExceptionWrapper.NotFoundException("User", "phoneNumber", phoneNumber));
+                .orElseThrow(() -> new NotFoundException("User", "phoneNumber", phoneNumber));
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
