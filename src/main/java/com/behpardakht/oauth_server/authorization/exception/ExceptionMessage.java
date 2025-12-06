@@ -38,6 +38,8 @@ public enum ExceptionMessage {
     INVALID_OR_EXPIRED_OTP("invalid_or_expired_otp"),
     CLIENT_ID_NOT_FOUND("client_id_not_found"),
     AUTHORIZATION_CREATION_FAILED("authorization_creation_failed"),
+    INVALID_REDIRECT_URI("invalid_redirect_uri"),
+    INVALID_PKCE_PARAMETERS("invalid_pkce_parameters"),
 
     // Role
     ROLE_ASSIGNED_TO_USERS("role_assigned_to_users");
