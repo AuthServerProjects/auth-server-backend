@@ -1,7 +1,7 @@
 package com.behpardakht.oauth_server.authorization.controller;
 
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
-import com.behpardakht.oauth_server.authorization.exception.Messages;
+import com.behpardakht.oauth_server.authorization.util.Messages;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.InitOtpRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.SendOtpRequestDto;

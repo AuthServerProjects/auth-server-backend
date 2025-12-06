@@ -1,7 +1,7 @@
 package com.behpardakht.oauth_server.authorization.security.resourceServer;
 
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
-import com.behpardakht.oauth_server.authorization.exception.Messages;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
@@ -35,8 +35,9 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
-        String message = MessageResolver.getMessage(Messages.ACCESS_DENIED.getMessage());
-        ResponseDto<?> responseDto = ResponseDto.failed(Messages.ACCESS_DENIED.getMessage(), message, null);
+        String exMessage = ExceptionMessage.ACCESS_DENIED.getMessage();
+        String message = MessageResolver.getMessage(exMessage);
+        ResponseDto<?> responseDto = ResponseDto.failed(exMessage, message, null);
 
         response.getWriter().write(objectMapper.writeValueAsString(responseDto));
     }

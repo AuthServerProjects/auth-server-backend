@@ -1,7 +1,7 @@
 package com.behpardakht.oauth_server.authorization.controller.admin;
 
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
-import com.behpardakht.oauth_server.authorization.exception.Messages;
+import com.behpardakht.oauth_server.authorization.util.Messages;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;

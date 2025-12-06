@@ -1,13 +1,10 @@
 package com.behpardakht.oauth_server.authorization.service.otp;
 
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
-import com.behpardakht.oauth_server.authorization.exception.Messages;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
-import com.behpardakht.oauth_server.authorization.model.dto.otp.InitOtpRequestDto;
-import com.behpardakht.oauth_server.authorization.model.dto.otp.SendOtpRequestDto;
-import com.behpardakht.oauth_server.authorization.model.dto.otp.VerifyOtpRequestDto;
-import com.behpardakht.oauth_server.authorization.model.dto.otp.OtpResponse;
-import com.behpardakht.oauth_server.authorization.model.dto.otp.VerifyOtpResponseDto;
+import com.behpardakht.oauth_server.authorization.util.Messages;
+import com.behpardakht.oauth_server.authorization.model.dto.otp.*;
 import com.behpardakht.oauth_server.authorization.service.AdminUserService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService.SessionDto;
 import com.behpardakht.oauth_server.authorization.sms.ISmsService;
@@ -51,7 +48,7 @@ public class OtpService {
     private void validateStateNotExists(String state) {
         if (otpStorageService.stateExists(state)) {
             log.warn("Duplicate state parameter detected: {}", state);
-            throw new CustomException(Messages.INVALID_STATE);
+            throw new CustomException(ExceptionMessage.INVALID_STATE);
         }
     }
 
@@ -62,7 +59,7 @@ public class OtpService {
         OtpResponse otpResponse = sendOtp(phoneNumber, ipAddress);
         if (!otpResponse.isSuccess()) {
             log.warn("Failed to send OTP for phone: {}", maskPhoneNumber(phoneNumber));
-            throw new CustomException(Messages.OTP_SEND_FAILED);
+            throw new CustomException(ExceptionMessage.OTP_SEND_FAILED);
         }
         otpStorageService.storePhoneNumber(state, phoneNumber);
         log.info("OTP sent successfully for phone: {}", maskPhoneNumber(phoneNumber));
@@ -136,7 +133,7 @@ public class OtpService {
     private void validateStateExists(String state) {
         if (!otpStorageService.stateExists(state)) {
             log.warn("Invalid or expired state: {}", state);
-            throw new CustomException(Messages.INVALID_OR_EXPIRED_SESSION);
+            throw new CustomException(ExceptionMessage.INVALID_OR_EXPIRED_SESSION);
         }
     }
 
@@ -144,7 +141,7 @@ public class OtpService {
         String phoneNumber = otpStorageService.getPhoneNumber(state);
         if (phoneNumber == null) {
             log.warn("Phone number not found for state: {}", state);
-            throw new CustomException(Messages.PHONE_NUMBER_NOT_FOUND);
+            throw new CustomException(ExceptionMessage.PHONE_NUMBER_NOT_FOUND);
         }
         return phoneNumber;
     }
@@ -153,7 +150,7 @@ public class OtpService {
         boolean isValid = otpStorageService.validateAndConsumeOtp(phoneNumber, otp, ipAddress);
         if (!isValid) {
             log.warn("OTP validation failed for phone: {}", maskedPhoneNumber);
-            throw new CustomException(Messages.INVALID_OR_EXPIRED_OTP);
+            throw new CustomException(ExceptionMessage.INVALID_OR_EXPIRED_OTP);
         }
     }
 
@@ -162,7 +159,7 @@ public class OtpService {
         if (sessionDto.clientId() == null) {
             log.error("Client ID not found in session for state: {}", state);
             otpStorageService.markStateAsConsumed(state);
-            throw new CustomException(Messages.CLIENT_ID_NOT_FOUND);
+            throw new CustomException(ExceptionMessage.CLIENT_ID_NOT_FOUND);
         }
         return sessionDto;
     }
@@ -180,7 +177,7 @@ public class OtpService {
         } catch (Exception e) {
             log.error("Failed to create authorization for phone: {}", maskedPhoneNumber, e);
             otpStorageService.markStateAsConsumed(state);
-            throw new CustomException(Messages.AUTHORIZATION_CREATION_FAILED);
+            throw new CustomException(ExceptionMessage.AUTHORIZATION_CREATION_FAILED);
         }
     }
 }

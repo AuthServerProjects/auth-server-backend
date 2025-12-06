@@ -1,7 +1,8 @@
 package com.behpardakht.oauth_server.authorization.service;
 
-import com.behpardakht.oauth_server.authorization.exception.Messages;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.model.dto.user.UsersDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Users;
 import com.behpardakht.oauth_server.authorization.model.mapper.UserMapper;
@@ -64,7 +65,7 @@ public class UserService {
     public void setNewPassword(String phoneNumber, String otp, String newPassword, String ipAddress) {
         boolean isValid = otpStorageService.validateAndConsumeOtp(phoneNumber, otp, ipAddress);
         if (!isValid) {
-            throw new ExceptionWrapper.CustomException(Messages.INVALID_OR_EXPIRED_OTP);
+            throw new CustomException(ExceptionMessage.INVALID_OR_EXPIRED_OTP);
         }
         Users user = userRepository.findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new ExceptionWrapper.NotFoundException("User", "phoneNumber", phoneNumber));
