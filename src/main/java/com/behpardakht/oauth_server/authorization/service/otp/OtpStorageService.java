@@ -2,7 +2,6 @@ package com.behpardakht.oauth_server.authorization.service.otp;
 
 import com.behpardakht.oauth_server.authorization.config.Properties;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -41,7 +40,7 @@ public class OtpStorageService {
     private static final String SCOPE = "scope";
     private static final String PHONE_NUMBER = "phone_number";
 
-    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private final ObjectMapper objectMapper;
 
     public boolean isPhoneNumberRateLimited(String phoneNumber) {
         String key = PHONE_RATE_LIMIT_KEY + phoneNumber;

@@ -1,5 +1,8 @@
 package com.behpardakht.oauth_server.authorization.security.filter;
 
+import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
+import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.behpardakht.oauth_server.authorization.service.TokenBlacklistService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -13,7 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Map;
 
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.getClientIpAddress;
 
@@ -23,7 +25,7 @@ import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.getCli
 public class TokenBlacklistFilter extends OncePerRequestFilter {
 
     private final TokenBlacklistService tokenBlacklistService;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -36,27 +38,22 @@ public class TokenBlacklistFilter extends OncePerRequestFilter {
             if (tokenBlacklistService.isAccessTokenBlacklisted(token)) {
                 log.warn("SECURITY ALERT: Blocked blacklisted token attempt from IP: {} to URI: {}",
                         getClientIpAddress(request), request.getRequestURI());
-                sendUnauthorizedResponse(response, "Token has been revoked", "Please login again");
+                sendUnauthorizedResponse(response);
                 return;
             }
         }
         filterChain.doFilter(request, response);
     }
 
-    private void sendUnauthorizedResponse(HttpServletResponse response,
-                                          String error,
-                                          String message) throws IOException {
+    private void sendUnauthorizedResponse(HttpServletResponse response) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
-        Map<String, Object> errorResponse = Map.of(
-                "success", false,
-                "error", error,
-                "message", message,
-                "status", 401,
-                "timestamp", System.currentTimeMillis());
-        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+        String message = MessageResolver.getMessage(ExceptionMessage.TOKEN_NOT_VALID.getMessage());
+        ResponseDto<?> responseDto = ResponseDto.failed(
+                ExceptionMessage.TOKEN_NOT_VALID.getMessage(), message, null);
+        response.getWriter().write(objectMapper.writeValueAsString(responseDto));
     }
 
     @Override

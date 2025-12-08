@@ -37,7 +37,7 @@ public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
 
     private final ClientService clientService;
     private final AuthorizationRepository authorizationRepository;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     @Override
     @Transactional
