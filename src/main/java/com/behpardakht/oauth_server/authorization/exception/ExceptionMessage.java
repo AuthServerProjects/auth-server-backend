@@ -26,7 +26,7 @@ public enum ExceptionMessage {
     AUTHENTICATION_FAILED("authentication_failed"),
 
     // AuthService
-    INVAlID_AUTH_HEADER("invalid_auth_header"),
+    INVALID_AUTH_HEADER("invalid_auth_header"),
     TOKEN_NOT_FOUND("token_not_found"),
     NO_ACTIVE_SESSIONS_FOUND("no_active_sessions_found"),
 

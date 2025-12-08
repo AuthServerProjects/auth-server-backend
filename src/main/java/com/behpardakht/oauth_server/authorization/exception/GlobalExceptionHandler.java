@@ -27,12 +27,6 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(CustomException.class)
-    public ResponseEntity<ResponseDto<?>> handleCustomException(CustomException exception) {
-        ResponseDto<?> responseDto = getResponseDto(exception, HttpStatus.BAD_REQUEST);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
-    }
-
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ResponseDto<?>> handleNotFoundException(NotFoundException exception) {
         ResponseDto<?> responseDto = getResponseDto(exception, HttpStatus.NOT_FOUND);
@@ -41,6 +35,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AlreadyExistException.class)
     public ResponseEntity<ResponseDto<?>> handleAlreadyExistException(AlreadyExistException exception) {
+        ResponseDto<?> responseDto = getResponseDto(exception, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
+    }
+
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ResponseDto<?>> handleCustomException(CustomException exception) {
         ResponseDto<?> responseDto = getResponseDto(exception, HttpStatus.BAD_REQUEST);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
     }

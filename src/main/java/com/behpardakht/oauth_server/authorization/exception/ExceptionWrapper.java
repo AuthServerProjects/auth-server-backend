@@ -1,23 +1,20 @@
 package com.behpardakht.oauth_server.authorization.exception;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 public class ExceptionWrapper {
 
     @Getter
-    @Setter
     public static class CustomException extends RuntimeException {
         private final ExceptionMessage exceptionMessage;
-        private Object[] params;
-        private Exception cause;
+        private final Object[] params;
 
-        public CustomException(ExceptionMessage exceptionMessage, Exception e, Object... params) {
+        public CustomException(ExceptionMessage exceptionMessage, Throwable cause, Object... params) {
+            super(cause);
             this.exceptionMessage = exceptionMessage;
             this.params = params;
-            this.cause = e;
         }
 
         public CustomException(ExceptionMessage exceptionMessage, Object... params) {
@@ -27,6 +24,7 @@ public class ExceptionWrapper {
 
         public CustomException(ExceptionMessage exceptionMessage) {
             this.exceptionMessage = exceptionMessage;
+            this.params = new Object[0];
         }
     }
 

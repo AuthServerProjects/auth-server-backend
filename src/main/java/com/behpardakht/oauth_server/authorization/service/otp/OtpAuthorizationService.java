@@ -5,9 +5,9 @@ import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.model.dto.user.UsersDto;
 import com.behpardakht.oauth_server.authorization.model.enums.PkceMethod;
-import com.behpardakht.oauth_server.authorization.service.user.AdminUserService;
 import com.behpardakht.oauth_server.authorization.service.ClientService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService.SessionDto;
+import com.behpardakht.oauth_server.authorization.service.user.AdminUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -74,7 +74,7 @@ public class OtpAuthorizationService {
             return redirectUrl;
         } catch (Exception e) {
             log.error("Failed to create OAuth2Authorization for phone: {}", maskPhoneNumber(phoneNumber), e);
-            throw new CustomException(ExceptionMessage.AUTHORIZATION_CREATION_FAILED);
+            throw new CustomException(ExceptionMessage.AUTHORIZATION_CREATION_FAILED, e);
         }
     }
 
@@ -128,7 +128,7 @@ public class OtpAuthorizationService {
         try {
             pkceMethod = PkceMethod.fromValue(codeChallengeMethod);
         } catch (IllegalArgumentException e) {
-            throw new CustomException(ExceptionMessage.INVALID_PKCE_PARAMETERS);
+            throw new CustomException(ExceptionMessage.INVALID_PKCE_PARAMETERS, e);
         }
 
         if (pkceMethod.hasFixedChallengeLength()) {

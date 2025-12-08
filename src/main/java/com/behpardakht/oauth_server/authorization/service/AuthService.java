@@ -49,7 +49,7 @@ public class AuthService {
     private static void validateAuthHeader(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             log.warn("Logout attempt without valid Authorization header");
-            throw new CustomException(ExceptionMessage.INVAlID_AUTH_HEADER);
+            throw new CustomException(ExceptionMessage.INVALID_AUTH_HEADER);
         }
     }
 
