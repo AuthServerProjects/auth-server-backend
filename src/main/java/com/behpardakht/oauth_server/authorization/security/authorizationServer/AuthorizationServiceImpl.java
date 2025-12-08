@@ -1,12 +1,15 @@
 package com.behpardakht.oauth_server.authorization.security.authorizationServer;
 
+import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.model.entity.Authorizations;
 import com.behpardakht.oauth_server.authorization.repository.AuthorizationRepository;
 import com.behpardakht.oauth_server.authorization.service.ClientService;
+import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -32,7 +35,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
 
     private final ClientService clientService;
@@ -86,7 +89,7 @@ public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
         try {
             return objectMapper.writeValueAsString(attributes);
         } catch (JsonProcessingException e) {
-            throw new IllegalStateException("Unable to serialize attributes", e);
+            throw new CustomException(ExceptionMessage.SERIALIZATION_ERROR, e);
         }
     }
 
@@ -95,7 +98,7 @@ public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
             return objectMapper.readValue(data, new TypeReference<>() {
             });
         } catch (IOException e) {
-            throw new IllegalStateException("Unable to deserialize attributes", e);
+            throw new CustomException(ExceptionMessage.DESERIALIZATION_ERROR, e);
         }
     }
 
@@ -156,22 +159,14 @@ public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
     private void revokeAllTokensForAuthorization(Authorizations auth) {
         if (auth.getAccessToken() != null) {
             log.warn("Revoking access token due to authorization code replay: {}",
-                    maskToken(auth.getAccessToken()));
+                    GeneralUtil.maskToken(auth.getAccessToken()));
         }
 
         if (auth.getRefreshToken() != null) {
             log.warn("Revoking refresh token due to authorization code replay: {}",
-                    maskToken(auth.getRefreshToken()));
+                    GeneralUtil.maskToken(auth.getRefreshToken()));
         }
     }
-
-    private String maskToken(String token) {
-        if (token == null || token.length() <= 8) {
-            return "****";
-        }
-        return token.substring(0, 8) + "****";
-    }
-
 
     private OAuth2Authorization buildOAuth2Authorization(Authorizations entity) {
         RegisteredClient registeredClient =
@@ -273,7 +268,7 @@ public class AuthorizationServiceImpl implements OAuth2AuthorizationService {
 
         } catch (Exception e) {
             log.error("Failed to convert map to OAuth2AuthorizationRequest", e);
-            throw new IllegalStateException("Cannot convert LinkedHashMap to OAuth2AuthorizationRequest", e);
+            throw new CustomException(ExceptionMessage.AUTHORIZATION_REQUEST_CONVERSION_ERROR, e);
         }
     }
 

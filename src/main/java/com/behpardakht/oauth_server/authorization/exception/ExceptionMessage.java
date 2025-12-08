@@ -25,6 +25,11 @@ public enum ExceptionMessage {
     TOKEN_INVALID_AUDIENCE("token_invalid_audience"),
     AUTHENTICATION_FAILED("authentication_failed"),
 
+    // AuthorizationService
+    SERIALIZATION_ERROR("serialization_error"),
+    DESERIALIZATION_ERROR("deserialization_error"),
+    AUTHORIZATION_REQUEST_CONVERSION_ERROR("authorization_request_conversion_error"),
+
     // AuthService
     INVALID_AUTH_HEADER("invalid_auth_header"),
     TOKEN_NOT_FOUND("token_not_found"),
