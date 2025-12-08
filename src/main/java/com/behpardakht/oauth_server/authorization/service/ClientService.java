@@ -8,9 +8,9 @@ import com.behpardakht.oauth_server.authorization.model.dto.client.ClientDto;
 import com.behpardakht.oauth_server.authorization.model.dto.client.ClientFilterDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Client;
 import com.behpardakht.oauth_server.authorization.model.mapper.ClientMapper;
-import com.behpardakht.oauth_server.authorization.repository.filter.ClientFilterSpecification;
 import com.behpardakht.oauth_server.authorization.repository.ClientRepository;
-import lombok.AllArgsConstructor;
+import com.behpardakht.oauth_server.authorization.repository.filter.ClientFilterSpecification;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ClientService {
 
     private final ClientMapper clientMapper;
@@ -33,8 +33,7 @@ public class ClientService {
     private final ClientFilterSpecification clientFilterSpecification;
 
     public void save(ClientDto clientDto) {
-        Optional<Client> client = clientRepository.findByClientId(clientDto.getClientId());
-        if (client.isPresent()) {
+        if (clientRepository.existsByClientId(clientDto.getClientId())) {
             throw new AlreadyExistException("Client", clientDto.getClientId());
         }
         clientDto.setRegisteredClientId(UUID.randomUUID().toString());
@@ -70,7 +69,7 @@ public class ClientService {
     public RegisteredClient findRegisteredClientByRegisterClientId(String registerClientId) {
         return clientRepository.findByRegisteredClientId(registerClientId)
                 .map(clientMapper::entityToRegisteredClient)
-                .orElseThrow(() -> new NotFoundException("Client", "RegisterClientId", registerClientId));
+                .orElseThrow(() -> new NotFoundException("Client", "registeredClientId", registerClientId));
     }
 
     public PageableResponseDto<ClientDto> findAll(PageableRequestDto<ClientFilterDto> request) {
@@ -80,11 +79,12 @@ public class ClientService {
         return PageableResponseDto.build(responses, page);
     }
 
-    public void regenerateSecret(String clientId) {
+    public String regenerateSecret(String clientId) {
         Client client = getClient(clientId);
         String rawSecret = UUID.randomUUID().toString();
         client.setClientSecret(passwordEncoder.encode(rawSecret));
         clientRepository.save(client);
+        return rawSecret;
     }
 
     public Boolean toggleStatus(String clientId) {

@@ -65,9 +65,9 @@ public class ClientController {
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping(path = "regenerateSecret/{clientId}")
     public ResponseEntity<ResponseDto<String>> regenerateSecret(@PathVariable String clientId) {
-        clientService.regenerateSecret(clientId);
+        String secret = clientService.regenerateSecret(clientId);
         String response = MessageResolver.getMessage(
-                Messages.CLIENT_SECRET_REGENERATED_SUCCESS.getMessage(), new Object[]{clientId});
+                Messages.CLIENT_SECRET_REGENERATED_SUCCESS.getMessage(), new Object[]{clientId, secret});
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
