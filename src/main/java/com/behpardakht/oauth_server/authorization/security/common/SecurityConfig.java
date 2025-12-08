@@ -1,8 +1,5 @@
-package com.behpardakht.oauth_server.authorization.security.common.config;
+package com.behpardakht.oauth_server.authorization.security.common;
 
-import com.behpardakht.oauth_server.authorization.model.enums.UserRole;
-import com.behpardakht.oauth_server.authorization.security.resourceServer.CustomAccessDeniedHandler;
-import com.behpardakht.oauth_server.authorization.security.resourceServer.CustomAuthenticationEntryPoint;
 import com.behpardakht.oauth_server.authorization.security.resourceServer.JwtAuthenticationConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,45 +65,12 @@ public class SecurityConfig {
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
                         URL_PREFIX + "/otp/**",
-                        API_PREFIX + "/otp/**")
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorize ->
-                        authorize.anyRequest().permitAll());
-        return http.build();
-    }
-
-    @Bean
-    @Order(3)
-    public SecurityFilterChain resourceServerSecurityFilterChain(HttpSecurity http,
-                                                                 CorsConfigurationSource corsConfigurationSource,
-                                                                 CustomAuthenticationEntryPoint authenticationEntryPoint,
-                                                                 CustomAccessDeniedHandler accessDeniedHandler) throws Exception {
-        http
-                .securityMatcher(
-                        API_PREFIX + "/**",
+                        API_PREFIX + "/otp/**",
                         ADMIN_PREFIX + "/**")
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize ->
-                        authorize
-                                .requestMatchers(ADMIN_PREFIX + "/**")
-                                .hasAnyRole(
-                                        UserRole.SUPER_ADMIN.getValue(),
-                                        UserRole.ADMIN.getValue())
-                                .requestMatchers(API_PREFIX + "/**")
-                                .authenticated().anyRequest().authenticated())
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .authenticationEntryPoint(authenticationEntryPoint)
-                        .jwt(jwt ->
-                                jwt
-                                        .jwkSetUri(jwkSetUri)
-                                        .jwtAuthenticationConverter(jwtAuthenticationConverter)))
-                .exceptionHandling(exceptions -> exceptions
-                        .accessDeniedHandler(accessDeniedHandler));
-
+                        authorize.anyRequest().permitAll());
         return http.build();
     }
 

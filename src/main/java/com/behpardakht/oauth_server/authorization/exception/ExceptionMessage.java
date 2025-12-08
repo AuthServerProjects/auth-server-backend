@@ -42,6 +42,8 @@ public enum ExceptionMessage {
     INVALID_PKCE_PARAMETERS("invalid_pkce_parameters"),
 
     // User
+    USERNAME_REQUIRED("username_required"),
+    USER_NOT_FOUND("user_not_found"),
     USERNAME_SAME_AS_OLD("username_same_as_old"),
     USERNAME_INCORRECT("username_incorrect"),
     PASSWORD_SAME_AS_OLD("password_same_as_old"),

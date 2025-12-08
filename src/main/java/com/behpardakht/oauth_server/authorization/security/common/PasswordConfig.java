@@ -1,4 +1,4 @@
-package com.behpardakht.oauth_server.authorization.security.common.config;
+package com.behpardakht.oauth_server.authorization.security.common;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

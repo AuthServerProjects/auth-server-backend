@@ -1,4 +1,4 @@
-package com.behpardakht.oauth_server.authorization.security.common.config;
+package com.behpardakht.oauth_server.authorization.security.common;
 
 import com.behpardakht.oauth_server.authorization.config.Properties;
 import lombok.RequiredArgsConstructor;
