@@ -27,7 +27,7 @@ public class UserMapper {
                     .isAccountNonLocked(entity.getIsAccountNonLocked())
                     .isCredentialsNonExpired(entity.getIsCredentialsNonExpired())
                     .isEnabled(entity.getIsEnabled())
-                    .roles(roleMapper.toDtoList(entity.getRoles()))
+                    .roles(roleMapper.toDtoSet(entity.getRoles()))
                     .build();
         }
         return null;

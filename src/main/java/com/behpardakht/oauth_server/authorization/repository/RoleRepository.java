@@ -11,6 +11,8 @@ import java.util.Optional;
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
 
+    boolean existsByName(String name);
+
     Optional<Role> findByName(String name);
 
     @Query("SELECT COUNT(user) > 0 FROM Users user JOIN user.roles role WHERE role.id = :roleId")

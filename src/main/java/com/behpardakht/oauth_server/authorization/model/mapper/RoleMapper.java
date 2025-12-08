@@ -6,10 +6,7 @@ import com.behpardakht.oauth_server.authorization.repository.RoleRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -28,8 +25,13 @@ public class RoleMapper {
         return null;
     }
 
-    public Set<RoleDto> toDtoList(Set<Role> entityList) {
-        return Optional.ofNullable(entityList).orElse(Collections.emptySet())
+    public List<RoleDto> toDtoList(List<Role> entityList) {
+        return Optional.ofNullable(entityList).orElse(Collections.emptyList())
+                .stream().filter(Objects::nonNull).map(this::toDto).toList();
+    }
+
+    public Set<RoleDto> toDtoSet(Set<Role> roles) {
+        return Optional.ofNullable(roles).orElse(Collections.emptySet())
                 .stream().filter(Objects::nonNull).map(this::toDto).collect(Collectors.toSet());
     }
 
@@ -42,9 +44,9 @@ public class RoleMapper {
         return null;
     }
 
-    public Set<Role> toEntityList(Set<RoleDto> dtoList) {
-        return Optional.ofNullable(dtoList).orElse(Collections.emptySet())
-                .stream().filter(Objects::nonNull).map(this::toEntity).collect(Collectors.toSet());
+    public List<Role> toEntityList(List<RoleDto> dtoList) {
+        return Optional.ofNullable(dtoList).orElse(Collections.emptyList())
+                .stream().filter(Objects::nonNull).map(this::toEntity).toList();
     }
 
     public Role loadEntity(RoleDto dto) {

@@ -1,38 +1,41 @@
 package com.behpardakht.oauth_server.authorization.service;
 
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.AlreadyExistException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
 import com.behpardakht.oauth_server.authorization.model.dto.RoleDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Role;
 import com.behpardakht.oauth_server.authorization.model.mapper.RoleMapper;
 import com.behpardakht.oauth_server.authorization.repository.RoleRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class RoleService {
 
     private final RoleRepository roleRepository;
     private final RoleMapper roleMapper;
 
     public void save(RoleDto roleDto) {
+        if (roleRepository.existsByName(roleDto.getName())) {
+            throw new AlreadyExistException("Role", roleDto.getName());
+        }
         Role role = roleMapper.toEntity(roleDto);
         roleRepository.save(role);
     }
 
-    public Set<RoleDto> findAllRoles() {
+    public List<RoleDto> findAll() {
         List<Role> roles = roleRepository.findAll();
-        return roleMapper.toDtoList(Set.copyOf(roles));
+        return roleMapper.toDtoList(roles);
     }
 
     public Role findByName(String name) {
         return roleRepository.findByName(name)
-                .orElseThrow(() -> new NotFoundException("Role", "RoleName", name));
+                .orElseThrow(() -> new NotFoundException("Role", "name", name));
     }
 
     public Role findById(Long id) {

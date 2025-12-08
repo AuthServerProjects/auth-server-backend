@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.ADMIN_PREFIX;
@@ -32,8 +33,8 @@ public class RoleController {
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping(path = "findAll")
-    public ResponseEntity<ResponseDto<Set<RoleDto>>> findAll() {
-        Set<RoleDto> response = roleService.findAllRoles();
+    public ResponseEntity<ResponseDto<List<RoleDto>>> findAll() {
+        List<RoleDto> response = roleService.findAll();
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
