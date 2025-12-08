@@ -1,5 +1,6 @@
 package com.behpardakht.oauth_server.authorization.service;
 
+import com.behpardakht.oauth_server.authorization.config.Properties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -15,43 +16,48 @@ import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.maskTo
 @RequiredArgsConstructor
 public class TokenBlacklistService {
 
+    private final Properties properties;
     private final RedisTemplate<String, Object> redisTemplate;
 
-    private static final String ACCESS_TOKEN_BLACKLIST_PREFIX = "accessToken-blacklist:";
-    private static final String REFRESH_TOKEN_BLACKLIST_PREFIX = "refreshToken-blacklist:";
+    private static final String ACCESS_TOKEN_BLACKLIST_KEY = "blacklist:access:";
+    private static final String REFRESH_TOKEN_BLACKLIST_KEY = "blacklist:refresh:";
 
     public void blacklistAccessToken(String token, Instant expiresAt) {
-        blacklistToken(token, expiresAt, ACCESS_TOKEN_BLACKLIST_PREFIX);
+        blacklistToken(token, expiresAt, ACCESS_TOKEN_BLACKLIST_KEY);
     }
 
     public void blacklistRefreshToken(String token, Instant expiresAt) {
-        blacklistToken(token, expiresAt, REFRESH_TOKEN_BLACKLIST_PREFIX);
+        blacklistToken(token, expiresAt, REFRESH_TOKEN_BLACKLIST_KEY);
     }
 
-    public void blacklistToken(String token, Instant expiresAt, String constKey) {
+    private void blacklistToken(String token, Instant expiresAt, String prefix) {
         if (token == null || token.isBlank()) {
-            log.warn("Attempted to blacklist null or empty access token");
+            log.warn("Attempted to blacklist null or empty token");
             return;
         }
-        long ttlSeconds = calculateTtl(expiresAt);
-        if (ttlSeconds <= 0) {
-            log.debug("Token already expired, skipping blacklist");
-            return;
+        String key = prefix + token;
+        Duration ttl = calculateTtl(expiresAt);
+        redisTemplate.opsForValue().set(key, "revoked", ttl);
+        log.info("Token blacklisted: {} (TTL: {} seconds)", maskToken(token), ttl.getSeconds());
+    }
+
+    private Duration calculateTtl(Instant expiresAt) {
+        if (expiresAt == null) {
+            return Duration.ofMinutes(properties.getExpirationTimeMin().getBlacklistToken());
         }
-        String key = constKey + token;
-        redisTemplate.opsForValue().set(key, "revoked", Duration.ofSeconds(ttlSeconds));
-        log.info("Token blacklisted: {}... (TTL: {} seconds)", maskToken(token), ttlSeconds);
+        long ttlSeconds = Duration.between(Instant.now(), expiresAt).getSeconds();
+        return Duration.ofSeconds(Math.max(ttlSeconds + 60, 60));
     }
 
     public boolean isAccessTokenBlacklisted(String token) {
-        return isTokenBlacklisted(token, ACCESS_TOKEN_BLACKLIST_PREFIX);
+        return isTokenBlacklisted(token, ACCESS_TOKEN_BLACKLIST_KEY);
     }
 
     public boolean isRefreshTokenBlacklisted(String token) {
-        return isTokenBlacklisted(token, REFRESH_TOKEN_BLACKLIST_PREFIX);
+        return isTokenBlacklisted(token, REFRESH_TOKEN_BLACKLIST_KEY);
     }
 
-    public boolean isTokenBlacklisted(String token, String constKey) {
+    private boolean isTokenBlacklisted(String token, String constKey) {
         if (token == null || token.isBlank()) {
             return false;
         }
@@ -62,26 +68,5 @@ public class TokenBlacklistService {
             return true;
         }
         return false;
-    }
-
-    private long calculateTtl(Instant expiresAt) {
-        if (expiresAt == null) {
-            // Default 30 minutes
-            return 1800;
-        }
-        long ttl = expiresAt.getEpochSecond() - Instant.now().getEpochSecond();
-        // Add 60 seconds buffer for clock skew between servers
-        return Math.max(ttl + 60, 60);
-    }
-
-    public int getBlacklistedTokenCount() {
-        try {
-            int accessCount = redisTemplate.keys(ACCESS_TOKEN_BLACKLIST_PREFIX + "*").size();
-            int refreshCount = redisTemplate.keys(REFRESH_TOKEN_BLACKLIST_PREFIX + "*").size();
-            return accessCount + refreshCount;
-        } catch (Exception e) {
-            log.error("Failed to get blacklisted token count", e);
-            return 0;
-        }
     }
 }

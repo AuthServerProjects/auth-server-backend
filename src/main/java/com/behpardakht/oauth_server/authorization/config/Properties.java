@@ -23,6 +23,7 @@ public class Properties {
         private int rateLimit;
         private int lockAccount;
         private int authCode;
+        private int blacklistToken;
     }
 
     @Data
