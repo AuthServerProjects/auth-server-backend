@@ -14,6 +14,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Slf4j
 @Component
@@ -68,11 +69,6 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     }
 
     private boolean containsAny(String text, String... keywords) {
-        for (String keyword : keywords) {
-            if (text.contains(keyword)) {
-                return true;
-            }
-        }
-        return false;
+        return Arrays.stream(keywords).anyMatch(text::contains);
     }
 }

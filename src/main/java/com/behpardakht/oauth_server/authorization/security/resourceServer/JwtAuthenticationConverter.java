@@ -7,39 +7,37 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Component
+@SuppressWarnings("unchecked")
 public class JwtAuthenticationConverter implements Converter<Jwt, CustomJwtAuthenticationToken> {
 
     @Override
     public CustomJwtAuthenticationToken convert(@NotNull Jwt jwt) {
         List<GrantedAuthority> authorities = Stream.concat(roles(jwt), scopes(jwt)).toList();
         String clientId = getCustomField(jwt, "client-id");
-        return new CustomJwtAuthenticationToken(jwt, authorities, null, clientId);
+        return new CustomJwtAuthenticationToken(jwt, authorities, jwt.getSubject(), clientId);
     }
 
-    private String getCustomField(Jwt jwt, String filedName) {
-        return String.valueOf(jwt.getClaims().get(filedName));
+    private String getCustomField(Jwt jwt, String fieldName) {
+        Object value = jwt.getClaims().get(fieldName);
+        return value != null ? String.valueOf(value) : null;
     }
 
     private Stream<GrantedAuthority> roles(Jwt jwt) {
         List<String> roles = (List<String>) jwt.getClaims().getOrDefault("roles", List.of());
-        if (roles.isEmpty()) {
-            return Stream.empty();
-        }
-        return roles.stream().filter(Objects::nonNull)
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role));
+        return Optional.ofNullable(roles).orElse(Collections.emptyList())
+                .stream().filter(Objects::nonNull).map(role -> new SimpleGrantedAuthority("ROLE_" + role));
     }
 
     private Stream<GrantedAuthority> scopes(Jwt jwt) {
         List<String> scopes = (List<String>) jwt.getClaims().getOrDefault("scope", List.of());
-        if (scopes.isEmpty()) {
-            return Stream.empty();
-        }
-        return scopes.stream().filter(Objects::nonNull)
-                .map(scope -> new SimpleGrantedAuthority("SCOPE_" + scope));
+        return Optional.ofNullable(scopes).orElse(Collections.emptyList())
+                .stream().filter(Objects::nonNull).map(scope -> new SimpleGrantedAuthority("SCOPE_" + scope));
     }
 }
