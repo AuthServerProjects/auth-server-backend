@@ -11,7 +11,10 @@ public class GeneralUtil {
     public static final String ADMIN_PREFIX = "/auth-admin/v1";
     public static final String URL_PREFIX = "/auth/v1";
 
-    private final static SecureRandom secureRandom = new SecureRandom();
+    private final static SecureRandom SECURE_RANDOM = new SecureRandom();
+
+    private GeneralUtil() {
+    }
 
     public static String maskPhoneNumber(String phoneNumber) {
         if (phoneNumber == null || phoneNumber.length() < 4) {
@@ -29,7 +32,7 @@ public class GeneralUtil {
 
     public static String generateRandomPassword() {
         byte[] buffer = new byte[9];
-        secureRandom.nextBytes(buffer);
+        SECURE_RANDOM.nextBytes(buffer);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(buffer).substring(0, 12);
     }
 
