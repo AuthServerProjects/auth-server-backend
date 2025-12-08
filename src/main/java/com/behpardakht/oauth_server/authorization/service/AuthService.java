@@ -4,15 +4,15 @@ import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
-import com.behpardakht.oauth_server.authorization.util.Messages;
 import com.behpardakht.oauth_server.authorization.model.dto.auth.AuthorizationDto;
 import com.behpardakht.oauth_server.authorization.model.dto.auth.AuthorizationFilterDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Authorizations;
 import com.behpardakht.oauth_server.authorization.model.mapper.AuthorizationMapper;
-import com.behpardakht.oauth_server.authorization.repository.filter.AuthorizationFilterSpecification;
 import com.behpardakht.oauth_server.authorization.repository.AuthorizationRepository;
+import com.behpardakht.oauth_server.authorization.repository.filter.AuthorizationFilterSpecification;
+import com.behpardakht.oauth_server.authorization.util.Messages;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -43,12 +43,7 @@ public class AuthService {
     public void logout(String authHeader) {
         validateAuthHeader(authHeader);
         OAuth2Authorization authorization = getAuthorization(authHeader);
-        if (authorization != null) {
-            removeAndBlackListToken(authorization);
-        } else {
-            log.warn("Logout attempted with token that doesn't exist in database: ...");
-            throw new CustomException(ExceptionMessage.TOKEN_NOT_FOUND);
-        }
+        removeAndBlacklistToken(authorization);
     }
 
     private static void validateAuthHeader(String authHeader) {
@@ -64,10 +59,14 @@ public class AuthService {
         if (authorization == null) {
             authorization = authorizationService.findByToken(token, OAuth2TokenType.REFRESH_TOKEN);
         }
+        if (authorization == null) {
+            log.warn("Logout attempted with token that doesn't exist in database: ...");
+            throw new CustomException(ExceptionMessage.TOKEN_NOT_FOUND);
+        }
         return authorization;
     }
 
-    private void removeAndBlackListToken(OAuth2Authorization authorization) {
+    private void removeAndBlacklistToken(OAuth2Authorization authorization) {
         OAuth2Authorization.Token<OAuth2AccessToken> accessToken = authorization.getAccessToken();
         if (accessToken != null && accessToken.getToken() != null) {
             tokenBlacklistService.blacklistAccessToken(
@@ -86,10 +85,10 @@ public class AuthService {
     public void revokeSession(String authorizationId) {
         Authorizations authorization = authorizationRepository.findByAuthorizationId(authorizationId)
                 .orElseThrow(() -> new NotFoundException("Session", "authorizationId", authorizationId));
-        removeAndBlacklistByEntity(authorization);
+        removeAndBlacklistToken(authorization);
     }
 
-    private void removeAndBlacklistByEntity(Authorizations authorization) {
+    private void removeAndBlacklistToken(Authorizations authorization) {
         if (authorization.getAccessToken() != null) {
             tokenBlacklistService.blacklistAccessToken(
                     authorization.getAccessToken(), authorization.getAccessTokenExpiresAt());
@@ -98,7 +97,8 @@ public class AuthService {
             tokenBlacklistService.blacklistRefreshToken(
                     authorization.getRefreshToken(), authorization.getRefreshTokenExpiresAt());
         }
-        authorizationRepository.deleteByAuthorizationId(authorization.getAuthorizationId());
+        authorizationRepository.delete(authorization);
+        log.debug("Revoked session: Authorization ID {}", authorization.getAuthorizationId());
     }
 
     public String revokeSessionsByUsername(String username) {
@@ -106,7 +106,7 @@ public class AuthService {
         if (userAuthorizationList.isEmpty()) {
             throw new CustomException(ExceptionMessage.NO_ACTIVE_SESSIONS_FOUND);
         }
-        return removeAndBlackListToken(userAuthorizationList, maskPhoneNumber(username));
+        return removeAndBlacklistToken(userAuthorizationList, maskPhoneNumber(username));
     }
 
     public String logoutFromAllDevices(String authHeader) {
@@ -119,29 +119,20 @@ public class AuthService {
             log.info("Logout-all: No active sessions found for user {}", maskedPrincipalName);
             throw new CustomException(ExceptionMessage.NO_ACTIVE_SESSIONS_FOUND);
         }
-        return removeAndBlackListToken(userAuthorizationList, maskedPrincipalName);
+        return removeAndBlacklistToken(userAuthorizationList, maskedPrincipalName);
     }
 
-    private String removeAndBlackListToken(List<Authorizations> userAuthorizationList, String maskedPrincipalName) {
+    private String removeAndBlacklistToken(List<Authorizations> userAuthorizationList, String maskedPrincipalName) {
         int revokedCount = 0;
         int failedCount = 0;
-        for (Authorizations authEntity : userAuthorizationList) {
+        for (Authorizations authorization : userAuthorizationList) {
             try {
-                if (authEntity.getAccessToken() != null) {
-                    tokenBlacklistService.blacklistAccessToken(
-                            authEntity.getAccessToken(), authEntity.getAccessTokenExpiresAt());
-                }
-                if (authEntity.getRefreshToken() != null) {
-                    tokenBlacklistService.blacklistRefreshToken(
-                            authEntity.getRefreshToken(), authEntity.getRefreshTokenExpiresAt());
-                }
-                authorizationRepository.delete(authEntity);
+                removeAndBlacklistToken(authorization);
                 revokedCount++;
-                log.debug("Revoked session: Authorization ID {}", authEntity.getAuthorizationId());
             } catch (Exception e) {
                 failedCount++;
                 log.error("Failed to revoke authorization {} for user {}",
-                        authEntity.getAuthorizationId(), maskedPrincipalName, e);
+                        authorization.getAuthorizationId(), maskedPrincipalName, e);
             }
         }
         log.info("LOGOUT-ALL SUCCESS: User {} logged out from {} device(s) ({} failed)",
