@@ -43,7 +43,7 @@ public class TokenBlacklistService {
 
     private Duration calculateTtl(Instant expiresAt) {
         if (expiresAt == null) {
-            return Duration.ofMinutes(properties.getExpirationTimeMin().getBlacklistToken());
+            return Duration.ofMinutes(properties.getStorage().getExpirationTimeMin().getBlacklistToken());
         }
         long ttlSeconds = Duration.between(Instant.now(), expiresAt).getSeconds();
         return Duration.ofSeconds(Math.max(ttlSeconds + 60, 60));

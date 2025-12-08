@@ -1,6 +1,7 @@
 package com.behpardakht.oauth_server.authorization.config.bundle;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.behpardakht.oauth_server.authorization.config.Properties;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,10 +12,9 @@ import org.springframework.web.servlet.i18n.FixedLocaleResolver;
 import java.util.Locale;
 
 @Configuration
+@RequiredArgsConstructor
 public class BundleConfig {
-
-    @Value("${config.language}")
-    private String language;
+    private final Properties properties;
 
     @Bean
     public MessageSource messageSource() {
@@ -26,6 +26,6 @@ public class BundleConfig {
 
     @Bean
     public LocaleResolver localeResolver() {
-        return new FixedLocaleResolver(new Locale(language));
+        return new FixedLocaleResolver(new Locale(properties.getConfig().getLanguage()));
     }
 }

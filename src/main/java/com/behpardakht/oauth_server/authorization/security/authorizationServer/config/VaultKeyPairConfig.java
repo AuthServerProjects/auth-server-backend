@@ -1,12 +1,13 @@
 package com.behpardakht.oauth_server.authorization.security.authorizationServer.config;
 
+import com.behpardakht.oauth_server.authorization.config.Properties;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,17 +28,15 @@ import java.util.UUID;
 
 @Slf4j
 @Configuration
+@RequiredArgsConstructor
 @ConditionalOnProperty(name = "vault.enabled", havingValue = "true")
 public class VaultKeyPairConfig extends BaseKeyPairConfig{
 
-    @Value("${oauth2.jwt.key-id}")
-    private String keyId;
-
-    @Value("${oauth2.jwt.vault-path}")
-    private String vaultPath;
+    private final Properties properties;
 
     @Bean
     public JWKSource<SecurityContext> jwkSourceFromVault(VaultTemplate vaultTemplate) throws Exception {
+        String vaultPath = properties.getVault().getVaultPath();
         log.info("Loading RSA key pair from Vault at path: {}", vaultPath);
 
         VaultResponse response = vaultTemplate.read(vaultPath);
@@ -74,7 +73,7 @@ public class VaultKeyPairConfig extends BaseKeyPairConfig{
 
         RSAKey rsaKey = new RSAKey.Builder(publicKey)
                 .privateKey(privateKey)
-                .keyID(storedKeyId != null ? storedKeyId : keyId)
+                .keyID(storedKeyId != null ? storedKeyId : properties.getVault().getKeyId())
                 .build();
 
         log.info("Successfully loaded RSA key pair from Vault with key ID: {}", rsaKey.getKeyID());
@@ -101,7 +100,7 @@ public class VaultKeyPairConfig extends BaseKeyPairConfig{
                         "keyId", generatedKeyId,
                         "algorithm", "RS256",
                         "keySize", "2048"));
-        vaultTemplate.write(vaultPath, keyData);
+        vaultTemplate.write(properties.getVault().getVaultPath(), keyData);
         log.info("Successfully stored new RSA key pair in Vault with key ID: {}", generatedKeyId);
 
         RSAKey rsaKey = new RSAKey.Builder(publicKey)

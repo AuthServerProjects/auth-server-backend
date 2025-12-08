@@ -1,6 +1,7 @@
 package com.behpardakht.oauth_server.authorization.security.common.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.behpardakht.oauth_server.authorization.config.Properties;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -9,43 +10,28 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.API_PREFIX;
-import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.URL_PREFIX;
+import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.*;
 
 @Configuration
+@RequiredArgsConstructor
 public class CorsConfig {
 
-    @Value("${cors.allowed-origins}")
-    String allowedOrigins;
-
-    @Value("${cors.allowed-methods}")
-    String allowedMethods;
-
-    @Value("${cors.allowed-headers}")
-    String allowedHeaders;
-
-    @Value("${cors.exposed-headers}")
-    String exposedHeaders;
-
-    @Value("${cors.allowed-credentials}")
-    String allowCredentials;
-
-    @Value("${cors.max-age}")
-    Long maxAge;
+    private final Properties properties;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
-        configuration.setAllowedMethods(List.of(allowedMethods.split(",")));
-        configuration.setAllowedHeaders(List.of(allowedHeaders.split(",")));
-        configuration.setExposedHeaders(List.of(exposedHeaders.split(",")));
-        configuration.setAllowCredentials((Boolean.parseBoolean(allowCredentials)));
-        configuration.setMaxAge(maxAge);
+        configuration.setAllowedOrigins(List.of(properties.getCors().getAllowedOrigins().split(",")));
+        configuration.setAllowedMethods(List.of(properties.getCors().getAllowedMethods().split(",")));
+        configuration.setAllowedHeaders(List.of(properties.getCors().getAllowedHeaders().split(",")));
+        configuration.setExposedHeaders(List.of(properties.getCors().getExposedHeaders().split(",")));
+        configuration.setAllowCredentials((properties.getCors().isAllowedCredentials()));
+        configuration.setMaxAge(properties.getCors().getMaxAge());
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration(API_PREFIX + "/**", configuration);
         source.registerCorsConfiguration(URL_PREFIX + "/**", configuration);
+        source.registerCorsConfiguration(ADMIN_PREFIX + "/**", configuration);
         return source;
     }
 }

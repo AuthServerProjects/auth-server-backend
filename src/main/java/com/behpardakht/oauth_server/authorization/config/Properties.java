@@ -1,37 +1,62 @@
 package com.behpardakht.oauth_server.authorization.config;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Data
 @Configuration
-@NoArgsConstructor
-@ConfigurationProperties(prefix = "storage", ignoreUnknownFields = false)
+@ConfigurationProperties(prefix = "app")
 public class Properties {
 
-    private final ExpirationTimeMin expirationTimeMin = new ExpirationTimeMin();
-    private final Times times = new Times();
+    private final Vault vault = new Vault();
+    private final Storage storage = new Storage();
+    private final Cors cors = new Cors();
+    private final Config config = new Config();
 
     @Data
-    @NoArgsConstructor
-    public static class ExpirationTimeMin {
-        private int initialize;
-        private int phoneNumber;
-        private int otp;
-        private int rateLimit;
-        private int lockAccount;
-        private int authCode;
-        private int blacklistToken;
+    public static class Vault {
+        private String keyId;
+        private String vaultPath;
     }
 
     @Data
-    @NoArgsConstructor
-    public static class Times {
-        private int failedAttempts;
-        private int maxOtpPerIpPerHour;
-        private int maxGlobalOtpPerMinute;
-        private int maxVerificationAttemptsPerHour;
+    public static class Storage {
+        private final ExpirationTimeMin expirationTimeMin = new ExpirationTimeMin();
+        private final Times times = new Times();
+
+        @Data
+        public static class ExpirationTimeMin {
+            private int initialize;
+            private int phoneNumber;
+            private int otp;
+            private int rateLimit;
+            private int lockAccount;
+            private int authCode;
+            private int blacklistToken;
+        }
+
+        @Data
+        public static class Times {
+            private int failedAttempts;
+            private int maxOtpPerIpPerHour;
+            private int maxGlobalOtpPerMinute;
+            private int maxVerificationAttemptsPerHour;
+        }
+    }
+
+    @Data
+    public static class Cors {
+        private String allowedOrigins;
+        private String allowedMethods;
+        private String allowedHeaders;
+        private String exposedHeaders;
+        private boolean allowedCredentials;
+        private long maxAge;
+    }
+
+    @Data
+    public static class Config {
+        private String language;
     }
 }

@@ -144,7 +144,7 @@ public class OtpAuthorizationService {
 
     private OAuth2AuthorizationCode getAuthCode(String authorizationCode) {
         Instant issuedAt = Instant.now();
-        Instant expiresAt = issuedAt.plus(properties.getExpirationTimeMin().getAuthCode(), ChronoUnit.MINUTES);
+        Instant expiresAt = issuedAt.plus(properties.getStorage().getExpirationTimeMin().getAuthCode(), ChronoUnit.MINUTES);
         return new OAuth2AuthorizationCode(authorizationCode, issuedAt, expiresAt);
     }
 }
