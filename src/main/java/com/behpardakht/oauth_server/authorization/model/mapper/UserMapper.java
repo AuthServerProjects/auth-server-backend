@@ -2,7 +2,7 @@ package com.behpardakht.oauth_server.authorization.model.mapper;
 
 import com.behpardakht.oauth_server.authorization.model.dto.user.UsersDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Users;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -11,7 +11,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserMapper {
 
     private final RoleMapper roleMapper;

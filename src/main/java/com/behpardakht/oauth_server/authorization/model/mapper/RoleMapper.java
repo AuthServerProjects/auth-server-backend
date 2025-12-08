@@ -3,14 +3,14 @@ package com.behpardakht.oauth_server.authorization.model.mapper;
 import com.behpardakht.oauth_server.authorization.model.dto.RoleDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Role;
 import com.behpardakht.oauth_server.authorization.repository.RoleRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class RoleMapper {
 
     private final RoleRepository roleRepository;

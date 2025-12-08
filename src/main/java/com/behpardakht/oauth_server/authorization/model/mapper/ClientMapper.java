@@ -245,7 +245,10 @@ public class ClientMapper {
                 setting.getDeviceCodeTimeToLive());
     }
 
-    private TokenSettings getTokenSettings(Long accessTokenTimeToLive, Boolean x509CertificateBoundAccessTokens, Long refreshTokenTimeToLive, Boolean reuseRefreshTokens, String idTokenSignatureAlgorithm, Long authorizationCodeTimeToLive, Long deviceCodeTimeToLive) {
+    private TokenSettings getTokenSettings(Long accessTokenTimeToLive, Boolean x509CertificateBoundAccessTokens,
+                                           Long refreshTokenTimeToLive, Boolean reuseRefreshTokens,
+                                           String idTokenSignatureAlgorithm, Long authorizationCodeTimeToLive,
+                                           Long deviceCodeTimeToLive) {
         return TokenSettings.builder()
                 .accessTokenTimeToLive(
                         Duration.ofMinutes(accessTokenTimeToLive != null ? accessTokenTimeToLive : 5L))
