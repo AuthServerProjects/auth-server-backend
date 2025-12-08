@@ -129,6 +129,11 @@ app:
       max-global-otp-per-minute: 100
       max-verification-attempts-per-hour: 10
 
+  cleanup:
+    authorization:
+      rate: 3600000
+      cutoff: 1
+
   # Cors Configuration
   cors:
     allowed-origins: "*"

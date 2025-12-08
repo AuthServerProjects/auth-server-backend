@@ -11,6 +11,7 @@ public class Properties {
 
     private final Vault vault = new Vault();
     private final Storage storage = new Storage();
+    private final Cleanup cleanup = new Cleanup();
     private final Cors cors = new Cors();
     private final Config config = new Config();
 
@@ -42,6 +43,16 @@ public class Properties {
             private int maxOtpPerIpPerHour;
             private int maxGlobalOtpPerMinute;
             private int maxVerificationAttemptsPerHour;
+        }
+    }
+
+    @Data
+    public static class Cleanup {
+        private final Authorization authorization = new Authorization();
+
+        @Data
+        public static class Authorization {
+            private Long cutoff;
         }
     }
 
