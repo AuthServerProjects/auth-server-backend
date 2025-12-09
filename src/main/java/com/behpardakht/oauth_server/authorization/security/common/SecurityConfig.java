@@ -1,5 +1,7 @@
 package com.behpardakht.oauth_server.authorization.security.common;
 
+import com.behpardakht.oauth_server.authorization.security.resourceServer.CustomAccessDeniedHandler;
+import com.behpardakht.oauth_server.authorization.security.resourceServer.CustomAuthenticationEntryPoint;
 import com.behpardakht.oauth_server.authorization.security.resourceServer.JwtAuthenticationConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,6 +73,34 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize ->
                         authorize.anyRequest().permitAll());
+        return http.build();
+    }
+
+    @Bean
+    @Order(3)
+    public SecurityFilterChain resourceServerSecurityFilterChain(HttpSecurity http,
+                                                                 CorsConfigurationSource corsConfigurationSource,
+                                                                 CustomAuthenticationEntryPoint authenticationEntryPoint,
+                                                                 CustomAccessDeniedHandler accessDeniedHandler) throws Exception {
+        http
+                .securityMatcher(
+                        API_PREFIX + "/**",
+                        ADMIN_PREFIX + "/**")
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(ADMIN_PREFIX + "/**", API_PREFIX + "/**")
+                        .authenticated().anyRequest().authenticated())
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .jwt(jwt -> jwt
+                                .jwkSetUri(jwkSetUri)
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter)))
+                .exceptionHandling(exceptions -> exceptions
+                        .accessDeniedHandler(accessDeniedHandler));
+
         return http.build();
     }
 
