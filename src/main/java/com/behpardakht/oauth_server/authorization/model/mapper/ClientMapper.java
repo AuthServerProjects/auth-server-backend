@@ -128,7 +128,7 @@ public class ClientMapper {
         return Optional
                 .ofNullable(registeredClient.getClientAuthenticationMethods()).orElse(Collections.emptySet())
                 .stream().filter(Objects::nonNull)
-                .map(method -> AuthenticationMethodTypes.valueOf(method.getValue()))
+                .map(method -> AuthenticationMethodTypes.fromValue(method.getValue()))
                 .collect(Collectors.toSet());
     }
 
@@ -136,13 +136,13 @@ public class ClientMapper {
         return Optional
                 .ofNullable(registeredClient.getAuthorizationGrantTypes()).orElse(Collections.emptySet())
                 .stream().filter(Objects::nonNull)
-                .map(c -> AuthorizationGrantTypes.valueOf(c.getValue()))
+                .map(c -> AuthorizationGrantTypes.fromValue(c.getValue()))
                 .collect(Collectors.toSet());
     }
 
     private Set<ScopeTypes> getScopeTypes(Set<String> scopes) {
         return Optional.ofNullable(scopes).orElse(Collections.emptySet())
-                .stream().filter(Objects::nonNull).map(ScopeTypes::valueOf).collect(Collectors.toSet());
+                .stream().filter(Objects::nonNull).map(ScopeTypes::fromValue).collect(Collectors.toSet());
     }
 
     private TokenAndClientSetting getSetting(RegisteredClient registeredClient) {

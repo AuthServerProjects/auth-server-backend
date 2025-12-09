@@ -7,11 +7,20 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ScopeTypes {
 
-    OPENID("OPENID"),
-    PROFILE("PROFILE"),
-    EMAIL("EMAIL"),
-    ADDRESS("ADDRESS"),
-    PHONE("PHONE");
+    OPENID("openid"),
+    PROFILE("profile"),
+    EMAIL("email"),
+    ADDRESS("address"),
+    PHONE("phone");
 
     private final String value;
+
+    public static ScopeTypes fromValue(String value) {
+        for (ScopeTypes type : values()) {
+            if (type.value.equals(value)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Unknown scope: " + value);
+    }
 }

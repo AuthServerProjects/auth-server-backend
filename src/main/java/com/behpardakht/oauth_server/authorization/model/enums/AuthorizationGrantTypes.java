@@ -7,9 +7,18 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum AuthorizationGrantTypes {
 
-    AUTHORIZATION_CODE("AUTHORIZATION_CODE"),
-    REFRESH_TOKEN("REFRESH_TOKEN"),
-    CLIENT_CREDENTIALS("CLIENT_CREDENTIALS");
+    AUTHORIZATION_CODE("authorization_code"),
+    REFRESH_TOKEN("refresh_token"),
+    CLIENT_CREDENTIALS("client_credentials");
 
     private final String value;
+
+    public static AuthorizationGrantTypes fromValue(String value) {
+        for (AuthorizationGrantTypes type : values()) {
+            if (type.value.equals(value)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Unknown grant type: " + value);
+    }
 }
