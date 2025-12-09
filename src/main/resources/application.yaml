@@ -113,6 +113,8 @@ app:
   vault:
     key-id: authserver-key-2025
     vault-path: secret/data/oauth2/jwt-keys
+    algorithm: RSA
+    key-size: 2048
 
   # Expiration Time Configuration
   storage:

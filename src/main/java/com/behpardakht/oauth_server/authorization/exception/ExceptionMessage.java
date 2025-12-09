@@ -30,6 +30,12 @@ public enum ExceptionMessage {
     DESERIALIZATION_ERROR("deserialization_error"),
     AUTHORIZATION_REQUEST_CONVERSION_ERROR("authorization_request_conversion_error"),
 
+    // VaultKeyPair
+    VAULT_KEYS_NOT_FOUND("vault_keys_not_found"),
+    VAULT_INVALID_KEY_STRUCTURE("vault_invalid_key_structure"),
+    VAULT_KEY_GENERATION_FAILED("vault_key_generation_failed"),
+    VAULT_KEY_LOAD_FAILED("vault_key_load_failed"),
+
     // AuthService
     INVALID_AUTH_HEADER("invalid_auth_header"),
     TOKEN_NOT_FOUND("token_not_found"),

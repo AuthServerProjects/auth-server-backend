@@ -19,6 +19,8 @@ public class Properties {
     public static class Vault {
         private String keyId;
         private String vaultPath;
+        private String algorithm;
+        private int keySize;
     }
 
     @Data
