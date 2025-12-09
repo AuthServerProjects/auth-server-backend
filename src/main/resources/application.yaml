@@ -125,6 +125,7 @@ app:
       rate-limit: 1
       lock-account: 15
       auth-code: 5
+      blacklist-token: 30
     times:
       failed-attempts: 3
       max-otp-per-ip-per-hour: 10
