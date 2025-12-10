@@ -15,4 +15,6 @@ public interface ClientRepository extends JpaRepository<Client, Long>, JpaSpecif
     Optional<Client> findByRegisteredClientId(String registeredClientId);
 
     Optional<Client> findByClientId(String clientId);
+
+    Long countByIsEnabledTrue();
 }

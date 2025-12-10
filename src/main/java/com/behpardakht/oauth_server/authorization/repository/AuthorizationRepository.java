@@ -28,4 +28,6 @@ public interface AuthorizationRepository extends JpaRepository<Authorizations, L
     int deleteByAuthorizationCodeExpiresAtBeforeAndAccessTokenIsNull(Instant expirationTime);
 
     List<Authorizations> findByPrincipalName(String principalName);
+
+    Long countByAccessTokenExpiresAtAfter(Instant time);
 }

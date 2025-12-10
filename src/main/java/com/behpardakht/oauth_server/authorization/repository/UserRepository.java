@@ -17,4 +17,6 @@ public interface UserRepository extends JpaRepository<Users, Long>, JpaSpecifica
     boolean existsByUsername(String username);
 
     boolean existsByPhoneNumber(String phoneNumber);
+
+    Long countByIsEnabledTrue();
 }
