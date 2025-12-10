@@ -1,11 +1,13 @@
 package com.behpardakht.oauth_server.authorization.service.otp;
 
+import com.behpardakht.oauth_server.authorization.aspect.Auditable;
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.*;
-import com.behpardakht.oauth_server.authorization.service.user.AdminUserService;
+import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService.SessionDto;
+import com.behpardakht.oauth_server.authorization.service.user.AdminUserService;
 import com.behpardakht.oauth_server.authorization.sms.ISmsService;
 import com.behpardakht.oauth_server.authorization.util.Messages;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +54,7 @@ public class OtpService {
         }
     }
 
+    @Auditable(action = AuditAction.OTP_SENT, usernameParam = "phoneNumber", clientIdParam = "clientId")
     public String sendOtp(SendOtpRequestDto request, String ipAddress) {
         String state = request.getState();
         String phoneNumber = request.getPhoneNumber();
@@ -116,6 +119,7 @@ public class OtpService {
         }
     }
 
+    @Auditable(action = AuditAction.OTP_VERIFIED, usernameParam = "phoneNumber", clientIdParam = "clientId")
     public VerifyOtpResponseDto verifyOtpAndCreateAuthorization(VerifyOtpRequestDto request, String ipAddress) {
         String state = request.getState();
         validateStateExists(state);

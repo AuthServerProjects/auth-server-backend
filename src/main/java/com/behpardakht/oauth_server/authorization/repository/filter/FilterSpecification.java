@@ -7,6 +7,7 @@ import jakarta.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.lang.reflect.Method;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -74,6 +75,18 @@ public interface FilterSpecification<F, T> {
             predicates.add(cb.equal(root.get(fieldName), value));
         }
     }
+
+    default void addInstantRangeFilter(List<Predicate> predicates, Root<T> root,
+                                       CriteriaBuilder cb, String fieldName,
+                                       Instant from, Instant to) {
+        if (from != null) {
+            predicates.add(cb.greaterThanOrEqualTo(root.get(fieldName), from));
+        }
+        if (to != null) {
+            predicates.add(cb.lessThanOrEqualTo(root.get(fieldName), to));
+        }
+    }
+
 
     default void addEntityFilter(List<Predicate> predicates, Root<T> root,
                                  CriteriaBuilder cb, String fieldName, Object dto) {

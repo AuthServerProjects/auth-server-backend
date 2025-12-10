@@ -1,11 +1,13 @@
 package com.behpardakht.oauth_server.authorization.service;
 
+import com.behpardakht.oauth_server.authorization.aspect.Auditable;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.AlreadyExistException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
 import com.behpardakht.oauth_server.authorization.model.dto.RoleDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Role;
+import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.model.mapper.RoleMapper;
 import com.behpardakht.oauth_server.authorization.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ public class RoleService {
     private final RoleRepository roleRepository;
     private final RoleMapper roleMapper;
 
+    @Auditable(action = AuditAction.ROLE_CREATED, detailsParam = "name")
     public void save(RoleDto roleDto) {
         if (roleRepository.existsByName(roleDto.getName())) {
             throw new AlreadyExistException("Role", roleDto.getName());
@@ -48,6 +51,7 @@ public class RoleService {
         return roleMapper.toDto(role);
     }
 
+    @Auditable(action = AuditAction.STATUS_CHANGED, usernameParam = "username")
     public Boolean toggleStatus(Long id) {
         Role role = findById(id);
         role.setIsEnabled(!Boolean.TRUE.equals(role.getIsEnabled()));
@@ -55,6 +59,7 @@ public class RoleService {
         return role.getIsEnabled();
     }
 
+    @Auditable(action = AuditAction.ROLE_DELETED, detailsParam = "name")
     public void delete(Long id) {
         Role role = findById(id);
         if (roleRepository.isRoleAssignedToUsers(role.getId())) {

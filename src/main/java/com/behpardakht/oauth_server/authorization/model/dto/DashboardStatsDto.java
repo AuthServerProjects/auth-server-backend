@@ -16,4 +16,7 @@ public class DashboardStatsDto {
     private Long activeUsers;
     private Long totalRoles;
     private Long activeSessions;
+    private Long todayLogins;
+    private Long todayFailedLogins;
+    private Long todayOtpSent;
 }

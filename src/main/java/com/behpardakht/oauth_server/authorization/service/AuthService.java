@@ -1,5 +1,6 @@
 package com.behpardakht.oauth_server.authorization.service;
 
+import com.behpardakht.oauth_server.authorization.aspect.Auditable;
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
@@ -9,6 +10,7 @@ import com.behpardakht.oauth_server.authorization.model.dto.auth.AuthorizationFi
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Authorizations;
+import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.model.mapper.AuthorizationMapper;
 import com.behpardakht.oauth_server.authorization.repository.AuthorizationRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.AuthorizationFilterSpecification;
@@ -82,6 +84,7 @@ public class AuthService {
                 maskPhoneNumber(authorization.getPrincipalName()), authorization.getId());
     }
 
+    @Auditable(action = AuditAction.SESSION_REVOKED, detailsParam = "authorizationId")
     public void revokeSession(String authorizationId) {
         Authorizations authorization = authorizationRepository.findByAuthorizationId(authorizationId)
                 .orElseThrow(() -> new NotFoundException("Session", "authorizationId", authorizationId));
@@ -101,6 +104,7 @@ public class AuthService {
         log.debug("Revoked session: Authorization ID {}", authorization.getAuthorizationId());
     }
 
+    @Auditable(action = AuditAction.ALL_SESSION_REVOKED, usernameParam = "username")
     public String revokeSessionsByUsername(String username) {
         List<Authorizations> userAuthorizationList = authorizationRepository.findByPrincipalName(username);
         if (userAuthorizationList.isEmpty()) {

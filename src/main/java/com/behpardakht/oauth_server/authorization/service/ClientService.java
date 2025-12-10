@@ -1,5 +1,6 @@
 package com.behpardakht.oauth_server.authorization.service;
 
+import com.behpardakht.oauth_server.authorization.aspect.Auditable;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.AlreadyExistException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
@@ -7,6 +8,7 @@ import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRespons
 import com.behpardakht.oauth_server.authorization.model.dto.client.ClientDto;
 import com.behpardakht.oauth_server.authorization.model.dto.client.ClientFilterDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Client;
+import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.model.mapper.ClientMapper;
 import com.behpardakht.oauth_server.authorization.repository.ClientRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.ClientFilterSpecification;
@@ -31,6 +33,7 @@ public class ClientService {
     private final RegisteredClientRepository registeredClientRepository;
     private final ClientFilterSpecification clientFilterSpecification;
 
+    @Auditable(action = AuditAction.CLIENT_CREATED, clientIdParam = "clientId")
     public void save(ClientDto clientDto) {
         if (clientRepository.existsByClientId(clientDto.getClientId())) {
             throw new AlreadyExistException("Client", clientDto.getClientId());
@@ -41,6 +44,7 @@ public class ClientService {
         clientRepository.save(entity);
     }
 
+    @Auditable(action = AuditAction.CLIENT_UPDATED, clientIdParam = "clientId")
     public void update(String clientId, ClientDto clientDto) {
         Client existingClient = getClient(clientId);
         clientMapper.dtoToEntity(existingClient, clientDto);
@@ -78,6 +82,7 @@ public class ClientService {
         return PageableResponseDto.build(responses, page);
     }
 
+    @Auditable(action = AuditAction.SECRET_REGENERATED, clientIdParam = "clientId")
     public String regenerateSecret(String clientId) {
         Client client = getClient(clientId);
         String rawSecret = UUID.randomUUID().toString();
@@ -86,6 +91,7 @@ public class ClientService {
         return rawSecret;
     }
 
+    @Auditable(action = AuditAction.STATUS_CHANGED, clientIdParam = "clientId")
     public Boolean toggleStatus(String clientId) {
         Client client = getClient(clientId);
         client.setIsEnabled(!Boolean.TRUE.equals(client.getIsEnabled()));

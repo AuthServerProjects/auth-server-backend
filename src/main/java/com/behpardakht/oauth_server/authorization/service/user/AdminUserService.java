@@ -1,5 +1,6 @@
 package com.behpardakht.oauth_server.authorization.service.user;
 
+import com.behpardakht.oauth_server.authorization.aspect.Auditable;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.AlreadyExistException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
@@ -8,6 +9,7 @@ import com.behpardakht.oauth_server.authorization.model.dto.user.UserFilterDto;
 import com.behpardakht.oauth_server.authorization.model.dto.user.UsersDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Role;
 import com.behpardakht.oauth_server.authorization.model.entity.Users;
+import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.model.enums.UserRole;
 import com.behpardakht.oauth_server.authorization.model.mapper.UserMapper;
 import com.behpardakht.oauth_server.authorization.repository.UserRepository;
@@ -82,6 +84,7 @@ public class AdminUserService {
         log.info("New user account created for phone: {}", maskPhoneNumber(phoneNumber));
     }
 
+    @Auditable(action = AuditAction.USER_CREATED, usernameParam = "username")
     public void save(UsersDto usersDto) {
         if (existUserWithUsername(usersDto.getUsername())) {
             throw new AlreadyExistException("Username", usersDto.getUsername());
@@ -96,12 +99,14 @@ public class AdminUserService {
         }
     }
 
+    @Auditable(action = AuditAction.USER_UPDATED, usernameParam = "username")
     public void update(Long id, UsersDto usersDto) {
         Users user = getUser(id);
         userMapper.toEntity(user, usersDto);
         userRepository.save(user);
     }
 
+    @Auditable(action = AuditAction.RESET_PASSWORD, usernameParam = "username")
     public void resetPassword(Long id) {
         Users user = getUser(id);
         String newPassword = GeneralUtil.generateRandomPassword();
@@ -137,6 +142,7 @@ public class AdminUserService {
         return userRepository.existsByPhoneNumber(phoneNumber);
     }
 
+    @Auditable(action = AuditAction.STATUS_CHANGED, usernameParam = "username")
     public Boolean toggleStatus(Long id) {
         Users user = getUser(id);
         user.setIsEnabled(!Boolean.TRUE.equals(user.getIsEnabled()));
