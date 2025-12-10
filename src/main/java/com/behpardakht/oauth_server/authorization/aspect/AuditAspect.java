@@ -11,13 +11,18 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.context.expression.MethodBasedEvaluationContext;
+import org.springframework.core.DefaultParameterNameDiscoverer;
+import org.springframework.core.ParameterNameDiscoverer;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 
 @Slf4j
 @Aspect
@@ -26,6 +31,8 @@ import java.lang.reflect.Parameter;
 public class AuditAspect {
 
     private final AuditLogRepository auditLogRepository;
+    private final ExpressionParser parser = new SpelExpressionParser();
+    private final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
     @AfterReturning(value = "@annotation(auditable)", returning = "result")
     public void auditSuccess(JoinPoint joinPoint, Auditable auditable, Object result) {
@@ -40,19 +47,24 @@ public class AuditAspect {
     @Async
     protected void saveAuditLog(JoinPoint joinPoint, Auditable auditable, boolean success, String errorDetails) {
         try {
-            String username = extractParam(joinPoint, auditable.usernameParam());
-            String clientId = extractParam(joinPoint, auditable.clientIdParam());
-            String details = extractParam(joinPoint, auditable.detailsParam());
+            EvaluationContext context = createEvaluationContext(joinPoint);
+
+            String username = parseSpel(auditable.username(), context);
+            String clientId = parseSpel(auditable.clientId(), context);
+            String details = parseSpel(auditable.details(), context);
+
             if (!success && errorDetails != null) {
                 details = details != null ? details + " | Error: " + errorDetails : errorDetails;
             }
+
             HttpServletRequest request = getCurrentRequest();
+
             AuditLog auditLog = AuditLog.builder()
                     .action(auditable.action())
                     .username(username)
                     .clientId(clientId)
                     .ipAddress(GeneralUtil.getClientIpAddress(request))
-                    .userAgent(request.getHeader("User-Agent"))
+                    .userAgent(request != null ? request.getHeader("User-Agent") : null)
                     .details(details)
                     .success(success)
                     .build();
@@ -63,34 +75,24 @@ public class AuditAspect {
         }
     }
 
-    private String extractParam(JoinPoint joinPoint, String paramName) {
-        if (paramName == null || paramName.isEmpty()) {
-            return null;
-        }
+    private EvaluationContext createEvaluationContext(JoinPoint joinPoint) {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        Parameter[] parameters = signature.getMethod().getParameters();
+        Method method = signature.getMethod();
         Object[] args = joinPoint.getArgs();
-
-        for (int i = 0; i < parameters.length; i++) {
-            if (parameters[i].getName().equals(paramName) && args[i] != null) {
-                return args[i].toString();
-            }
-        }
-        return extractFromDto(args, paramName);
+        return new MethodBasedEvaluationContext(null, method, args, parameterNameDiscoverer);
     }
 
-    private String extractFromDto(Object[] args, String paramName) {
-        for (Object arg : args) {
-            if (arg == null) continue;
-            try {
-                Method getter = arg.getClass().getMethod(
-                        "get" + paramName.substring(0, 1).toUpperCase() + paramName.substring(1));
-                Object value = getter.invoke(arg);
-                return value != null ? value.toString() : null;
-            } catch (Exception ignored) {
-            }
+    private String parseSpel(String expression, EvaluationContext context) {
+        if (expression == null || expression.isEmpty()) {
+            return null;
         }
-        return null;
+        try {
+            Object value = parser.parseExpression(expression).getValue(context);
+            return value != null ? value.toString() : null;
+        } catch (Exception e) {
+            log.warn("Failed to parse SpEL expression: {}", expression);
+            return null;
+        }
     }
 
     private HttpServletRequest getCurrentRequest() {

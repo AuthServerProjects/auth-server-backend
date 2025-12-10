@@ -33,7 +33,7 @@ public class ClientService {
     private final RegisteredClientRepository registeredClientRepository;
     private final ClientFilterSpecification clientFilterSpecification;
 
-    @Auditable(action = AuditAction.CLIENT_CREATED, clientIdParam = "clientId")
+    @Auditable(action = AuditAction.CLIENT_CREATED, clientId = "#clientDto.clientId")
     public void save(ClientDto clientDto) {
         if (clientRepository.existsByClientId(clientDto.getClientId())) {
             throw new AlreadyExistException("Client", clientDto.getClientId());
@@ -44,7 +44,7 @@ public class ClientService {
         clientRepository.save(entity);
     }
 
-    @Auditable(action = AuditAction.CLIENT_UPDATED, clientIdParam = "clientId")
+    @Auditable(action = AuditAction.CLIENT_UPDATED, clientId = "#clientId")
     public void update(String clientId, ClientDto clientDto) {
         Client existingClient = getClient(clientId);
         clientMapper.dtoToEntity(existingClient, clientDto);
@@ -82,7 +82,7 @@ public class ClientService {
         return PageableResponseDto.build(responses, page);
     }
 
-    @Auditable(action = AuditAction.SECRET_REGENERATED, clientIdParam = "clientId")
+    @Auditable(action = AuditAction.SECRET_REGENERATED, clientId = "#clientId")
     public String regenerateSecret(String clientId) {
         Client client = getClient(clientId);
         String rawSecret = UUID.randomUUID().toString();
@@ -91,7 +91,7 @@ public class ClientService {
         return rawSecret;
     }
 
-    @Auditable(action = AuditAction.STATUS_CHANGED, clientIdParam = "clientId")
+    @Auditable(action = AuditAction.STATUS_CHANGED, clientId = "#clientId")
     public Boolean toggleStatus(String clientId) {
         Client client = getClient(clientId);
         client.setIsEnabled(!Boolean.TRUE.equals(client.getIsEnabled()));

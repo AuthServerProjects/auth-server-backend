@@ -54,7 +54,7 @@ public class OtpService {
         }
     }
 
-    @Auditable(action = AuditAction.OTP_SENT, usernameParam = "phoneNumber", clientIdParam = "clientId")
+    @Auditable(action = AuditAction.OTP_SENT, username = "#request.phoneNumber")
     public String sendOtp(SendOtpRequestDto request, String ipAddress) {
         String state = request.getState();
         String phoneNumber = request.getPhoneNumber();
@@ -119,7 +119,7 @@ public class OtpService {
         }
     }
 
-    @Auditable(action = AuditAction.OTP_VERIFIED, usernameParam = "phoneNumber", clientIdParam = "clientId")
+    @Auditable(action = AuditAction.OTP_VERIFIED, username = "#request.phoneNumber")
     public VerifyOtpResponseDto verifyOtpAndCreateAuthorization(VerifyOtpRequestDto request, String ipAddress) {
         String state = request.getState();
         validateStateExists(state);

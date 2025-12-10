@@ -84,7 +84,7 @@ public class AuthService {
                 maskPhoneNumber(authorization.getPrincipalName()), authorization.getId());
     }
 
-    @Auditable(action = AuditAction.SESSION_REVOKED, detailsParam = "authorizationId")
+    @Auditable(action = AuditAction.SESSION_REVOKED, details = "#authorizationId")
     public void revokeSession(String authorizationId) {
         Authorizations authorization = authorizationRepository.findByAuthorizationId(authorizationId)
                 .orElseThrow(() -> new NotFoundException("Session", "authorizationId", authorizationId));
@@ -104,7 +104,7 @@ public class AuthService {
         log.debug("Revoked session: Authorization ID {}", authorization.getAuthorizationId());
     }
 
-    @Auditable(action = AuditAction.ALL_SESSION_REVOKED, usernameParam = "username")
+    @Auditable(action = AuditAction.ALL_SESSION_REVOKED, username = "#username")
     public String revokeSessionsByUsername(String username) {
         List<Authorizations> userAuthorizationList = authorizationRepository.findByPrincipalName(username);
         if (userAuthorizationList.isEmpty()) {

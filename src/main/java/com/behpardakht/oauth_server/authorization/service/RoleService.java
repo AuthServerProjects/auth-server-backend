@@ -22,7 +22,7 @@ public class RoleService {
     private final RoleRepository roleRepository;
     private final RoleMapper roleMapper;
 
-    @Auditable(action = AuditAction.ROLE_CREATED, detailsParam = "name")
+    @Auditable(action = AuditAction.ROLE_CREATED, details = "#roleDto.name")
     public void save(RoleDto roleDto) {
         if (roleRepository.existsByName(roleDto.getName())) {
             throw new AlreadyExistException("Role", roleDto.getName());
@@ -51,7 +51,7 @@ public class RoleService {
         return roleMapper.toDto(role);
     }
 
-    @Auditable(action = AuditAction.STATUS_CHANGED, usernameParam = "username")
+    @Auditable(action = AuditAction.STATUS_CHANGED, details = "#id")
     public Boolean toggleStatus(Long id) {
         Role role = findById(id);
         role.setIsEnabled(!Boolean.TRUE.equals(role.getIsEnabled()));
@@ -59,7 +59,7 @@ public class RoleService {
         return role.getIsEnabled();
     }
 
-    @Auditable(action = AuditAction.ROLE_DELETED, detailsParam = "name")
+    @Auditable(action = AuditAction.ROLE_DELETED, details = "#id")
     public void delete(Long id) {
         Role role = findById(id);
         if (roleRepository.isRoleAssignedToUsers(role.getId())) {

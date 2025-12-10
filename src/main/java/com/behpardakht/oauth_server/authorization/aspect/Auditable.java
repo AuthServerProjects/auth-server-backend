@@ -11,10 +11,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Auditable {
     AuditAction action();
-
-    String usernameParam() default "";
-
-    String clientIdParam() default "";
-
-    String detailsParam() default "";
+    String username() default "";
+    String clientId() default "";
+    String details() default "";
 }
