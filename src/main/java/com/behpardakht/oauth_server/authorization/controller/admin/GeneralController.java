@@ -1,5 +1,7 @@
 package com.behpardakht.oauth_server.authorization.controller.admin;
 
+import com.behpardakht.oauth_server.authorization.model.dto.PermissionDto;
+import com.behpardakht.oauth_server.authorization.model.dto.RoleDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.behpardakht.oauth_server.authorization.model.enums.*;
 import com.behpardakht.oauth_server.authorization.service.GeneralService;
@@ -51,8 +53,15 @@ public class GeneralController {
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping(path = "loadUserRoles")
-    public ResponseEntity<ResponseDto<List<UserRole>>> loadUserRoles() {
-        List<UserRole> response = generalService.loadUserRoles();
+    public ResponseEntity<ResponseDto<List<RoleDto>>> loadUserRoles() {
+        List<RoleDto> response = generalService.loadUserRoles();
+        return ResponseEntity.ok(ResponseDto.success(response));
+    }
+
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @GetMapping(path = "loadUserPermissions")
+    public ResponseEntity<ResponseDto<List<PermissionDto>>> loadUserPermissions() {
+        List<PermissionDto> response = generalService.loadUserPermissions();
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 }
