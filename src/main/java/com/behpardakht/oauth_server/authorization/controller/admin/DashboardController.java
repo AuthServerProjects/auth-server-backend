@@ -1,6 +1,6 @@
 package com.behpardakht.oauth_server.authorization.controller.admin;
 
-import com.behpardakht.oauth_server.authorization.model.dto.DashboardStatsDto;
+import com.behpardakht.oauth_server.authorization.model.dto.dashboard.DashboardStatsDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.behpardakht.oauth_server.authorization.service.DashboardService;
 import lombok.RequiredArgsConstructor;
