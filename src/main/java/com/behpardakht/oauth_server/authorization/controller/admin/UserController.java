@@ -33,7 +33,7 @@ public class UserController {
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping(path = "find/{id}")
     public ResponseEntity<ResponseDto<UsersDto>> findById(@PathVariable Long id) {
-        UsersDto response = adminUserService.findById(id);
+        UsersDto response = adminUserService.findDtoById(id);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 

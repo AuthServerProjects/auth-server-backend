@@ -14,7 +14,7 @@ import com.behpardakht.oauth_server.authorization.model.enums.UserRole;
 import com.behpardakht.oauth_server.authorization.model.mapper.UserMapper;
 import com.behpardakht.oauth_server.authorization.repository.UserRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.UserFilterSpecification;
-import com.behpardakht.oauth_server.authorization.service.RoleService;
+import com.behpardakht.oauth_server.authorization.service.RoleAssignmentService;
 import com.behpardakht.oauth_server.authorization.sms.ISmsService;
 import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +38,7 @@ public class AdminUserService {
     private final UserFilterSpecification userFilterSpecification;
 
     private final ISmsService iSmsService;
-    private final RoleService roleService;
+    private final RoleAssignmentService roleAssignmentService;
     private final PasswordEncoder passwordEncoder;
 
     public PageableResponseDto<UsersDto> findAll(PageableRequestDto<UserFilterDto> request) {
@@ -48,12 +48,12 @@ public class AdminUserService {
         return PageableResponseDto.build(responses, page);
     }
 
-    public UsersDto findById(Long id) {
-        Users user = getUser(id);
+    public UsersDto findDtoById(Long id) {
+        Users user = findById(id);
         return userMapper.toDto(user);
     }
 
-    private Users getUser(Long id) {
+    public Users findById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User", "id", id.toString()));
     }
@@ -101,31 +101,17 @@ public class AdminUserService {
 
     @Auditable(action = AuditAction.USER_UPDATED, username = "#usersDto.username")
     public void update(Long id, UsersDto usersDto) {
-        Users user = getUser(id);
+        Users user = findById(id);
         userMapper.toEntity(user, usersDto);
         userRepository.save(user);
     }
 
     @Auditable(action = AuditAction.RESET_PASSWORD, details = "#id")
     public void resetPassword(Long id) {
-        Users user = getUser(id);
+        Users user = findById(id);
         String newPassword = GeneralUtil.generateRandomPassword();
         iSmsService.send(user.getPhoneNumber(), newPassword);
         user.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
-    }
-
-    public void addRoleToUser(String username, String roleName) {
-        Users user = findByUsername(username);
-        Role role = roleService.findByName(roleName);
-        user.getRoles().add(role);
-        userRepository.save(user);
-    }
-
-    public void removeRoleFromUser(String username, String roleName) {
-        Users user = findByUsername(username);
-        Role role = roleService.findByName(roleName);
-        user.getRoles().remove(role);
         userRepository.save(user);
     }
 
@@ -144,7 +130,7 @@ public class AdminUserService {
 
     @Auditable(action = AuditAction.STATUS_CHANGED, details = "#id")
     public Boolean toggleStatus(Long id) {
-        Users user = getUser(id);
+        Users user = findById(id);
         user.setIsEnabled(!Boolean.TRUE.equals(user.getIsEnabled()));
         userRepository.save(user);
         return user.getIsEnabled();

@@ -46,18 +46,18 @@ public class ClientService {
 
     @Auditable(action = AuditAction.CLIENT_UPDATED, clientId = "#clientId")
     public void update(String clientId, ClientDto clientDto) {
-        Client existingClient = getClient(clientId);
+        Client existingClient = findByClientId(clientId);
         clientMapper.dtoToEntity(existingClient, clientDto);
         clientRepository.save(existingClient);
     }
 
-    private Client getClient(String clientId) {
+    public Client findByClientId(String clientId) {
         return clientRepository.findByClientId(clientId)
                 .orElseThrow(() -> new NotFoundException("Client", "clientId", clientId));
     }
 
-    public ClientDto findByClientId(String clientId) {
-        Client client = getClient(clientId);
+    public ClientDto findDtoByClientId(String clientId) {
+        Client client = findByClientId(clientId);
         return clientMapper.entityToDto(client);
     }
 
@@ -84,7 +84,7 @@ public class ClientService {
 
     @Auditable(action = AuditAction.SECRET_REGENERATED, clientId = "#clientId")
     public String regenerateSecret(String clientId) {
-        Client client = getClient(clientId);
+        Client client = findByClientId(clientId);
         String rawSecret = UUID.randomUUID().toString();
         client.setClientSecret(passwordEncoder.encode(rawSecret));
         clientRepository.save(client);
@@ -93,7 +93,7 @@ public class ClientService {
 
     @Auditable(action = AuditAction.STATUS_CHANGED, clientId = "#clientId")
     public Boolean toggleStatus(String clientId) {
-        Client client = getClient(clientId);
+        Client client = findByClientId(clientId);
         client.setIsEnabled(!Boolean.TRUE.equals(client.getIsEnabled()));
         clientRepository.save(client);
         return client.getIsEnabled();

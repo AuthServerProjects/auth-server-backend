@@ -50,7 +50,7 @@ public class ClientController {
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping(path = "find/{clientId}")
     public ResponseEntity<ResponseDto<ClientDto>> findByClientId(@PathVariable String clientId) {
-        ClientDto response = clientService.findByClientId(clientId);
+        ClientDto response = clientService.findDtoByClientId(clientId);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
