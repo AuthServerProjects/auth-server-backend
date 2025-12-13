@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RoleMapper {
 
+    private final PermissionMapper permissionMapper;
     private final RoleRepository roleRepository;
 
     public RoleDto toDto(Role entity) {
@@ -20,6 +21,7 @@ public class RoleMapper {
             return RoleDto.builder()
                     .id(entity.getId())
                     .name(entity.getName())
+                    .permissions(permissionMapper.toDtoSet(entity.getPermissions()))
                     .build();
         }
         return null;
@@ -37,9 +39,10 @@ public class RoleMapper {
 
     public Role toEntity(RoleDto dto) {
         if (dto != null) {
-            Role entity = new Role();
-            entity.setName(dto.getName());
-            return entity;
+            return Role.builder()
+                    .name(dto.getName())
+                    .permissions(permissionMapper.toEntitySet(dto.getPermissions()))
+                    .build();
         }
         return null;
     }
