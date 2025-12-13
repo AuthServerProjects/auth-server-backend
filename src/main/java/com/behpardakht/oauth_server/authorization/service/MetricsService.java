@@ -1,16 +1,51 @@
 package com.behpardakht.oauth_server.authorization.service;
 
+import com.behpardakht.oauth_server.authorization.repository.AuthorizationRepository;
+import com.behpardakht.oauth_server.authorization.repository.ClientRepository;
+import com.behpardakht.oauth_server.authorization.repository.UserRepository;
 import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
 public class MetricsService {
 
     private final MeterRegistry meterRegistry;
+
+    private final UserRepository userRepository;
+    private final ClientRepository clientRepository;
+    private final AuthorizationRepository authorizationRepository;
+
+    @PostConstruct
+    public void initGauges() {
+        Gauge.builder("auth.sessions.active", () ->
+                        authorizationRepository.countByAccessTokenExpiresAtAfter(Instant.now()))
+                .description("Current active sessions")
+                .register(meterRegistry);
+
+        Gauge.builder("auth.clients.total", clientRepository::count)
+                .description("Total registered clients")
+                .register(meterRegistry);
+
+        Gauge.builder("auth.clients.active", clientRepository::countByIsEnabledTrue)
+                .description("Active clients")
+                .register(meterRegistry);
+
+        Gauge.builder("auth.users.total", userRepository::count)
+                .description("Total users")
+                .register(meterRegistry);
+
+        Gauge.builder("auth.users.active", userRepository::countByIsEnabledTrue)
+                .description("Active users")
+                .register(meterRegistry);
+    }
 
     public void incrementOtpSent(String clientId, boolean success) {
         Counter.builder("auth.otp.sent")
