@@ -19,7 +19,9 @@ public class JwtAuthenticationConverter implements Converter<Jwt, CustomJwtAuthe
 
     @Override
     public CustomJwtAuthenticationToken convert(@NotNull Jwt jwt) {
-        List<GrantedAuthority> authorities = Stream.concat(roles(jwt), scopes(jwt)).toList();
+        List<GrantedAuthority> authorities = Stream.of(roles(jwt), scopes(jwt), authorities(jwt))
+                .flatMap(s -> s)
+                .toList();
         String clientId = getCustomField(jwt, "client-id");
         return new CustomJwtAuthenticationToken(jwt, authorities, jwt.getSubject(), clientId);
     }
@@ -39,5 +41,11 @@ public class JwtAuthenticationConverter implements Converter<Jwt, CustomJwtAuthe
         List<String> scopes = (List<String>) jwt.getClaims().getOrDefault("scope", List.of());
         return Optional.ofNullable(scopes).orElse(Collections.emptyList())
                 .stream().filter(Objects::nonNull).map(scope -> new SimpleGrantedAuthority("SCOPE_" + scope));
+    }
+
+    private Stream<GrantedAuthority> authorities(Jwt jwt) {
+        List<String> authorities = (List<String>) jwt.getClaims().getOrDefault("authorities", List.of());
+        return Optional.ofNullable(authorities).orElse(Collections.emptyList())
+                .stream().filter(Objects::nonNull).map(SimpleGrantedAuthority::new);
     }
 }
