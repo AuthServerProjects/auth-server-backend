@@ -1,13 +1,13 @@
 package com.behpardakht.oauth_server.authorization.controller.admin;
 
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
-import com.behpardakht.oauth_server.authorization.util.Messages;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.user.UserFilterDto;
 import com.behpardakht.oauth_server.authorization.model.dto.user.UsersDto;
 import com.behpardakht.oauth_server.authorization.service.user.AdminUserService;
+import com.behpardakht.oauth_server.authorization.util.Messages;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -81,26 +81,6 @@ public class UserController {
     public ResponseEntity<ResponseDto<String>> resetPassword(@PathVariable Long id) {
         adminUserService.resetPassword(id);
         String response = MessageResolver.getMessage(Messages.PASSWORD_SENT_SUCCESS.getMessage());
-        return ResponseEntity.ok(ResponseDto.success(response));
-    }
-
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @PostMapping(path = "addRoleToUser")
-    public ResponseEntity<ResponseDto<String>> addRoleToUser(@RequestParam String username,
-                                                             @RequestParam String roleName) {
-        adminUserService.addRoleToUser(username, roleName);
-        String response = MessageResolver.getMessage(
-                Messages.ROLE_ASSIGNED_SUCCESS.getMessage(), new Object[]{roleName, username});
-        return ResponseEntity.ok(ResponseDto.success(response));
-    }
-
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @PostMapping(path = "removeRoleFromUser")
-    public ResponseEntity<ResponseDto<String>> removeRoleFromUser(@RequestParam String username,
-                                                                  @RequestParam String roleName) {
-        adminUserService.removeRoleFromUser(username, roleName);
-        String response = MessageResolver.getMessage(
-                Messages.ROLE_REMOVED_SUCCESS.getMessage(), new Object[]{roleName, username});
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 

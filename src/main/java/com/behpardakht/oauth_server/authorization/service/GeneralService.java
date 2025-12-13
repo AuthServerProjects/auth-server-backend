@@ -1,7 +1,7 @@
 package com.behpardakht.oauth_server.authorization.service;
 
-import com.behpardakht.oauth_server.authorization.model.dto.PermissionDto;
-import com.behpardakht.oauth_server.authorization.model.dto.RoleDto;
+import com.behpardakht.oauth_server.authorization.model.dto.role.PermissionDto;
+import com.behpardakht.oauth_server.authorization.model.dto.role.RoleDto;
 import com.behpardakht.oauth_server.authorization.model.enums.AuthenticationMethodTypes;
 import com.behpardakht.oauth_server.authorization.model.enums.AuthorizationGrantTypes;
 import com.behpardakht.oauth_server.authorization.model.enums.PkceMethod;

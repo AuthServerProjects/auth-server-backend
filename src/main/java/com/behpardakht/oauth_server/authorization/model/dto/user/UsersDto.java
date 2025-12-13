@@ -1,6 +1,6 @@
 package com.behpardakht.oauth_server.authorization.model.dto.user;
 
-import com.behpardakht.oauth_server.authorization.model.dto.RoleDto;
+import com.behpardakht.oauth_server.authorization.model.dto.role.RoleDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

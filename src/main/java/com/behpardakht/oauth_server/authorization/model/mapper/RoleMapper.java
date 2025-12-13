@@ -1,6 +1,6 @@
 package com.behpardakht.oauth_server.authorization.model.mapper;
 
-import com.behpardakht.oauth_server.authorization.model.dto.RoleDto;
+import com.behpardakht.oauth_server.authorization.model.dto.role.RoleDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Role;
 import com.behpardakht.oauth_server.authorization.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;

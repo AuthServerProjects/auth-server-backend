@@ -1,6 +1,6 @@
 package com.behpardakht.oauth_server.authorization.model.mapper;
 
-import com.behpardakht.oauth_server.authorization.model.dto.PermissionDto;
+import com.behpardakht.oauth_server.authorization.model.dto.role.PermissionDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Permission;
 import org.springframework.stereotype.Component;
 
