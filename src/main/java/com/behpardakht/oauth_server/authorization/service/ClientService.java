@@ -61,6 +61,11 @@ public class ClientService {
         return clientMapper.entityToDto(client);
     }
 
+    public Client findById(Long id) {
+        return clientRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Client", "id", id.toString()));
+    }
+
     public RegisteredClient findRegisteredClientByClientId(String clientId) {
         RegisteredClient registeredClient = registeredClientRepository.findByClientId(clientId);
         if (registeredClient == null) {

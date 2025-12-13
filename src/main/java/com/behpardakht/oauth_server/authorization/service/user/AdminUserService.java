@@ -7,14 +7,11 @@ import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequest
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.user.UserFilterDto;
 import com.behpardakht.oauth_server.authorization.model.dto.user.UsersDto;
-import com.behpardakht.oauth_server.authorization.model.entity.Role;
 import com.behpardakht.oauth_server.authorization.model.entity.Users;
 import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
-import com.behpardakht.oauth_server.authorization.model.enums.UserRole;
 import com.behpardakht.oauth_server.authorization.model.mapper.UserMapper;
 import com.behpardakht.oauth_server.authorization.repository.UserRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.UserFilterSpecification;
-import com.behpardakht.oauth_server.authorization.service.RoleAssignmentService;
 import com.behpardakht.oauth_server.authorization.sms.ISmsService;
 import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +35,6 @@ public class AdminUserService {
     private final UserFilterSpecification userFilterSpecification;
 
     private final ISmsService iSmsService;
-    private final RoleAssignmentService roleAssignmentService;
     private final PasswordEncoder passwordEncoder;
 
     public PageableResponseDto<UsersDto> findAll(PageableRequestDto<UserFilterDto> request) {
@@ -92,10 +88,7 @@ public class AdminUserService {
             if (!usersDto.getPassword().isBlank()) {
                 usersDto.setPassword(passwordEncoder.encode(usersDto.getPassword()));
             }
-            Role role = roleService.findByName(UserRole.USER.getValue());
-            Users user = userMapper.toEntity(usersDto);
-            user.getRoles().add(role);
-            userRepository.save(user);
+            userRepository.save(userMapper.toEntity(usersDto));
         }
     }
 

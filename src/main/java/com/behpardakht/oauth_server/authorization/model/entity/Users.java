@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,18 +40,14 @@ public class Users extends BaseEntity implements UserDetails {
     @Column(name = "is_credentials_non_expired")
     private Boolean isCredentialsNonExpired;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "users_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Role> roles;
+    @OneToMany(mappedBy = "users", fetch = FetchType.EAGER)
+    private Set<RoleAssignment> roleAssignments;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                .map(role -> (GrantedAuthority) role::getName)
+        if (roleAssignments == null) return Collections.emptySet();
+        return roleAssignments.stream().map(roleAssignment ->
+                        new SimpleGrantedAuthority("ROLE_" + roleAssignment.getRole().getName()))
                 .collect(Collectors.toSet());
     }
 

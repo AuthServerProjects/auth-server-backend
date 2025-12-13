@@ -31,6 +31,7 @@ public enum Messages {
     USER_UPDATED_SUCCESS("user_updated_success"),
     PASSWORD_SENT_SUCCESS("password_sent_success"),
     ROLE_ASSIGNED_SUCCESS("role_assigned_success"),
+    ROLE_UNASSIGNED_SUCCESS("role_unassigned_success"),
     ROLE_REMOVED_SUCCESS("role_removed_success"),
 
     // Client

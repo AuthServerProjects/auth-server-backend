@@ -32,6 +32,9 @@ public enum AuditAction {
     ROLE_CREATED("role_created"),
     ROLE_UPDATED("role_updated"),
     ROLE_DELETED("role_deleted"),
+    ROLE_ASSIGNED("role_assigned"),
+    ROLE_UNASSIGNED("role_unassigned"),
+    ROLE_ASSIGNMENT_DELETED("role_assignment_deleted"),
 
     STATUS_CHANGED("status_changed"),
     SESSION_REVOKED("session_revoked"),
