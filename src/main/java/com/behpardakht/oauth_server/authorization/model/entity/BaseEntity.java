@@ -9,7 +9,6 @@ import lombok.experimental.SuperBuilder;
 import java.time.Instant;
 
 @Getter
-@Setter
 @SuperBuilder
 @MappedSuperclass
 @NoArgsConstructor
@@ -20,6 +19,7 @@ public abstract class BaseEntity {
     @Column(name = "id")
     private Long id;
 
+    @Setter
     @Column(name = "is_enabled")
     private Boolean isEnabled = true;
 

@@ -2,12 +2,12 @@ package com.behpardakht.oauth_server.authorization.model.entity;
 
 import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import jakarta.persistence.*;
-import lombok.*;
-
-import java.time.Instant;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Setter
 @Entity
 @Builder
 @NoArgsConstructor
