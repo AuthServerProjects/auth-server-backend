@@ -60,10 +60,9 @@ public class AdminUserService {
         return userMapper.toDto(user);
     }
 
-    public UsersDto findByPhoneNumber(String phoneNumber) {
-        Users user = userRepository.findByPhoneNumber(phoneNumber)
+    public Users findByPhoneNumber(String phoneNumber) {
+        return userRepository.findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new NotFoundException("User", "phoneNumber", phoneNumber));
-        return userMapper.toDto(user);
     }
 
     public void createUserByPhoneNumber(String phoneNumber) {

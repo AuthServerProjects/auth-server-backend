@@ -4,6 +4,7 @@ import com.behpardakht.oauth_server.authorization.config.Properties;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.model.dto.user.UsersDto;
+import com.behpardakht.oauth_server.authorization.model.entity.Users;
 import com.behpardakht.oauth_server.authorization.model.enums.PkceMethod;
 import com.behpardakht.oauth_server.authorization.service.ClientService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService.SessionDto;
@@ -50,7 +51,7 @@ public class OtpAuthorizationService {
     public String createAuthorization(String authorizationCode, SessionDto sessionDto) {
         String phoneNumber = sessionDto.phoneNumber();
         try {
-            UsersDto user = adminUserService.findByPhoneNumber(phoneNumber);
+            Users user = adminUserService.findByPhoneNumber(phoneNumber);
             Authentication principal =
                     new UsernamePasswordAuthenticationToken(phoneNumber, null, user.getAuthorities());
 

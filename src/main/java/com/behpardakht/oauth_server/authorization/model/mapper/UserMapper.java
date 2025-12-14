@@ -14,7 +14,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserMapper {
 
-    private final RoleMapper roleMapper;
+    private final RoleAssignmentMapper roleAssignmentMapper;
 
     public UsersDto toDto(Users entity) {
         if (entity != null) {
@@ -27,7 +27,7 @@ public class UserMapper {
                     .isAccountNonLocked(entity.getIsAccountNonLocked())
                     .isCredentialsNonExpired(entity.getIsCredentialsNonExpired())
                     .isEnabled(entity.getIsEnabled())
-                    .roles(roleMapper.toDtoSet(entity.getRoles()))
+                    .roleAssignments(roleAssignmentMapper.toDtoSet(entity.getRoleAssignments()))
                     .build();
         }
         return null;
@@ -48,7 +48,7 @@ public class UserMapper {
                     .isAccountNonLocked(dto.getIsAccountNonLocked())
                     .isCredentialsNonExpired(dto.getIsCredentialsNonExpired())
                     .isEnabled(dto.getIsEnabled())
-                    .roles(roleMapper.loadEntityList(dto.getRoles()))
+                    .roleAssignments(roleAssignmentMapper.loadEntityList(dto.getRoleAssignments()))
                     .build();
         }
         return null;

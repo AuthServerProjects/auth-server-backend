@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 public class RoleMapper {
 
     private final PermissionMapper permissionMapper;
-    private final RoleRepository roleRepository;
 
     public RoleDto toDto(Role entity) {
         if (entity != null) {
@@ -50,17 +49,5 @@ public class RoleMapper {
     public List<Role> toEntityList(List<RoleDto> dtoList) {
         return Optional.ofNullable(dtoList).orElse(Collections.emptyList())
                 .stream().filter(Objects::nonNull).map(this::toEntity).toList();
-    }
-
-    public Role loadEntity(RoleDto dto) {
-        if (dto != null) {
-            return roleRepository.findByName(dto.getName()).orElse(null);
-        }
-        return null;
-    }
-
-    public Set<Role> loadEntityList(Set<RoleDto> dtoList) {
-        return Optional.ofNullable(dtoList).orElse(Collections.emptySet())
-                .stream().filter(Objects::nonNull).map(this::loadEntity).collect(Collectors.toSet());
     }
 }
