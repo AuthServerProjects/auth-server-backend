@@ -50,7 +50,7 @@ public class RoleAssignmentController {
     @PreAuthorize("hasAuthority('user:read')")
     @GetMapping("findByUsername/{username}")
     public ResponseEntity<ResponseDto<List<RoleAssignmentDto>>> findByUsername(@PathVariable String username) {
-        List<RoleAssignmentDto> response = roleAssignmentService.findByUsername(username);
+        List<RoleAssignmentDto> response = roleAssignmentService.findDtoByUsername(username);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 

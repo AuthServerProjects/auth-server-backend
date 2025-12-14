@@ -9,11 +9,17 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "app")
 public class Properties {
 
+    private final SuperAdmin superAdmin = new SuperAdmin();
     private final Vault vault = new Vault();
     private final Storage storage = new Storage();
     private final Cleanup cleanup = new Cleanup();
     private final Cors cors = new Cors();
     private final Config config = new Config();
+
+    @Data
+    public static class SuperAdmin {
+        private String phoneNumber;
+    }
 
     @Data
     public static class Vault {

@@ -2,8 +2,9 @@ package com.behpardakht.oauth_server.authorization.security.authorizationServer;
 
 import com.behpardakht.oauth_server.authorization.model.entity.Permission;
 import com.behpardakht.oauth_server.authorization.model.entity.RoleAssignment;
-import com.behpardakht.oauth_server.authorization.repository.RoleAssignmentRepository;
 import com.behpardakht.oauth_server.authorization.service.MetricsService;
+import com.behpardakht.oauth_server.authorization.service.RoleAssignmentService;
+import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
@@ -24,7 +25,7 @@ public class OAuth2TokenCustomizerImpl implements OAuth2TokenCustomizer<JwtEncod
     private static final String AUTHORITIES_CLAIM = "authorities";
 
     private final MetricsService metricsService;
-    private final RoleAssignmentRepository roleAssignmentRepository;
+    private final RoleAssignmentService roleAssignmentService;
 
     @Override
     public void customize(JwtEncodingContext context) {
@@ -44,15 +45,17 @@ public class OAuth2TokenCustomizerImpl implements OAuth2TokenCustomizer<JwtEncod
     }
 
     private void convertAssignmentToAuthority(Set<String> roles, Set<String> authorities, String username) {
-        List<RoleAssignment> assignments = roleAssignmentRepository.findByUserUsername(username);
+        List<RoleAssignment> assignments = roleAssignmentService.findByUsername(username);
         for (RoleAssignment assignment : assignments) {
             String roleName = assignment.getRole().getName();
             roles.add(roleName);
+
+            String clientId = assignment.getClient().getClientId();
             for (Permission permission : assignment.getRole().getPermissions()) {
-                if (assignment.getClient() == null) {
-                    authorities.add(permission.getName()); //SupperAdmin
+                if (GeneralUtil.SYSTEM_CLIENT_ID.equals(clientId)) {
+                    authorities.add(permission.getName());  // Global permission
                 } else {
-                    authorities.add(assignment.getClient().getClientId() + ":" + permission.getName());
+                    authorities.add(clientId + ":" + permission.getName());
                 }
             }
         }

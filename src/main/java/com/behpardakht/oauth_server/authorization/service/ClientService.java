@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -41,19 +42,23 @@ public class ClientService {
         clientDto.setRegisteredClientId(UUID.randomUUID().toString());
         clientDto.setClientSecret(passwordEncoder.encode(clientDto.getClientSecret()));
         Client entity = clientMapper.dtoToEntity(clientDto);
-        clientRepository.save(entity);
+        insert(entity);
     }
 
     @Auditable(action = AuditAction.CLIENT_UPDATED, clientId = "#clientId")
     public void update(String clientId, ClientDto clientDto) {
         Client existingClient = findByClientId(clientId);
         clientMapper.dtoToEntity(existingClient, clientDto);
-        clientRepository.save(existingClient);
+        insert(existingClient);
     }
 
     public Client findByClientId(String clientId) {
         return clientRepository.findByClientId(clientId)
                 .orElseThrow(() -> new NotFoundException("Client", "clientId", clientId));
+    }
+
+    public Optional<Client> findByClientIdOptional(String clientId) {
+        return clientRepository.findByClientId(clientId);
     }
 
     public ClientDto findDtoByClientId(String clientId) {
@@ -92,7 +97,7 @@ public class ClientService {
         Client client = findByClientId(clientId);
         String rawSecret = UUID.randomUUID().toString();
         client.setClientSecret(passwordEncoder.encode(rawSecret));
-        clientRepository.save(client);
+        insert(client);
         return rawSecret;
     }
 
@@ -100,7 +105,11 @@ public class ClientService {
     public Boolean toggleStatus(String clientId) {
         Client client = findByClientId(clientId);
         client.setIsEnabled(!Boolean.TRUE.equals(client.getIsEnabled()));
-        clientRepository.save(client);
+        insert(client);
         return client.getIsEnabled();
+    }
+
+    public Client insert(Client entity) {
+        return clientRepository.save(entity);
     }
 }

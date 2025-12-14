@@ -1,7 +1,9 @@
 package com.behpardakht.oauth_server.authorization.service;
 
 import com.behpardakht.oauth_server.authorization.aspect.Auditable;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.AlreadyExistException;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
 import com.behpardakht.oauth_server.authorization.model.dto.role.RoleAssignmentDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Client;
@@ -11,9 +13,7 @@ import com.behpardakht.oauth_server.authorization.model.entity.Users;
 import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.model.mapper.RoleAssignmentMapper;
 import com.behpardakht.oauth_server.authorization.repository.RoleAssignmentRepository;
-import com.behpardakht.oauth_server.authorization.repository.UserRepository;
 import com.behpardakht.oauth_server.authorization.service.user.AdminUserService;
-import com.behpardakht.oauth_server.authorization.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,13 +26,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RoleAssignmentService {
 
-    private final AdminUserService adminUserService;
+    private final RoleAssignmentMapper roleAssignmentMapper;
     private final RoleService roleService;
     private final ClientService clientService;
+    private final AdminUserService adminUserService;
     private final RoleAssignmentRepository roleAssignmentRepository;
-    private final UserRepository userRepository;
-    private final RoleAssignmentMapper roleAssignmentMapper;
-    private final UserService userService;
 
     @Transactional
     @Auditable(action = AuditAction.ROLE_ASSIGNED, details = "#userId + ':' + #roleId + ':' + #clientId")
@@ -42,18 +40,26 @@ public class RoleAssignmentService {
         Role role = roleService.findById(roleId);
         Client client = clientService.findById(clientId);
         RoleAssignment assignment = RoleAssignment.builder().user(user).role(role).client(client).build();
-        RoleAssignment insertedAssignment = roleAssignmentRepository.save(assignment);
+        RoleAssignment insertedAssignment = insert(assignment);
         log.info("Role {} assigned to user {} for client {}",
                 role.getName(), user.getUsername(), client.getClientId());
         return roleAssignmentMapper.toDto(insertedAssignment);
     }
 
+    public RoleAssignment insert(RoleAssignment assignment) {
+        return roleAssignmentRepository.save(assignment);
+    }
+
     private void validateNotAlreadyAssigned(Long userId, Long roleId, Long clientId) {
-        boolean exists = roleAssignmentRepository.existsByUserIdAndRoleIdAndClientId(userId, roleId, clientId);
+        boolean exists = existsByUserIdAndRoleIdAndClientId(userId, roleId, clientId);
         if (exists) {
             throw new AlreadyExistException("RoleAssignment",
                     "userId:" + userId + " roleId:" + roleId + " clientId:" + clientId);
         }
+    }
+
+    public boolean existsByUserIdAndRoleIdAndClientId(Long userId, Long roleId, Long clientId) {
+        return roleAssignmentRepository.existsByUserIdAndRoleIdAndClientId(userId, roleId, clientId);
     }
 
     @Transactional
@@ -72,10 +78,14 @@ public class RoleAssignmentService {
         return roleAssignmentMapper.toDtoList(assignments);
     }
 
-    public List<RoleAssignmentDto> findByUsername(String username) {
+    public List<RoleAssignment> findByUsername(String username) {
         adminUserService.findByUsername(username);
-        List<RoleAssignment> assignments = roleAssignmentRepository.findByUserUsername(username);
-        return roleAssignmentMapper.toDtoList(assignments);
+        return roleAssignmentRepository.findByUserUsername(username);
+    }
+
+    public List<RoleAssignmentDto> findDtoByUsername(String username) {
+        List<RoleAssignment> assignmentList = findByUsername(username);
+        return roleAssignmentMapper.toDtoList(assignmentList);
     }
 
     public List<RoleAssignmentDto> findByRoleId(Long roleId) {
@@ -111,5 +121,11 @@ public class RoleAssignmentService {
         RoleAssignment assignment = findById(id);
         roleAssignmentRepository.delete(assignment);
         log.info("Role assignment {} removed", id);
+    }
+
+    public void checkIsExistsByRole(Role role) {
+        if (roleAssignmentRepository.existsByRoleId(role.getId())) {
+            throw new CustomException(ExceptionMessage.ROLE_ASSIGNED_TO_USERS, role.getName());
+        }
     }
 }

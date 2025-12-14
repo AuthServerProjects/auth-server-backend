@@ -119,6 +119,10 @@ management:
 
 app:
 
+  # Admin
+  super-admin:
+    phone-number: 9899331782513
+
   # Vault Configuration
   vault:
     key-id: authserver-key-2025

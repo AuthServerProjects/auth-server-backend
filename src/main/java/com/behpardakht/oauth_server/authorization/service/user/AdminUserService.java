@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.maskPhoneNumber;
 
@@ -87,7 +88,7 @@ public class AdminUserService {
             if (!usersDto.getPassword().isBlank()) {
                 usersDto.setPassword(passwordEncoder.encode(usersDto.getPassword()));
             }
-            userRepository.save(userMapper.toEntity(usersDto));
+            insert(userMapper.toEntity(usersDto));
         }
     }
 
@@ -95,7 +96,7 @@ public class AdminUserService {
     public void update(Long id, UsersDto usersDto) {
         Users user = findById(id);
         userMapper.toEntity(user, usersDto);
-        userRepository.save(user);
+        insert(user);
     }
 
     @Auditable(action = AuditAction.RESET_PASSWORD, details = "#id")
@@ -104,12 +105,16 @@ public class AdminUserService {
         String newPassword = GeneralUtil.generateRandomPassword();
         iSmsService.send(user.getPhoneNumber(), newPassword);
         user.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
+        insert(user);
     }
 
     public Users findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User", "username", username));
+    }
+
+    public Optional<Users> findByUsernameOptional(String username) {
+        return userRepository.findByUsername(username);
     }
 
     public boolean existUserWithUsername(String username) {
@@ -124,7 +129,11 @@ public class AdminUserService {
     public Boolean toggleStatus(Long id) {
         Users user = findById(id);
         user.setIsEnabled(!Boolean.TRUE.equals(user.getIsEnabled()));
-        userRepository.save(user);
+        insert(user);
         return user.getIsEnabled();
+    }
+
+    public Users insert(Users user) {
+        return userRepository.save(user);
     }
 }
