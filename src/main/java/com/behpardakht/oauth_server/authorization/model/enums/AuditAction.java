@@ -13,7 +13,6 @@ public enum AuditAction {
 
     LOGIN_SUCCESS("login_success"),
     LOGIN_FAILED("login_failed"),
-    LOGOUT("logout"),
 
     TOKEN_ISSUED("token_issued"),
     TOKEN_REFRESHED("token_refreshed"),
@@ -37,6 +36,9 @@ public enum AuditAction {
     ROLE_ASSIGNMENT_DELETED("role_assignment_deleted"),
 
     STATUS_CHANGED("status_changed"),
+
+    LOGOUT("logout"),
+    LOGOUT_ALL("logout_all"),
     SESSION_REVOKED("session_revoked"),
     ALL_SESSION_REVOKED("all_session_revoked");
 

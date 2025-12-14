@@ -42,6 +42,7 @@ public class AuthService {
     private final AuthorizationRepository authorizationRepository;
     private final TokenBlacklistService tokenBlacklistService;
 
+    @Auditable(action = AuditAction.LOGOUT)
     public void logout(String authHeader) {
         validateAuthHeader(authHeader);
         OAuth2Authorization authorization = getAuthorization(authHeader);
@@ -113,6 +114,7 @@ public class AuthService {
         return removeAndBlacklistToken(userAuthorizationList, maskPhoneNumber(username));
     }
 
+    @Auditable(action = AuditAction.LOGOUT_ALL)
     public String logoutFromAllDevices(String authHeader) {
         validateAuthHeader(authHeader);
         OAuth2Authorization authorization = getAuthorization(authHeader);
