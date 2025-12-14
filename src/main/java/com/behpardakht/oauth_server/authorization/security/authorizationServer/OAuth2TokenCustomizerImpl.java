@@ -48,9 +48,12 @@ public class OAuth2TokenCustomizerImpl implements OAuth2TokenCustomizer<JwtEncod
         for (RoleAssignment assignment : assignments) {
             String roleName = assignment.getRole().getName();
             roles.add(roleName);
-            String clientPrefix = assignment.getClient().getClientId() + ":";
             for (Permission permission : assignment.getRole().getPermissions()) {
-                authorities.add(clientPrefix + permission.getName());
+                if (assignment.getClient() == null) {
+                    authorities.add(permission.getName()); //SupperAdmin
+                } else {
+                    authorities.add(assignment.getClient().getClientId() + ":" + permission.getName());
+                }
             }
         }
     }
