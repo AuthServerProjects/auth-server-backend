@@ -6,6 +6,7 @@ import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.*;
 import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
+import com.behpardakht.oauth_server.authorization.service.MetricsService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService.SessionDto;
 import com.behpardakht.oauth_server.authorization.service.user.AdminUserService;
 import com.behpardakht.oauth_server.authorization.sms.ISmsService;
@@ -25,6 +26,7 @@ import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.maskPh
 @RequiredArgsConstructor
 public class OtpService {
 
+    private final MetricsService metricsService;
     private final AdminUserService adminUserService;
     private final ISmsService iSmsService;
     private final OtpStorageService otpStorageService;
@@ -73,16 +75,19 @@ public class OtpService {
         String maskedPhoneNumber = maskPhoneNumber(phoneNumber);
         try {
             if (otpStorageService.isGlobalRateLimited()) {
+                metricsService.incrementRateLimitHit("Global");
                 log.warn("Global rate limit exceeded");
                 return OtpResponse.rateLimited(
                         MessageResolver.getMessage(Messages.SYSTEM_BUSY.getMessage()));
             }
             if (otpStorageService.isIpRateLimited(ipAddress)) {
+                metricsService.incrementRateLimitHit("ip");
                 log.warn("Rate limit exceeded for IP: {}", ipAddress);
                 return OtpResponse.rateLimited(
                         MessageResolver.getMessage(Messages.RATE_LIMIT_IP.getMessage()));
             }
             if (otpStorageService.isPhoneNumberRateLimited(phoneNumber)) {
+                metricsService.incrementRateLimitHit("phoneNumber");
                 log.warn("Rate limit exceeded for phone: {}", maskedPhoneNumber);
                 return OtpResponse.rateLimited(
                         MessageResolver.getMessage(Messages.RATE_LIMIT_PHONE.getMessage()));

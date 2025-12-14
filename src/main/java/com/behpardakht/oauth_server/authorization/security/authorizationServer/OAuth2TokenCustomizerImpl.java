@@ -3,6 +3,7 @@ package com.behpardakht.oauth_server.authorization.security.authorizationServer;
 import com.behpardakht.oauth_server.authorization.model.entity.Permission;
 import com.behpardakht.oauth_server.authorization.model.entity.RoleAssignment;
 import com.behpardakht.oauth_server.authorization.repository.RoleAssignmentRepository;
+import com.behpardakht.oauth_server.authorization.service.MetricsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
@@ -17,10 +18,12 @@ import java.util.Set;
 public class OAuth2TokenCustomizerImpl implements OAuth2TokenCustomizer<JwtEncodingContext> {
 
     private static final String ACCESS_TOKEN = "access_token";
+    private static final String REFRESH_TOKEN = "refresh_token";
     private static final String CLIENT_ID_CLAIM = "client-id";
     private static final String ROLES_CLAIM = "roles";
     private static final String AUTHORITIES_CLAIM = "authorities";
 
+    private final MetricsService metricsService;
     private final RoleAssignmentRepository roleAssignmentRepository;
 
     @Override
@@ -33,6 +36,10 @@ public class OAuth2TokenCustomizerImpl implements OAuth2TokenCustomizer<JwtEncod
             convertAssignmentToAuthority(roles, authorities, context.getPrincipal().getName());
             context.getClaims().claim(ROLES_CLAIM, roles);
             context.getClaims().claim(AUTHORITIES_CLAIM, authorities);
+            metricsService.incrementTokenIssued(clientId, context.getAuthorizationGrantType().getValue());
+        }
+        if (REFRESH_TOKEN.equals(context.getTokenType().getValue())) {
+            metricsService.incrementTokenRefreshed(clientId);
         }
     }
 

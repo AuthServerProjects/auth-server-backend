@@ -31,7 +31,14 @@ public class MetricsAspect {
     private void recordMetric(AuditAction action, boolean success) {
         switch (action) {
             case OTP_SENT -> metricsService.incrementOtpSent(null, success);
-            case OTP_VERIFIED -> metricsService.incrementOtpVerified(null, success);
+            case OTP_VERIFIED -> {
+                metricsService.incrementOtpVerified(null, success);
+                if (success) {
+                    metricsService.incrementLoginSuccess(null);
+                } else {
+                    metricsService.incrementLoginFailed(null, "otp_invalid");
+                }
+            }
             case USER_CREATED -> {
                 if (success) metricsService.incrementUserCreated();
             }

@@ -43,7 +43,7 @@
       "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
       "targets": [
         {
-          "expr": "auth_users_total",
+          "expr": "auth_users",
           "refId": "A"
         }
       ],
