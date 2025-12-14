@@ -9,6 +9,7 @@ import com.behpardakht.oauth_server.authorization.model.dto.role.RoleDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Role;
 import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.model.mapper.RoleMapper;
+import com.behpardakht.oauth_server.authorization.repository.RoleAssignmentRepository;
 import com.behpardakht.oauth_server.authorization.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,8 +20,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RoleService {
 
-    private final RoleRepository roleRepository;
     private final RoleMapper roleMapper;
+    private final RoleRepository roleRepository;
+    private final RoleAssignmentRepository roleAssignmentRepository;
 
     @Auditable(action = AuditAction.ROLE_CREATED, details = "#roleDto.name")
     public void save(RoleDto roleDto) {
@@ -62,7 +64,7 @@ public class RoleService {
     @Auditable(action = AuditAction.ROLE_DELETED, details = "#id")
     public void delete(Long id) {
         Role role = findById(id);
-        if (roleRepository.isRoleAssignedToUsers(role.getId())) {
+        if (roleAssignmentRepository.existsByRoleId(role.getId())) {
             throw new CustomException(ExceptionMessage.ROLE_ASSIGNED_TO_USERS, role.getName());
         }
         roleRepository.delete(role);

@@ -40,4 +40,6 @@ public interface RoleAssignmentRepository extends JpaRepository<RoleAssignment, 
     boolean existsByUserIdAndRoleIdAndClientId(@Param("userId") Long userId,
                                                @Param("roleId") Long roleId,
                                                @Param("clientId") Long clientId);
+
+    boolean existsByRoleId(Long roleId);
 }

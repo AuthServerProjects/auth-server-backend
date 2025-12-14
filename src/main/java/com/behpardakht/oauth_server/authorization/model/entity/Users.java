@@ -40,7 +40,7 @@ public class Users extends BaseEntity implements UserDetails {
     @Column(name = "is_credentials_non_expired")
     private Boolean isCredentialsNonExpired;
 
-    @OneToMany(mappedBy = "users", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private Set<RoleAssignment> roleAssignments;
 
     @Override
