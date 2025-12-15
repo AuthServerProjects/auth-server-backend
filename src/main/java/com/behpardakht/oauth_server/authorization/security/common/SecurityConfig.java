@@ -69,8 +69,7 @@ public class SecurityConfig {
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
                         URL_PREFIX + "/otp/**",
-                        API_PREFIX + "/otp/**",
-                        ADMIN_PREFIX + "/**")
+                        API_PREFIX + "/otp/**")
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize ->
