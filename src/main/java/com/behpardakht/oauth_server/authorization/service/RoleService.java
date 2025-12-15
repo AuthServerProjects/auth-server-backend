@@ -1,12 +1,15 @@
 package com.behpardakht.oauth_server.authorization.service;
 
 import com.behpardakht.oauth_server.authorization.aspect.Auditable;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.AlreadyExistException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
 import com.behpardakht.oauth_server.authorization.model.dto.role.RoleDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Role;
 import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.model.mapper.RoleMapper;
+import com.behpardakht.oauth_server.authorization.repository.RoleAssignmentRepository;
 import com.behpardakht.oauth_server.authorization.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,7 +21,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RoleService {
 
-    private final RoleAssignmentService roleAssignmentService;
+    private final RoleAssignmentRepository roleAssignmentRepository;
     private final RoleMapper roleMapper;
     private final RoleRepository roleRepository;
 
@@ -74,7 +77,9 @@ public class RoleService {
     @Auditable(action = AuditAction.ROLE_DELETED, details = "#id")
     public void delete(Long id) {
         Role role = findById(id);
-        roleAssignmentService.checkIsExistsByRole(role);
+        if (roleAssignmentRepository.existsByRoleId(role.getId())) {
+            throw new ExceptionWrapper.CustomException(ExceptionMessage.ROLE_ASSIGNED_TO_USERS, role.getName());
+        }
         roleRepository.delete(role);
     }
 }

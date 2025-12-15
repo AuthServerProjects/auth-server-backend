@@ -3,7 +3,6 @@ package com.behpardakht.oauth_server.authorization.service.otp;
 import com.behpardakht.oauth_server.authorization.config.Properties;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
-import com.behpardakht.oauth_server.authorization.model.dto.user.UsersDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Users;
 import com.behpardakht.oauth_server.authorization.model.enums.PkceMethod;
 import com.behpardakht.oauth_server.authorization.service.ClientService;
