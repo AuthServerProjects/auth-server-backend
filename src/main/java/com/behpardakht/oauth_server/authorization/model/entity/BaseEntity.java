@@ -21,7 +21,7 @@ public abstract class BaseEntity {
 
     @Setter
     @Column(name = "is_enabled")
-    private Boolean isEnabled = true;
+    private Boolean isEnabled;
 
     @Version
     @Column(name = "version")
@@ -33,5 +33,6 @@ public abstract class BaseEntity {
     @PrePersist
     protected void onCreate() {
         createdAt = Instant.now();
+        isEnabled = true;
     }
 }

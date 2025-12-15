@@ -121,7 +121,7 @@ app:
 
   # Admin
   super-admin:
-    phone-number: 9899331782513
+    phone-number: 989331782513
 
   # Vault Configuration
   vault:
