@@ -14,5 +14,6 @@ import java.util.Set;
 public class RoleDto {
     private Long id;
     private String name;
+    private Long clientId;
     private Set<PermissionDto> permissions;
 }

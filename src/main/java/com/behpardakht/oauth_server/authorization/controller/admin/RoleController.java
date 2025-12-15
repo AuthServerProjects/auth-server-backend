@@ -30,7 +30,7 @@ public class RoleController {
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') || hasAuthority('user:manage_roles')")
     @GetMapping(path = "findAll")
     public ResponseEntity<ResponseDto<List<RoleDto>>> findAll() {
         List<RoleDto> response = roleService.findAll();

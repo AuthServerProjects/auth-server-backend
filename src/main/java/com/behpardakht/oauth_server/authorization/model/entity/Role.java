@@ -13,12 +13,16 @@ import java.util.Set;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "role")
+@Table(name = "role", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "client_id"}))
 @EqualsAndHashCode(callSuper = true)
 public class Role extends BaseEntity implements GrantedAuthority {
 
-    @Column(name = "name", unique = true, nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id", nullable = false)
+    private Client client;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

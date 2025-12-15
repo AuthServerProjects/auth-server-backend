@@ -21,21 +21,21 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RoleService {
 
-    private final RoleAssignmentRepository roleAssignmentRepository;
     private final RoleMapper roleMapper;
     private final RoleRepository roleRepository;
+    private final RoleAssignmentRepository roleAssignmentRepository;
 
     @Auditable(action = AuditAction.ROLE_CREATED, details = "#roleDto.name")
     public void save(RoleDto roleDto) {
-        if (existsByName(roleDto.getName())) {
+        if (existsByNameAndClientId(roleDto.getName(), roleDto.getClientId())) {
             throw new AlreadyExistException("Role", roleDto.getName());
         }
         Role role = roleMapper.toEntity(roleDto);
         insert(role);
     }
 
-    public boolean existsByName(String roleName) {
-        return roleRepository.existsByName(roleName);
+    public boolean existsByNameAndClientId(String roleName, Long clientId) {
+        return roleRepository.existsByNameAndClientId(roleName, clientId);
     }
 
     public List<RoleDto> findAll() {
@@ -43,13 +43,8 @@ public class RoleService {
         return roleMapper.toDtoList(roles);
     }
 
-    public Role findByName(String name) {
-        return roleRepository.findByName(name)
-                .orElseThrow(() -> new NotFoundException("Role", "name", name));
-    }
-
-    public Optional<Role> findByNameOptional(String name) {
-        return roleRepository.findByName(name);
+    public Optional<Role> findByNameAndClient(String name, Long clientId) {
+        return roleRepository.findByNameAndClientId(name, clientId);
     }
 
     public Role findById(Long id) {

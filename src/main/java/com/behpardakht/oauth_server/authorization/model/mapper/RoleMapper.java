@@ -2,7 +2,6 @@ package com.behpardakht.oauth_server.authorization.model.mapper;
 
 import com.behpardakht.oauth_server.authorization.model.dto.role.RoleDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Role;
-import com.behpardakht.oauth_server.authorization.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +12,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RoleMapper {
 
+    private final ClientMapper clientMapper;
     private final PermissionMapper permissionMapper;
 
     public RoleDto toDto(Role entity) {
@@ -40,7 +40,8 @@ public class RoleMapper {
         if (dto != null) {
             return Role.builder()
                     .name(dto.getName())
-                    .permissions(permissionMapper.toEntitySet(dto.getPermissions()))
+                    .client(clientMapper.loadEntity(dto.getClientId()))
+                    .permissions(permissionMapper.loadEntitySet(dto.getPermissions()))
                     .build();
         }
         return null;
