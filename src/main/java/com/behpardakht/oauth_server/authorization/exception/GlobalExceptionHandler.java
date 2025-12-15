@@ -8,6 +8,7 @@ import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -16,33 +17,42 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ResponseDto<?>> handleNotFoundException(NotFoundException exception) {
         ResponseDto<?> responseDto = getResponseDto(exception, HttpStatus.NOT_FOUND);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseDto);
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseDto);
     }
 
     @ExceptionHandler(AlreadyExistException.class)
     public ResponseEntity<ResponseDto<?>> handleAlreadyExistException(AlreadyExistException exception) {
         ResponseDto<?> responseDto = getResponseDto(exception, HttpStatus.BAD_REQUEST);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseDto);
     }
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ResponseDto<?>> handleCustomException(CustomException exception) {
         ResponseDto<?> responseDto = getResponseDto(exception, HttpStatus.BAD_REQUEST);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
+        return ResponseEntity.
+                status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseDto);
     }
 
     private ResponseDto<?> getResponseDto(CustomException exception, HttpStatus error) {
@@ -58,7 +68,10 @@ public class GlobalExceptionHandler {
         String exMessage = ExceptionMessage.ACCESS_DENIED.getMessage();
         String message = MessageResolver.getMessage(exMessage);
         ResponseDto<?> responseDto = ResponseDto.failed(exMessage, message, null);
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseDto);
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseDto);
     }
 
     @ExceptionHandler({
@@ -71,7 +84,10 @@ public class GlobalExceptionHandler {
         String message = MessageResolver.getMessage(ExceptionMessage.AUTHENTICATION_FAILED_CREDENTIALS.getMessage());
         ResponseDto<?> responseDto = ResponseDto.failed(
                 ExceptionMessage.AUTHENTICATION_FAILED_CREDENTIALS.getMessage(), message, null);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseDto);
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseDto);
     }
 
     @ExceptionHandler(Exception.class)
@@ -81,7 +97,10 @@ public class GlobalExceptionHandler {
         String localizedMessage = MessageResolver.getMessage(ExceptionMessage.GENERAL_ERROR.getMessage());
         ResponseDto<?> responseDto = ResponseDto.failed(
                 HttpStatus.INTERNAL_SERVER_ERROR.name(), localizedMessage, null);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseDto);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -95,6 +114,9 @@ public class GlobalExceptionHandler {
                         ExceptionMessage.INPUTS_ARE_NOT_VALID.name(),
                         MessageResolver.getMessage(ExceptionMessage.INPUTS_ARE_NOT_VALID.getMessage()),
                         errorMessages);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseDto);
     }
 }
