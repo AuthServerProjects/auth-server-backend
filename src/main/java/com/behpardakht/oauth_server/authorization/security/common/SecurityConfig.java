@@ -40,12 +40,14 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http,
-                                                                      OAuth2TokenGenerator<?> tokenGenerator) throws Exception {
+                                                                      OAuth2TokenGenerator<?> tokenGenerator,
+                                                                      CorsConfigurationSource corsConfigurationSource) throws Exception {
 
         OAuth2AuthorizationServerConfigurer authServerConfigurer =
                 OAuth2AuthorizationServerConfigurer.authorizationServer();
         http
                 .securityMatcher(authServerConfigurer.getEndpointsMatcher())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .with(authServerConfigurer, authServer ->
                         authServer
                                 .tokenGenerator(tokenGenerator)

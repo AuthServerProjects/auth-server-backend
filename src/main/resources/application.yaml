@@ -83,10 +83,10 @@ vault:
 logging:
   level:
     root: info
-    web: debug
+    web: info
     org:
       springframework:
-        security: debug
+        security: info
 
 # Swagger Configuration
 springdoc:
@@ -153,7 +153,7 @@ app:
 
   # Cors Configuration
   cors:
-    allowed-origins: "*"
+    allowed-origins: "http://localhost:5173"
     allowed-methods: "GET,POST,PUT,DELETE,OPTIONS,PATCH"
     allowed-headers: "*"
     exposed-headers: "X-XSRF-TOKEN,Authorization"

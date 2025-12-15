@@ -29,6 +29,7 @@ public class CorsConfig {
         configuration.setMaxAge(properties.getCors().getMaxAge());
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/oauth2/**", configuration);
         source.registerCorsConfiguration(API_PREFIX + "/**", configuration);
         source.registerCorsConfiguration(URL_PREFIX + "/**", configuration);
         source.registerCorsConfiguration(ADMIN_PREFIX + "/**", configuration);
