@@ -97,7 +97,7 @@ public class OtpService {
                 return OtpResponse.alreadySent(
                         MessageResolver.getMessage(Messages.OTP_ALREADY_SENT.getMessage()));
             }
-            if (!adminUserService.existUserWithUsername(phoneNumber)) {
+            if (!adminUserService.existUserWithPhoneNumber(phoneNumber)) {
                 adminUserService.createUserByPhoneNumber(phoneNumber);
             }
             String otp = String.valueOf(100000 + SECURE_RANDOM.get().nextInt(900000));

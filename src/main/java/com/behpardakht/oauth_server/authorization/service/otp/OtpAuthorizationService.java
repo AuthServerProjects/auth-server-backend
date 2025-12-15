@@ -52,7 +52,7 @@ public class OtpAuthorizationService {
         try {
             Users user = adminUserService.findByPhoneNumber(phoneNumber);
             Authentication principal =
-                    new UsernamePasswordAuthenticationToken(phoneNumber, null, user.getAuthorities());
+                    new UsernamePasswordAuthenticationToken(user.getUsername(), null, user.getAuthorities());
 
             RegisteredClient registeredClient = clientService.findRegisteredClientByClientId(sessionDto.clientId());
             String redirectUrl = getValidatedRedirectUrl(registeredClient.getRedirectUris(), sessionDto.redirectUri());
