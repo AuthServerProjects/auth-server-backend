@@ -31,9 +31,9 @@ public class ClientController {
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping(path = "save")
     public ResponseEntity<ResponseDto<String>> save(@RequestBody ClientDto request) {
-        clientService.save(request);
+        String secret = clientService.save(request);
         String response = MessageResolver.getMessage(
-                Messages.CLIENT_REGISTERED_SUCCESS.getMessage(), new Object[]{request.getClientId()});
+                Messages.CLIENT_REGISTERED_SUCCESS.getMessage(), new Object[]{request.getClientId(), secret});
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 

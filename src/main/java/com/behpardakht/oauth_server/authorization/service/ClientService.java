@@ -12,6 +12,7 @@ import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.model.mapper.ClientMapper;
 import com.behpardakht.oauth_server.authorization.repository.ClientRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.ClientFilterSpecification;
+import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
@@ -35,14 +36,15 @@ public class ClientService {
     private final ClientFilterSpecification clientFilterSpecification;
 
     @Auditable(action = AuditAction.CLIENT_CREATED, clientId = "#clientDto.clientId")
-    public void save(ClientDto clientDto) {
+    public String save(ClientDto clientDto) {
         if (clientRepository.existsByClientId(clientDto.getClientId())) {
             throw new AlreadyExistException("Client", clientDto.getClientId());
         }
         clientDto.setRegisteredClientId(UUID.randomUUID().toString());
-        clientDto.setClientSecret(passwordEncoder.encode(clientDto.getClientSecret()));
-        Client entity = clientMapper.dtoToEntity(clientDto);
-        insert(entity);
+        String secret = GeneralUtil.generateRandomPassword();
+        clientDto.setClientSecret(passwordEncoder.encode(secret));
+        insert(clientMapper.dtoToEntity(clientDto));
+        return secret;
     }
 
     @Auditable(action = AuditAction.CLIENT_UPDATED, clientId = "#clientId")
@@ -95,10 +97,10 @@ public class ClientService {
     @Auditable(action = AuditAction.SECRET_REGENERATED, clientId = "#clientId")
     public String regenerateSecret(String clientId) {
         Client client = findByClientId(clientId);
-        String rawSecret = UUID.randomUUID().toString();
-        client.setClientSecret(passwordEncoder.encode(rawSecret));
+        String secret = GeneralUtil.generateRandomPassword();
+        client.setClientSecret(passwordEncoder.encode(secret));
         insert(client);
-        return rawSecret;
+        return secret;
     }
 
     @Auditable(action = AuditAction.STATUS_CHANGED, clientId = "#clientId")
