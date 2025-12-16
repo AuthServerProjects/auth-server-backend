@@ -67,7 +67,7 @@ public class DashboardService {
         return RecentActivityDto.builder()
                 .action(log.getAction())
                 .username(log.getUsername())
-                .clientName(log.getClient().getClientId())
+                .clientName(log.getClient() != null ? log.getClient().getClientId() : null)
                 .ipAddress(log.getIpAddress())
                 .success(log.getSuccess())
                 .createdAt(log.getCreatedAt())
