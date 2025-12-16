@@ -15,6 +15,4 @@ public class RoleAssignmentDto {
     private String username;
     private Long roleId;
     private String roleName;
-    private Long clientId;
-    private String clientName;
 }

@@ -23,8 +23,6 @@ public class RoleAssignmentMapper {
                 .username(entity.getUser() != null ? entity.getUser().getUsername() : null)
                 .roleId(entity.getRole() != null ? entity.getRole().getId() : null)
                 .roleName(entity.getRole() != null ? entity.getRole().getName() : null)
-                .clientId(entity.getClient() != null ? entity.getClient().getId() : null)
-                .clientName(entity.getClient() != null ? entity.getClient().getClientId() : null)
                 .build();
     }
 

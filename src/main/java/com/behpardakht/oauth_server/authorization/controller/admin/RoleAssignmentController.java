@@ -24,18 +24,16 @@ public class RoleAssignmentController {
     @PreAuthorize("hasAuthority('user:manage_roles')")
     @PostMapping("assign")
     public ResponseEntity<ResponseDto<RoleAssignmentDto>> assign(@RequestParam Long userId,
-                                                                 @RequestParam Long roleId,
-                                                                 @RequestParam Long clientId) {
-        RoleAssignmentDto response = roleAssignmentService.assign(userId, roleId, clientId);
+                                                                 @RequestParam Long roleId) {
+        RoleAssignmentDto response = roleAssignmentService.assign(userId, roleId);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PreAuthorize("hasAuthority('user:manage_roles')")
     @DeleteMapping("unassign")
     public ResponseEntity<ResponseDto<String>> unassign(@RequestParam Long userId,
-                                                        @RequestParam Long roleId,
-                                                        @RequestParam Long clientId) {
-        roleAssignmentService.unassign(userId, roleId, clientId);
+                                                        @RequestParam Long roleId) {
+        roleAssignmentService.unassign(userId, roleId);
         String response = MessageResolver.getMessage(Messages.ROLE_UNASSIGNED_SUCCESS.getMessage());
         return ResponseEntity.ok(ResponseDto.success(response));
     }
@@ -58,13 +56,6 @@ public class RoleAssignmentController {
     @GetMapping("findByRoleId/{roleId}")
     public ResponseEntity<ResponseDto<List<RoleAssignmentDto>>> findByRoleId(@PathVariable Long roleId) {
         List<RoleAssignmentDto> response = roleAssignmentService.findByRoleId(roleId);
-        return ResponseEntity.ok(ResponseDto.success(response));
-    }
-
-    @PreAuthorize("hasAuthority('client:read')")
-    @GetMapping("findByClientId/{clientId}")
-    public ResponseEntity<ResponseDto<List<RoleAssignmentDto>>> findByClientId(@PathVariable Long clientId) {
-        List<RoleAssignmentDto> response = roleAssignmentService.findByClientId(clientId);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 

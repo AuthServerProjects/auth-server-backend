@@ -6,7 +6,6 @@ import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.Alr
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
 import com.behpardakht.oauth_server.authorization.model.dto.role.RoleAssignmentDto;
-import com.behpardakht.oauth_server.authorization.model.entity.Client;
 import com.behpardakht.oauth_server.authorization.model.entity.Role;
 import com.behpardakht.oauth_server.authorization.model.entity.RoleAssignment;
 import com.behpardakht.oauth_server.authorization.model.entity.Users;
@@ -28,21 +27,17 @@ public class RoleAssignmentService {
 
     private final RoleAssignmentMapper roleAssignmentMapper;
     private final RoleService roleService;
-    private final ClientService clientService;
     private final AdminUserService adminUserService;
     private final RoleAssignmentRepository roleAssignmentRepository;
 
     @Transactional
-    @Auditable(action = AuditAction.ROLE_ASSIGNED, details = "#userId + ':' + #roleId + ':' + #clientId")
-    public RoleAssignmentDto assign(Long userId, Long roleId, Long clientId) {
-        validateNotAlreadyAssigned(userId, roleId, clientId);
+    @Auditable(action = AuditAction.ROLE_ASSIGNED, details = "#userId + ':' + #roleId")
+    public RoleAssignmentDto assign(Long userId, Long roleId) {
+        validateNotAlreadyAssigned(userId, roleId);
         Users user = adminUserService.findById(userId);
         Role role = roleService.findById(roleId);
-        Client client = clientService.findById(clientId);
-        RoleAssignment assignment = RoleAssignment.builder().user(user).role(role).client(client).build();
-        RoleAssignment insertedAssignment = insert(assignment);
-        log.info("Role {} assigned to user {} for client {}",
-                role.getName(), user.getUsername(), client.getClientId());
+        RoleAssignment insertedAssignment = insert(RoleAssignment.builder().user(user).role(role).build());
+        log.info("Role {} assigned to user {}", role.getName(), user.getUsername());
         return roleAssignmentMapper.toDto(insertedAssignment);
     }
 
@@ -50,26 +45,25 @@ public class RoleAssignmentService {
         return roleAssignmentRepository.save(assignment);
     }
 
-    private void validateNotAlreadyAssigned(Long userId, Long roleId, Long clientId) {
-        boolean exists = existsByUserIdAndRoleIdAndClientId(userId, roleId, clientId);
+    private void validateNotAlreadyAssigned(Long userId, Long roleId) {
+        boolean exists = existsByUserIdAndRoleId(userId, roleId);
         if (exists) {
-            throw new AlreadyExistException("RoleAssignment",
-                    "userId:" + userId + " roleId:" + roleId + " clientId:" + clientId);
+            throw new AlreadyExistException("RoleAssignment", "userId:" + userId + " roleId:" + roleId);
         }
     }
 
-    public boolean existsByUserIdAndRoleIdAndClientId(Long userId, Long roleId, Long clientId) {
-        return roleAssignmentRepository.existsByUserIdAndRoleIdAndClientId(userId, roleId, clientId);
+    public boolean existsByUserIdAndRoleId(Long userId, Long roleId) {
+        return roleAssignmentRepository.existsByUserIdAndRoleId(userId, roleId);
     }
 
     @Transactional
-    @Auditable(action = AuditAction.ROLE_UNASSIGNED, details = "#userId + ':' + #roleId + ':' + #clientId")
-    public void unassign(Long userId, Long roleId, Long clientId) {
-        RoleAssignment assignment = roleAssignmentRepository.findByUserIdAndRoleIdAndClientId(userId, roleId, clientId)
+    @Auditable(action = AuditAction.ROLE_UNASSIGNED, details = "#userId + ':' + #roleId")
+    public void unassign(Long userId, Long roleId) {
+        RoleAssignment assignment = roleAssignmentRepository.findByUserIdAndRoleId(userId, roleId)
                 .orElseThrow(() -> new NotFoundException(
-                        "RoleAssignment", "userId:roleId:clientId", userId + ":" + roleId + ":" + clientId));
+                        "RoleAssignment", "userId:roleId:", userId + ":" + roleId));
         roleAssignmentRepository.delete(assignment);
-        log.info("Role assignment removed for user {} role {} client {}", userId, roleId, clientId);
+        log.info("Role assignment removed for user {} role {}", userId, roleId);
     }
 
     public List<RoleAssignmentDto> findByUserId(Long userId) {
@@ -91,12 +85,6 @@ public class RoleAssignmentService {
     public List<RoleAssignmentDto> findByRoleId(Long roleId) {
         roleService.findById(roleId);
         List<RoleAssignment> assignments = roleAssignmentRepository.findByRoleId(roleId);
-        return roleAssignmentMapper.toDtoList(assignments);
-    }
-
-    public List<RoleAssignmentDto> findByClientId(Long clientId) {
-        clientService.findById(clientId);
-        List<RoleAssignment> assignments = roleAssignmentRepository.findByClientId(clientId);
         return roleAssignmentMapper.toDtoList(assignments);
     }
 

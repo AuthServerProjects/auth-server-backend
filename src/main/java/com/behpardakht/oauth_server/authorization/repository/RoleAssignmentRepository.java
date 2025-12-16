@@ -15,7 +15,6 @@ public interface RoleAssignmentRepository extends JpaRepository<RoleAssignment, 
     @Query("SELECT ra FROM RoleAssignment ra " +
             "JOIN FETCH ra.role r " +
             "JOIN FETCH r.permissions " +
-            "LEFT JOIN FETCH ra.client " +
             "WHERE ra.user.username = :username")
     List<RoleAssignment> findByUserUsername(@Param("username") String username);
 
@@ -23,23 +22,18 @@ public interface RoleAssignmentRepository extends JpaRepository<RoleAssignment, 
 
     List<RoleAssignment> findByRoleId(Long roleId);
 
-    List<RoleAssignment> findByClientId(Long clientId);
 
     @Query("SELECT ra FROM RoleAssignment ra " +
             "WHERE ra.user.id = :userId " +
-            "AND ra.role.id = :roleId " +
-            "AND ra.client.id = :clientId")
-    Optional<RoleAssignment> findByUserIdAndRoleIdAndClientId(@Param("userId") Long userId,
-                                                              @Param("roleId") Long roleId,
-                                                              @Param("clientId") Long clientId);
+            "AND ra.role.id = :roleId ")
+    Optional<RoleAssignment> findByUserIdAndRoleId(@Param("userId") Long userId,
+                                                   @Param("roleId") Long roleId);
 
     @Query("SELECT CASE WHEN COUNT(ra) > 0 THEN true ELSE false END FROM RoleAssignment ra " +
             "WHERE ra.user.id = :userId " +
-            "AND ra.role.id = :roleId " +
-            "AND  ra.client.id = :clientId")
-    boolean existsByUserIdAndRoleIdAndClientId(@Param("userId") Long userId,
-                                               @Param("roleId") Long roleId,
-                                               @Param("clientId") Long clientId);
+            "AND ra.role.id = :roleId ")
+    boolean existsByUserIdAndRoleId(@Param("userId") Long userId,
+                                    @Param("roleId") Long roleId);
 
     boolean existsByRoleId(Long roleId);
 }
