@@ -46,6 +46,13 @@ public interface FilterSpecification<F extends BaseFilterDto, T> {
         }
     }
 
+    default void addEntityIdFilter(List<Predicate> predicates, Root<T> root,
+                                   CriteriaBuilder cb, String fieldName, Long id) {
+        if (id != null) {
+            predicates.add(cb.equal(root.get(fieldName).get("id"), id));
+        }
+    }
+
     default void addStringFilter(List<Predicate> predicates, Root<T> root,
                                  CriteriaBuilder cb, String fieldName, String value) {
         if (value != null && !value.isBlank()) {

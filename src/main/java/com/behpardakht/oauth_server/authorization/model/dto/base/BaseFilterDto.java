@@ -7,4 +7,5 @@ public class BaseFilterDto {
 
     private Boolean deleted;
     private Long clientId;
+    private String client;
 }

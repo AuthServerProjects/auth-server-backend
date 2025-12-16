@@ -15,7 +15,7 @@ import java.time.Instant;
 public class RecentActivityDto {
     private AuditAction action;
     private String username;
-    private String clientId;
+    private String clientName;
     private String ipAddress;
     private Boolean success;
     private Instant createdAt;

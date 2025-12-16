@@ -1,8 +1,11 @@
 package com.behpardakht.oauth_server.authorization.aspect;
 
 import com.behpardakht.oauth_server.authorization.model.entity.AuditLog;
+import com.behpardakht.oauth_server.authorization.model.entity.Client;
 import com.behpardakht.oauth_server.authorization.repository.AuditLogRepository;
+import com.behpardakht.oauth_server.authorization.service.ClientService;
 import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
+import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +34,7 @@ import java.lang.reflect.Method;
 public class AuditAspect {
 
     private final AuditLogRepository auditLogRepository;
+    private final ClientService clientService;
     private final ExpressionParser parser = new SpelExpressionParser();
     private final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
@@ -50,8 +54,9 @@ public class AuditAspect {
             EvaluationContext context = createEvaluationContext(joinPoint);
 
             String username = parseSpel(auditable.username(), context);
-            String clientId = parseSpel(auditable.clientId(), context);
             String details = parseSpel(auditable.details(), context);
+
+            Client client = resolveClient(auditable.clientId(), context);
 
             if (!success && errorDetails != null) {
                 details = details != null ? details + " | Error: " + errorDetails : errorDetails;
@@ -62,7 +67,7 @@ public class AuditAspect {
             AuditLog auditLog = AuditLog.builder()
                     .action(auditable.action())
                     .username(username)
-                    .clientId(clientId)
+                    .client(client)  // Changed from clientId
                     .ipAddress(GeneralUtil.getClientIpAddress(request))
                     .userAgent(request != null ? request.getHeader("User-Agent") : null)
                     .details(details)
@@ -73,6 +78,26 @@ public class AuditAspect {
         } catch (Exception e) {
             log.error("Failed to save audit log", e);
         }
+    }
+
+    private Client resolveClient(String clientIdExpression, EvaluationContext context) {
+        try {
+            if (clientIdExpression != null && !clientIdExpression.isEmpty()) {
+                Object value = parser.parseExpression(clientIdExpression).getValue(context);
+                if (value instanceof Long clientDbId) {
+                    return clientService.findById(clientDbId);
+                } else if (value instanceof String clientId) {
+                    return clientService.findByClientId(clientId);
+                }
+            }
+            Long clientDbId = SecurityUtils.getCurrentClientId();
+            if (clientDbId != null) {
+                return clientService.findById(clientDbId);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to resolve client: {}", e.getMessage());
+        }
+        return null;
     }
 
     private EvaluationContext createEvaluationContext(JoinPoint joinPoint) {
