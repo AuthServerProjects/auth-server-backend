@@ -40,17 +40,6 @@ public class UserClientAssignmentService {
                 .orElseThrow(() -> new CustomException(ExceptionMessage.USER_ASSIGNMENT_NOT_FOUND));
     }
 
-    public UserClientAssignmentDto findDtoById(Long id) {
-        UserClientAssignment userClientAssignment = findById(id);
-        return userClientAssignmentMapper.toDto(userClientAssignment);
-    }
-
-    public List<UserClientAssignmentDto> findByUserId(Long userId) {
-        return userClientAssignmentRepository.findByUserId(userId).stream()
-                .map(userClientAssignmentMapper::toDto)
-                .toList();
-    }
-
     public UserClientAssignmentDto save(CreateUserAssignmentDto request) {
         Long clientId = SecurityUtils.getCurrentClientId();
         Users user = adminUserService.findById(request.getUserId());
@@ -79,6 +68,7 @@ public class UserClientAssignmentService {
 
     public void banUser(Long id) {
         UserClientAssignment userClientAssignment = findById(id);
+        validateOwnership(userClientAssignment);  // Add this
         userClientAssignment.setIsEnabled(false);
         userClientAssignment.setIsAccountNonLocked(false);
         userClientAssignmentRepository.save(userClientAssignment);
@@ -86,9 +76,17 @@ public class UserClientAssignmentService {
 
     public void unbanUser(Long id) {
         UserClientAssignment userClientAssignment = findById(id);
+        validateOwnership(userClientAssignment);
         userClientAssignment.setIsEnabled(true);
         userClientAssignment.setIsAccountNonLocked(true);
         userClientAssignmentRepository.save(userClientAssignment);
+    }
+
+    private void validateOwnership(UserClientAssignment userClientAssignment) {
+        Long currentClientId = SecurityUtils.getCurrentClientId();
+        if (!userClientAssignment.getClient().getId().equals(currentClientId)) {
+            throw new CustomException(ExceptionMessage.ACCESS_DENIED);
+        }
     }
 
     public void delete(Long id) {

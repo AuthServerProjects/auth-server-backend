@@ -31,20 +31,6 @@ public class UserClientAssignmentController {
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @GetMapping("find/{id}")
-    @PreAuthorize("hasAuthority('READ_USER_ASSIGNMENT')")
-    public ResponseEntity<ResponseDto<UserClientAssignmentDto>> findById(@PathVariable Long id) {
-        UserClientAssignmentDto response = userClientAssignmentService.findDtoById(id);
-        return ResponseEntity.ok(ResponseDto.success(response));
-    }
-
-    @GetMapping("findByUserId/{userId}")
-    @PreAuthorize("hasAuthority('READ_USER_ASSIGNMENT')")
-    public ResponseEntity<ResponseDto<List<UserClientAssignmentDto>>> findByUserId(@PathVariable Long userId) {
-        List<UserClientAssignmentDto> response = userClientAssignmentService.findByUserId(userId);
-        return ResponseEntity.ok(ResponseDto.success(response));
-    }
-
     @PostMapping("save")
     @PreAuthorize("hasAuthority('CREATE_USER_ASSIGNMENT')")
     public ResponseEntity<ResponseDto<UserClientAssignmentDto>> save(@RequestBody @Valid CreateUserAssignmentDto request) {
