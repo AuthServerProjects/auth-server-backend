@@ -61,7 +61,10 @@ public enum ExceptionMessage {
     PASSWORD_INCORRECT("password_incorrect"),
 
     // Role
-    ROLE_ASSIGNED_TO_USERS("role_assigned_to_users");
+    ROLE_ASSIGNED_TO_USERS("role_assigned_to_users"),
+
+    // Permission
+    PERMISSION_ASSIGNED_TO_ROLE("permission_assigned_to_role");
 
     public final String message;
 }

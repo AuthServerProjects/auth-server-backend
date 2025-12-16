@@ -38,6 +38,10 @@ public class RoleService {
         return roleRepository.existsByNameAndClientId(roleName, clientId);
     }
 
+    public boolean existByPermission(Long permissionsId) {
+        return roleRepository.existsByPermissions_id(permissionsId);
+    }
+
     public List<RoleDto> findAll() {
         List<Role> roles = roleRepository.findAll();
         return roleMapper.toDtoList(roles);
