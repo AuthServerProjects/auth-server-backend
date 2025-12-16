@@ -19,7 +19,7 @@ import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.ADMIN_
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(ADMIN_PREFIX + "/user-assignments/")
+@RequestMapping(ADMIN_PREFIX + "/user-client-assignments/")
 public class UserClientAssignmentController {
 
     private final UserClientAssignmentService userClientAssignmentService;

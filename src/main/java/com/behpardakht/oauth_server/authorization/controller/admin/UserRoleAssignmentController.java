@@ -16,8 +16,8 @@ import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.ADMIN_
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = ADMIN_PREFIX + "/role-assignment/")
-public class RoleAssignmentController {
+@RequestMapping(path = ADMIN_PREFIX + "/user-role-assignment/")
+public class UserRoleAssignmentController {
 
     private final UserRoleAssignmentService userRoleAssignmentService;
 
