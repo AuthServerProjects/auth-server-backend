@@ -31,6 +31,7 @@ public class ClientFilterSpecification implements FilterSpecification<ClientFilt
 
     private void addClientFilters(List<Predicate> predicates, Root<Client> root,
                                   CriteriaBuilder cb, ClientFilterDto filter) {
-        addLongFilter(predicates, root, cb, "clientId", filter.getClientId());
+        addLongFilter(predicates, root, cb, "id", filter.getClientId());
+        addStringFilter(predicates, root, cb, "clientId", filter.getClient());
     }
 }
