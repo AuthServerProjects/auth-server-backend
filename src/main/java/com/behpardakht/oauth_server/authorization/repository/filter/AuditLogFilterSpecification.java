@@ -31,7 +31,7 @@ public class AuditLogFilterSpecification implements FilterSpecification<AuditLog
                                  CriteriaBuilder cb, AuditLogFilterDto filter) {
         addEnumFilter(predicates, root, cb, "action", filter.getAction());
         addStringFilter(predicates, root, cb, "username", filter.getUsername());
-        addStringExactFilter(predicates, root, cb, "clientId", filter.getClientId());
+        addLongFilter(predicates, root, cb, "clientId", filter.getClientId());
         addBooleanFilter(predicates, root, cb, "success", filter.getSuccess());
         addInstantRangeFilter(predicates, root, cb, "createdAt", filter.getFromDate(), filter.getToDate());
     }

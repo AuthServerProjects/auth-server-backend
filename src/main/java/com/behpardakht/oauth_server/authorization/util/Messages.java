@@ -29,6 +29,9 @@ public enum Messages {
     // User
     USER_REGISTERED_SUCCESS("user_registered_success"),
     USER_UPDATED_SUCCESS("user_updated_success"),
+    USER_BANNED_SUCCESS("user_banned_success"),
+    USER_UNBANNED_SUCCESS("user_unbanned_success"),
+    USER_ASSIGNMENT_DELETED_SUCCESS("user_assignment_deleted_success"),
     PASSWORD_SENT_SUCCESS("password_sent_success"),
     ROLE_ASSIGNED_SUCCESS("role_assigned_success"),
     ROLE_UNASSIGNED_SUCCESS("role_unassigned_success"),
@@ -42,6 +45,9 @@ public enum Messages {
     // Role
     ROLE_ADDED_SUCCESS("role_added_success"),
     ROLE_DELETED_SUCCESS("role_deleted_success"),
+
+    PERMISSION_ADDED_TO_ROLE("permission_added_to_role"),
+    PERMISSION_REMOVED_FROM_ROLE("permission_removed_from_role"),
 
     // Permission
     PERMISSION_ADDED_SUCCESS("permission_added_success"),

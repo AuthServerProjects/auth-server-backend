@@ -8,6 +8,5 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class ClientFilterDto extends BaseFilterDto {
 
-    private String clientId;
     private Boolean isEnabled;
 }

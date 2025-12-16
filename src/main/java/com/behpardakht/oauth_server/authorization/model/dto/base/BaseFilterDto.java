@@ -6,4 +6,5 @@ import lombok.Data;
 public class BaseFilterDto {
 
     private Boolean deleted;
+    private Long clientId;
 }

@@ -14,23 +14,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserMapper {
 
-    private final RoleAssignmentMapper roleAssignmentMapper;
-
     public UsersDto toDto(Users entity) {
-        if (entity != null) {
-            return UsersDto.builder()
-                    .id(entity.getId())
-                    .username(entity.getUsername())
-                    .password(entity.getPassword())
-                    .phoneNumber(entity.getPhoneNumber())
-                    .isAccountNonExpired(entity.getIsAccountNonExpired())
-                    .isAccountNonLocked(entity.getIsAccountNonLocked())
-                    .isCredentialsNonExpired(entity.getIsCredentialsNonExpired())
-                    .isEnabled(entity.getIsEnabled())
-                    .roleAssignments(roleAssignmentMapper.toDtoSet(entity.getRoleAssignments()))
-                    .build();
-        }
-        return null;
+        if (entity == null) return null;
+        return UsersDto.builder()
+                .id(entity.getId())
+                .username(entity.getUsername())
+                .phoneNumber(entity.getPhoneNumber())
+                .isEnabled(entity.getIsEnabled())
+                .build();
     }
 
     public List<UsersDto> toDtoList(List<Users> entityList) {
@@ -39,27 +30,18 @@ public class UserMapper {
     }
 
     public Users toEntity(UsersDto dto) {
-        if (dto != null) {
-            return Users.builder()
-                    .username(dto.getUsername())
-                    .password(dto.getPassword())
-                    .phoneNumber(dto.getPhoneNumber())
-                    .isAccountNonExpired(dto.getIsAccountNonExpired())
-                    .isAccountNonLocked(dto.getIsAccountNonLocked())
-                    .isCredentialsNonExpired(dto.getIsCredentialsNonExpired())
-                    .isEnabled(dto.getIsEnabled())
-                    .roleAssignments(roleAssignmentMapper.loadEntityList(dto.getRoleAssignments()))
-                    .build();
-        }
-        return null;
+        if (dto == null) return null;
+        return Users.builder()
+                .username(dto.getUsername())
+                .password(dto.getPassword())
+                .phoneNumber(dto.getPhoneNumber())
+                .isEnabled(dto.getIsEnabled())
+                .build();
     }
 
     public void toEntity(Users entity, UsersDto dto) {
         entity.setUsername(dto.getUsername());
         entity.setPhoneNumber(dto.getPhoneNumber());
-        entity.setIsAccountNonExpired(dto.getIsAccountNonExpired());
-        entity.setIsAccountNonLocked(dto.getIsAccountNonLocked());
-        entity.setIsCredentialsNonExpired(dto.getIsCredentialsNonExpired());
         entity.setIsEnabled(dto.getIsEnabled());
     }
 

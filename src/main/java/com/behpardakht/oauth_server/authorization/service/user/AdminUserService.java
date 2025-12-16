@@ -14,6 +14,7 @@ import com.behpardakht.oauth_server.authorization.repository.UserRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.UserFilterSpecification;
 import com.behpardakht.oauth_server.authorization.sms.ISmsService;
 import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
+import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -39,6 +40,7 @@ public class AdminUserService {
     private final PasswordEncoder passwordEncoder;
 
     public PageableResponseDto<UsersDto> findAll(PageableRequestDto<UserFilterDto> request) {
+        SecurityUtils.setClientContext(request, UserFilterDto::new);
         Specification<Users> spec = userFilterSpecification.toSpecification(request.getFilters());
         Page<Users> page = userRepository.findAll(spec, request.toPageable());
         List<UsersDto> responses = userMapper.toDtoList(page.getContent());
@@ -55,14 +57,13 @@ public class AdminUserService {
                 .orElseThrow(() -> new NotFoundException("User", "id", id.toString()));
     }
 
-    public UsersDto findUserByUsername(String username) {
-        Users user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("User", "username", username));
+    public UsersDto findDtoByUsername(String username) {
+        Users user = findByUsername(username);
         return userMapper.toDto(user);
     }
 
     public Users findByPhoneNumber(String phoneNumber) {
-        return userRepository.findByPhoneNumber(phoneNumber)
+        return findByPhoneNumberOptional(phoneNumber)
                 .orElseThrow(() -> new NotFoundException("User", "phoneNumber", phoneNumber));
     }
 
@@ -75,9 +76,6 @@ public class AdminUserService {
                 .username(phoneNumber)
                 .password(GeneralUtil.generateRandomPassword())
                 .phoneNumber(phoneNumber)
-                .isAccountNonExpired(true)
-                .isAccountNonLocked(true)
-                .isCredentialsNonExpired(true)
                 .isEnabled(true)
                 .build();
         save(usersDto);
@@ -85,15 +83,14 @@ public class AdminUserService {
     }
 
     @Auditable(action = AuditAction.USER_CREATED, username = "#usersDto.username")
-    public void save(UsersDto usersDto) {
+    public Users save(UsersDto usersDto) {
         if (existUserWithUsername(usersDto.getUsername())) {
             throw new AlreadyExistException("Username", usersDto.getUsername());
-        } else {
-            if (!usersDto.getPassword().isBlank()) {
-                usersDto.setPassword(passwordEncoder.encode(usersDto.getPassword()));
-            }
-            insert(userMapper.toEntity(usersDto));
         }
+        if (!usersDto.getPassword().isBlank()) {
+            usersDto.setPassword(passwordEncoder.encode(usersDto.getPassword()));
+        }
+        return insert(userMapper.toEntity(usersDto));
     }
 
     @Auditable(action = AuditAction.USER_UPDATED, username = "#usersDto.username")

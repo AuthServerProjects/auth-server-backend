@@ -1,10 +1,10 @@
 package com.behpardakht.oauth_server.authorization.controller.admin;
 
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
-import com.behpardakht.oauth_server.authorization.util.Messages;
-import com.behpardakht.oauth_server.authorization.model.dto.role.RoleDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
+import com.behpardakht.oauth_server.authorization.model.dto.role.RoleDto;
 import com.behpardakht.oauth_server.authorization.service.RoleService;
+import com.behpardakht.oauth_server.authorization.util.Messages;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -58,5 +58,25 @@ public class RoleController {
         String response = MessageResolver.getMessage(
                 Messages.ROLE_DELETED_SUCCESS.getMessage(), new Object[]{id});
         return ResponseEntity.ok().body(ResponseDto.success(response));
+    }
+
+    @PreAuthorize("hasAuthority('MANAGE_ROLE_PERMISSIONS')")
+    @PostMapping(path = "{roleId}/addPermission/{permissionId}")
+    public ResponseEntity<ResponseDto<String>> addPermission(@PathVariable Long roleId,
+                                                             @PathVariable Long permissionId) {
+        roleService.addPermission(roleId, permissionId);
+        String response = MessageResolver.getMessage(
+                Messages.PERMISSION_ADDED_TO_ROLE.getMessage());
+        return ResponseEntity.ok(ResponseDto.success(response));
+    }
+
+    @PreAuthorize("hasAuthority('MANAGE_ROLE_PERMISSIONS')")
+    @DeleteMapping(path = "{roleId}/removePermission/{permissionId}")
+    public ResponseEntity<ResponseDto<String>> removePermission(@PathVariable Long roleId,
+                                                                @PathVariable Long permissionId) {
+        roleService.removePermission(roleId, permissionId);
+        String response = MessageResolver.getMessage(
+                Messages.PERMISSION_REMOVED_FROM_ROLE.getMessage());
+        return ResponseEntity.ok(ResponseDto.success(response));
     }
 }

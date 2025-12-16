@@ -27,12 +27,16 @@ public abstract class BaseEntity {
     @Column(name = "version")
     private long version;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
     @PrePersist
     protected void onCreate() {
-        createdAt = Instant.now();
-        isEnabled = true;
+        if (createdAt == null) {
+            createdAt = Instant.now();
+        }
+        if (isEnabled == null) {
+            isEnabled = true;
+        }
     }
 }

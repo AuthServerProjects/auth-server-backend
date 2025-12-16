@@ -9,10 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UsersDto {
-    private Long id;
-    private String username;
-    private String password;
-    private String phoneNumber;
-    private Boolean isEnabled;
+public class CreateUserAssignmentDto {
+
+    private Long userId;
 }

@@ -20,6 +20,7 @@ public class UserFilterSpecification implements FilterSpecification<UserFilterDt
             List<Predicate> predicates = new ArrayList<>();
             if (filter != null) {
                 addBaseFilters(predicates, root, cb, filter);
+                addClientFilter(predicates, root, cb, filter.getClientId(), "clientAssignments");
                 addUserFilters(predicates, root, cb, filter);
             }
             return predicates.isEmpty() ? cb.conjunction() : cb.and(predicates.toArray(new Predicate[0]));

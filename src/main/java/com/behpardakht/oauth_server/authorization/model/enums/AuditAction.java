@@ -32,6 +32,9 @@ public enum AuditAction {
     PERMISSION_UPDATED("permission_updated"),
     PERMISSION_DELETED("permission_deleted"),
 
+    PERMISSION_ADDED_TO_ROLE("permission_added_to_role"),
+    PERMISSION_REMOVED_FROM_ROLE("permission_removed_from_role"),
+
     ROLE_CREATED("role_created"),
     ROLE_UPDATED("role_updated"),
     ROLE_DELETED("role_deleted"),

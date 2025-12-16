@@ -40,7 +40,7 @@ public class UserController {
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping(path = "findByUsername")
     public ResponseEntity<ResponseDto<UsersDto>> findByUsername(@RequestParam String username) {
-        UsersDto response = adminUserService.findUserByUsername(username);
+        UsersDto response = adminUserService.findDtoByUsername(username);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 

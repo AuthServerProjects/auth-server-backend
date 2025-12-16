@@ -59,12 +59,17 @@ public enum ExceptionMessage {
     USERNAME_INCORRECT("username_incorrect"),
     PASSWORD_SAME_AS_OLD("password_same_as_old"),
     PASSWORD_INCORRECT("password_incorrect"),
+    USER_ASSIGNMENT_NOT_FOUND("user_assignment_not_found"),
+    USER_ALREADY_ASSIGNED("user_already_assigned"),
+    USER_BANNED("user_banned"),
 
     // Role
     ROLE_ASSIGNED_TO_USERS("role_assigned_to_users"),
+    ROLE_CLIENT_MISMATCH("role_client_mismatch"),
 
     // Permission
-    PERMISSION_ASSIGNED_TO_ROLE("permission_assigned_to_role");
+    PERMISSION_ASSIGNED_TO_ROLE("permission_assigned_to_role"),
+    PERMISSION_CLIENT_MISMATCH("permission_client_mismatch");
 
     public final String message;
 }

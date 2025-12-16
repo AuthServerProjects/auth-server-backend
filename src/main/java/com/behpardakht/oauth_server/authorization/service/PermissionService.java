@@ -9,6 +9,7 @@ import com.behpardakht.oauth_server.authorization.model.entity.Permission;
 import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.model.mapper.PermissionMapper;
 import com.behpardakht.oauth_server.authorization.repository.PermissionRepository;
+import com.behpardakht.oauth_server.authorization.repository.RoleRepository;
 import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class PermissionService {
 
     private final PermissionMapper permissionMapper;
     private final PermissionRepository permissionRepository;
-    private final RoleService roleService;
+    private final RoleRepository roleRepository;
 
 
     @Auditable(action = AuditAction.PERMISSION_CREATED, details = "#permissionDto.name")
@@ -68,7 +69,7 @@ public class PermissionService {
     @Auditable(action = AuditAction.ROLE_DELETED, details = "#id")
     public void delete(Long id) {
         Permission permission = findById(id);
-        if (roleService.existByPermission(id)) {
+        if (roleRepository.existsByPermissions_id(id)) {
             throw new ExceptionWrapper.CustomException(ExceptionMessage.ROLE_ASSIGNED_TO_USERS, permission.getName());
         }
         permissionRepository.delete(permission);
@@ -79,5 +80,9 @@ public class PermissionService {
     }
     public List<Permission> findAll() {
         return permissionRepository.findAll();
+    }
+
+    public List<Permission> findAllByClientId(Long clientId) {
+        return permissionRepository.findAllByClientId(clientId);
     }
 }

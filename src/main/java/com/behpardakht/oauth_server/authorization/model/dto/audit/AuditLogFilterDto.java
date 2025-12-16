@@ -16,7 +16,6 @@ import java.time.Instant;
 public class AuditLogFilterDto extends BaseFilterDto {
     private AuditAction action;
     private String username;
-    private String clientId;
     private Boolean success;
     private Instant fromDate;
     private Instant toDate;

@@ -2,6 +2,7 @@ package com.behpardakht.oauth_server.authorization.repository.filter;
 
 import com.behpardakht.oauth_server.authorization.model.dto.base.BaseFilterDto;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
@@ -11,7 +12,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface FilterSpecification<F, T> {
+public interface FilterSpecification<F extends BaseFilterDto, T> {
 
     Specification<T> toSpecification(F filter);
 
@@ -19,6 +20,15 @@ public interface FilterSpecification<F, T> {
                                 CriteriaBuilder cb, BaseFilterDto filter) {
         if (filter.getDeleted() != null) {
             addBooleanFilter(predicates, root, cb, "isEnabled", filter.getDeleted());
+        }
+    }
+
+    default void addClientFilter(List<Predicate> predicates, Root<T> root,
+                                 CriteriaBuilder cb, Long clientId, String joinField) {
+        if (clientId != null) {
+            Join<Object, Object> assignmentJoin = root.join(joinField);
+            predicates.add(cb.equal(assignmentJoin.get("client").get("id"), clientId));
+            predicates.add(cb.isTrue(assignmentJoin.get("isActive")));
         }
     }
 

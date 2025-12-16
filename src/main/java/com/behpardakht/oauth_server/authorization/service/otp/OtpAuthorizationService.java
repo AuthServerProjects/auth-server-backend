@@ -3,9 +3,11 @@ package com.behpardakht.oauth_server.authorization.service.otp;
 import com.behpardakht.oauth_server.authorization.config.Properties;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
+import com.behpardakht.oauth_server.authorization.model.entity.UserClientAssignment;
 import com.behpardakht.oauth_server.authorization.model.entity.Users;
 import com.behpardakht.oauth_server.authorization.model.enums.PkceMethod;
 import com.behpardakht.oauth_server.authorization.service.ClientService;
+import com.behpardakht.oauth_server.authorization.service.user.UserClientAssignmentService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService.SessionDto;
 import com.behpardakht.oauth_server.authorization.service.user.AdminUserService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
@@ -26,10 +30,7 @@ import org.springframework.stereotype.Service;
 import java.security.Principal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.maskPhoneNumber;
@@ -46,13 +47,25 @@ public class OtpAuthorizationService {
     private final AdminUserService adminUserService;
     private final ClientService clientService;
     private final OAuth2AuthorizationService authorizationService;
+    private final UserClientAssignmentService userClientAssignmentService;
 
     public String createAuthorization(String authorizationCode, SessionDto sessionDto) {
         String phoneNumber = sessionDto.phoneNumber();
         try {
             Users user = adminUserService.findByPhoneNumber(phoneNumber);
-            Authentication principal =
-                    new UsernamePasswordAuthenticationToken(user.getUsername(), null, user.getAuthorities());
+            String clientId = sessionDto.clientId();
+            UserClientAssignment userClientAssignment = userClientAssignmentService.findOrCreateAssignment(user, clientId);
+
+            if (!Boolean.TRUE.equals(userClientAssignment.getIsEnabled())) {
+                throw new CustomException(ExceptionMessage.USER_BANNED);
+            }
+
+            Collection<GrantedAuthority> authorities = userClientAssignment.getUserRoleAssignments().stream()
+                    .map(ra -> new SimpleGrantedAuthority("ROLE_" + ra.getRole().getName()))
+                    .collect(Collectors.toSet());
+
+            Authentication principal = new UsernamePasswordAuthenticationToken(
+                    user.getUsername(), null, authorities);
 
             RegisteredClient registeredClient = clientService.findRegisteredClientByClientId(sessionDto.clientId());
             String redirectUrl = getValidatedRedirectUrl(registeredClient.getRedirectUris(), sessionDto.redirectUri());
