@@ -4,6 +4,7 @@ import com.behpardakht.oauth_server.authorization.aspect.Auditable;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.AlreadyExistException;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.model.dto.role.PermissionDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Permission;
 import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
@@ -66,11 +67,11 @@ public class PermissionService {
         permissionRepository.save(permission);
     }
 
-    @Auditable(action = AuditAction.ROLE_DELETED, details = "#id")
+    @Auditable(action = AuditAction.PERMISSION_DELETED, details = "#id")
     public void delete(Long id) {
         Permission permission = findById(id);
         if (roleRepository.existsByPermissions_id(id)) {
-            throw new ExceptionWrapper.CustomException(ExceptionMessage.ROLE_ASSIGNED_TO_USERS, permission.getName());
+            throw new CustomException(ExceptionMessage.PERMISSION_ASSIGNED_TO_ROLE, permission.getName());
         }
         permissionRepository.delete(permission);
     }
