@@ -7,6 +7,8 @@ import com.behpardakht.oauth_server.authorization.model.entity.TokenAndClientSet
 import com.behpardakht.oauth_server.authorization.model.enums.AuthenticationMethodTypes;
 import com.behpardakht.oauth_server.authorization.model.enums.AuthorizationGrantTypes;
 import com.behpardakht.oauth_server.authorization.model.enums.ScopeTypes;
+import com.behpardakht.oauth_server.authorization.repository.ClientRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
@@ -20,7 +22,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class ClientMapper {
+
+    private final ClientRepository clientRepository;
+
+    public Client loadEntity(Long id) {
+        if (id != null) {
+            return clientRepository.findById(id).orElse(null);
+        }
+        return null;
+    }
 
     public Client registeredClientToEntity(RegisteredClient registeredClient) {
         return Client.builder()

@@ -121,6 +121,7 @@ app:
 
   # Admin
   super-admin:
+    username: superAdmin
     phone-number: 989331782513
 
   # Vault Configuration

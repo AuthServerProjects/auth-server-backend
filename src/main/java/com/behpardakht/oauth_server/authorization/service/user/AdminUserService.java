@@ -66,6 +66,10 @@ public class AdminUserService {
                 .orElseThrow(() -> new NotFoundException("User", "phoneNumber", phoneNumber));
     }
 
+    public Optional<Users> findByPhoneNumberOptional(String phoneNumber) {
+        return userRepository.findByPhoneNumber(phoneNumber);
+    }
+
     public void createUserByPhoneNumber(String phoneNumber) {
         UsersDto usersDto = UsersDto.builder()
                 .username(phoneNumber)
@@ -111,10 +115,6 @@ public class AdminUserService {
     public Users findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User", "username", username));
-    }
-
-    public Optional<Users> findByUsernameOptional(String username) {
-        return userRepository.findByUsername(username);
     }
 
     public boolean existUserWithUsername(String username) {

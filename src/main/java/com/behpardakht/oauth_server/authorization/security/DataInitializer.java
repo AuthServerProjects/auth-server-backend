@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.SYSTEM_CLIENT_ID;
+import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.DEFAULT_CLIENT_ID;
 
 @Slf4j
 @Component
@@ -41,19 +41,17 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        Client systemClient = initSystemClient();
-        initPermissions();
-        Role superAdminRole = initSuperAdminRole();
-        initAdminRole();
-        initUserRole();
+        Client defaultClient = initDefaultClient();
+        initPermissions(defaultClient);
+        Role superAdminRole = initSuperAdminRole(defaultClient);
         Users superAdminUser = initSuperAdminUser();
-        assignSuperAdminRole(systemClient, superAdminRole, superAdminUser);
+        assignSuperAdminRole(superAdminRole, superAdminUser);
     }
 
-    private Client initSystemClient() {
-        return clientService.findByClientIdOptional(SYSTEM_CLIENT_ID).orElseGet(() -> {
+    private Client initDefaultClient() {
+        return clientService.findByClientIdOptional(DEFAULT_CLIENT_ID).orElseGet(() -> {
             Client systemClient = Client.builder()
-                    .clientId(SYSTEM_CLIENT_ID)
+                    .clientId(DEFAULT_CLIENT_ID)
                     .clientSecret(passwordEncoder.encode(UUID.randomUUID().toString()))
                     .build();
             Client client = clientService.insert(systemClient);
@@ -62,12 +60,13 @@ public class DataInitializer implements CommandLineRunner {
         });
     }
 
-    private void initPermissions() {
+    private void initPermissions(Client defaultClient) {
         for (UserPermission userPermission : UserPermission.values()) {
-            if (!permissionService.existsByName(userPermission.getValue())) {
+            if (!permissionService.existsByNameAndClient(userPermission.getValue(), defaultClient.getId())) {
                 Permission permission = Permission.builder()
                         .name(userPermission.getValue())
                         .description(userPermission.getDescription())
+                        .client(defaultClient)
                         .build();
                 permissionService.insert(permission);
                 log.info("Created permission: {}", userPermission.getValue());
@@ -75,13 +74,14 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
-    private Role initSuperAdminRole() {
+    private Role initSuperAdminRole(Client defaultClient) {
         String roleName = UserRole.SUPER_ADMIN.getValue();
-        return roleService.findByNameOptional(roleName).orElseGet(() -> {
+        return roleService.findByNameAndClient(roleName, defaultClient.getId()).orElseGet(() -> {
             Set<Permission> allPermissions = new HashSet<>(permissionService.findAll());
             Role supperAdminRole = Role.builder()
                     .name(roleName)
                     .permissions(allPermissions)
+                    .client(defaultClient)
                     .build();
             Role role = roleService.insert(supperAdminRole);
             log.info("Created role: {} with all permissions", roleName);
@@ -89,52 +89,12 @@ public class DataInitializer implements CommandLineRunner {
         });
     }
 
-    private void initAdminRole() {
-        String roleName = UserRole.ADMIN.getValue();
-        if (!roleService.existsByName(roleName)) {
-            Set<Permission> permissions = getPermissionsByNames(
-                    UserPermission.DASHBOARD_VIEW,
-                    UserPermission.USER_READ,
-                    UserPermission.USER_CREATE,
-                    UserPermission.USER_UPDATE,
-                    UserPermission.CLIENT_READ,
-                    UserPermission.SESSION_READ,
-                    UserPermission.AUDIT_READ
-            );
-            Role role = Role.builder()
-                    .name(roleName)
-                    .permissions(permissions)
-                    .build();
-            roleService.insert(role);
-            log.info("Created role: {} with limited permissions", roleName);
-        }
-    }
-
-    private Set<Permission> getPermissionsByNames(UserPermission... enums) {
-        Set<Permission> permissions = new HashSet<>();
-        for (UserPermission permEnum : enums) {
-            permissionService.findByName(permEnum.getValue()).ifPresent(permissions::add);
-        }
-        return permissions;
-    }
-
-    private void initUserRole() {
-        String roleName = UserRole.USER.getValue();
-        if (!roleService.existsByName(roleName)) {
-            Role role = Role.builder()
-                    .name(roleName)
-                    .build();
-            roleService.insert(role);
-            log.info("Created role: {} with no admin permissions", roleName);
-        }
-    }
-
     private Users initSuperAdminUser() {
         String phoneNumber = properties.getSuperAdmin().getPhoneNumber();
-        return adminUserService.findByUsernameOptional(phoneNumber)
+        return adminUserService.findByPhoneNumberOptional(phoneNumber)
                 .orElseGet(() -> {
                     Users superAdmin = Users.builder()
-                            .username(phoneNumber)
+                            .username(properties.getSuperAdmin().getUsername())
                             .password(GeneralUtil.generateRandomPassword())
                             .phoneNumber(phoneNumber)
                             .isAccountNonExpired(true)
@@ -147,16 +107,14 @@ public class DataInitializer implements CommandLineRunner {
                 });
     }
 
-    private void assignSuperAdminRole(Client systemClient, Role superAdminRole, Users superAdmin) {
-        if (!roleAssignmentService.existsByUserIdAndRoleIdAndClientId(
-                superAdmin.getId(), superAdminRole.getId(), systemClient.getId())) {
+    private void assignSuperAdminRole(Role superAdminRole, Users superAdminUser) {
+        if (!roleAssignmentService.existsByUserIdAndRoleId(superAdminUser.getId(), superAdminRole.getId())) {
             RoleAssignment assignment = RoleAssignment.builder()
-                    .user(superAdmin)
+                    .user(superAdminUser)
                     .role(superAdminRole)
-                    .client(systemClient)
                     .build();
             roleAssignmentService.insert(assignment);
-            log.info("SUPER_ADMIN role assigned to {} with SYSTEM client", superAdmin.getUsername());
+            log.info("{} role assigned to {}", superAdminRole.getName(), superAdminUser.getUsername());
         }
     }
 }

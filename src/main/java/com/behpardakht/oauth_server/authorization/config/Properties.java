@@ -18,6 +18,7 @@ public class Properties {
 
     @Data
     public static class SuperAdmin {
+        private String username;
         private String phoneNumber;
     }
 
