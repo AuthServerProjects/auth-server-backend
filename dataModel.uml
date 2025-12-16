@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.audit_log</OriginalElement>
+  <nodes>
+    <node x="1863.800904977376" y="334.6877828054297">6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.authorizations</node>
+    <node x="710.8506787330316" y="628.0000000000001">6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.role</node>
+    <node x="1478.848416289593" y="508.0000000000001">6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.client_redirect_uris</node>
+    <node x="842.1493212669685" y="-2.57013574660607">6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.user_client_assignment</node>
+    <node x="1343.2714932126698" y="86.56561085972857">6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.users</node>
+    <node x="1472.848416289593" y="625.8438914027149">6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.client_auth_methods</node>
+    <node x="1500.348416289593" y="861.5316742081445">6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.client_scopes</node>
+    <node x="696.552036199095" y="348.714932126697">6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.user_role_assignment</node>
+    <node x="762.8506787330316" y="907.2850678733032">6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.role_permissions</node>
+    <node x="1085.2669683257918" y="508.0000000000001">6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.client</node>
+    <node x="1481.848416289593" y="743.6877828054297">6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.client_grant_types</node>
+    <node x="710.8506787330316" y="1066.5701357466064">6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.permission</node>
+    <node x="1259.531674208145" y="1066.5701357466064">6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.audit_log</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.user_role_assignment" target="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.role" relationship="REFERENCES">
+      <point x="14.298642533936572" y="92.0" />
+      <point x="0.0" y="-92.0" />
+    </edge>
+    <edge source="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.role" target="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.client" relationship="REFERENCES">
+      <point x="141.0" y="-15.0" />
+      <point x="-165.0" y="-15.0" />
+    </edge>
+    <edge source="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.user_client_assignment" target="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.users" relationship="REFERENCES">
+      <point x="140.9999999999999" y="65.13574660633464" />
+      <point x="-141.0" y="0.0" />
+    </edge>
+    <edge source="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.user_role_assignment" target="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.user_client_assignment" relationship="REFERENCES">
+      <point x="133.5" y="-92.0" />
+      <point x="-12.097285067873486" y="128.0" />
+    </edge>
+    <edge source="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.role_permissions" target="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.permission" relationship="REFERENCES">
+      <point x="0.0" y="43.5" />
+      <point x="0.0" y="-104.0" />
+    </edge>
+    <edge source="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.authorizations" target="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.authorizations" relationship="REFERENCES">
+      <point x="-212.0" y="-0.0" />
+      <point x="1815.800904977376" y="582.6877828054297" />
+      <point x="1815.800904977376" y="862.6877828054297" />
+      <point x="2075.800904977376" y="862.6877828054297" />
+      <point x="0.0" y="248.0" />
+    </edge>
+    <edge source="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.client_scopes" target="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.client" relationship="REFERENCES">
+      <point x="-77.0" y="0.0" />
+      <point x="165.0" y="185.0316742081444" />
+    </edge>
+    <edge source="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.client_auth_methods" target="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.client" relationship="REFERENCES">
+      <point x="-104.5" y="0.0" />
+      <point x="165.0" y="-50.6561085972852" />
+    </edge>
+    <edge source="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.permission" target="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.client" relationship="REFERENCES">
+      <point x="141.0" y="0.0" />
+      <point x="1242.031674208145" y="1170.5701357466064" />
+      <point x="-8.235294117646845" y="212.0" />
+    </edge>
+    <edge source="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.audit_log" target="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.client" relationship="REFERENCES">
+      <point x="0.0" y="-152.0" />
+      <point x="150.26470588235316" y="212.0" />
+    </edge>
+    <edge source="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.client_redirect_uris" target="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.client" relationship="REFERENCES">
+      <point x="-98.5" y="0.0" />
+      <point x="165.0" y="-168.5" />
+    </edge>
+    <edge source="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.role_permissions" target="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.role" relationship="REFERENCES">
+      <point x="0.0" y="-43.5" />
+      <point x="0.0" y="92.0" />
+    </edge>
+    <edge source="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.client" target="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.client" relationship="REFERENCES">
+      <point x="-165.0" y="-0.0" />
+      <point x="1050.2669683257918" y="720.0000000000001" />
+      <point x="1050.2669683257918" y="980.0000000000001" />
+      <point x="1167.7669683257918" y="980.0000000000001" />
+      <point x="-82.5" y="212.0" />
+    </edge>
+    <edge source="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.user_client_assignment" target="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.client" relationship="REFERENCES">
+      <point x="109.61764705882331" y="128.0" />
+      <point x="-157.5" y="-212.0" />
+    </edge>
+    <edge source="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.client_grant_types" target="6bf81ec8-4434-414e-a382-8496a7c69979.TABLE:postgres-db.public.client" relationship="REFERENCES">
+      <point x="-95.5" y="-2.1877828054297197" />
+      <point x="165.0" y="64.99999999999989" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Compact" zoom="0.5695876288659794" showDependencies="false" x="1216.5904977375565" y="729.0" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Columns</Category>
+    <Category>Comments</Category>
+    <Category>Key columns</Category>
+    <Category>Virtual foreign keys</Category>
+  </Categories>
+</Diagram>
+
