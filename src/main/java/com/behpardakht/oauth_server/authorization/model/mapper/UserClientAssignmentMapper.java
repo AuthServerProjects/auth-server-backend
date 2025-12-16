@@ -18,7 +18,7 @@ public class UserClientAssignmentMapper {
                 .userId(entity.getUser().getId())
                 .username(entity.getUser().getUsername())
                 .phoneNumber(entity.getUser().getPhoneNumber())
-                .clientId(entity.getClient().getId())
+                .clientId(entity.getClient() != null ? entity.getClient().getId() : null)
                 .clientName(entity.getClient().getClientId())
                 .isAccountNonExpired(entity.getIsAccountNonExpired())
                 .isAccountNonLocked(entity.getIsAccountNonLocked())

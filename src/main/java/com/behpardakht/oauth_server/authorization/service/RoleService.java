@@ -12,6 +12,7 @@ import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.model.mapper.RoleMapper;
 import com.behpardakht.oauth_server.authorization.repository.UserRoleAssignmentRepository;
 import com.behpardakht.oauth_server.authorization.repository.RoleRepository;
+import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,8 @@ public class RoleService {
     }
 
     public List<RoleDto> findAll() {
-        List<Role> roles = roleRepository.findAll();
+        Long clientId = SecurityUtils.getCurrentClientId();
+        List<Role> roles = roleRepository.findAllByClientId(clientId);
         return roleMapper.toDtoList(roles);
     }
 

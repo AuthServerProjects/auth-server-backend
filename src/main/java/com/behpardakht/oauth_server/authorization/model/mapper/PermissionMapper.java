@@ -22,7 +22,7 @@ public class PermissionMapper {
                 .id(entity.getId())
                 .name(entity.getName())
                 .description(entity.getDescription())
-                .clientId(entity.getClient().getId())
+                .clientId(entity.getClient() != null ? entity.getClient().getId() : null)
                 .build();
     }
 
