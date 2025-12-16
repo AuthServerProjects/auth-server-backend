@@ -1,7 +1,5 @@
 package com.behpardakht.oauth_server.authorization.service;
 
-import com.behpardakht.oauth_server.authorization.model.dto.role.PermissionDto;
-import com.behpardakht.oauth_server.authorization.model.dto.role.RoleDto;
 import com.behpardakht.oauth_server.authorization.model.enums.AuthenticationMethodTypes;
 import com.behpardakht.oauth_server.authorization.model.enums.AuthorizationGrantTypes;
 import com.behpardakht.oauth_server.authorization.model.enums.PkceMethod;
@@ -14,10 +12,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class GeneralService {
-
-
-    private final RoleService roleService;
-    private final PermissionService permissionService;
 
     public List<AuthenticationMethodTypes> loadAuthenticationMethodType() {
         return List.of(AuthenticationMethodTypes.values());
@@ -33,13 +27,5 @@ public class GeneralService {
 
     public List<PkceMethod> loadPkceMethod() {
         return List.of(PkceMethod.values());
-    }
-
-    public List<RoleDto> loadUserRoles() {
-        return roleService.findAll();
-    }
-
-    public List<PermissionDto> loadUserPermissions() {
-        return permissionService.findAllDto();
     }
 }

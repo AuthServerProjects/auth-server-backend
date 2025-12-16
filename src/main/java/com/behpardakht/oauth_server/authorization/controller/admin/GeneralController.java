@@ -50,18 +50,4 @@ public class GeneralController {
         List<PkceMethod> response = generalService.loadPkceMethod();
         return ResponseEntity.ok(ResponseDto.success(response));
     }
-
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @GetMapping(path = "loadUserRoles")
-    public ResponseEntity<ResponseDto<List<RoleDto>>> loadUserRoles() {
-        List<RoleDto> response = generalService.loadUserRoles();
-        return ResponseEntity.ok(ResponseDto.success(response));
-    }
-
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @GetMapping(path = "loadUserPermissions")
-    public ResponseEntity<ResponseDto<List<PermissionDto>>> loadUserPermissions() {
-        List<PermissionDto> response = generalService.loadUserPermissions();
-        return ResponseEntity.ok(ResponseDto.success(response));
-    }
 }
