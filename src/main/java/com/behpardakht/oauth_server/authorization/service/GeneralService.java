@@ -1,9 +1,6 @@
 package com.behpardakht.oauth_server.authorization.service;
 
-import com.behpardakht.oauth_server.authorization.model.enums.AuthenticationMethodTypes;
-import com.behpardakht.oauth_server.authorization.model.enums.AuthorizationGrantTypes;
-import com.behpardakht.oauth_server.authorization.model.enums.PkceMethod;
-import com.behpardakht.oauth_server.authorization.model.enums.ScopeTypes;
+import com.behpardakht.oauth_server.authorization.model.enums.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,5 +24,9 @@ public class GeneralService {
 
     public List<PkceMethod> loadPkceMethod() {
         return List.of(PkceMethod.values());
+    }
+
+    public List<AuditAction> loadAuditActions() {
+        return List.of(AuditAction.values());
     }
 }
