@@ -23,18 +23,27 @@ public class UserRoleAssignmentController {
 
     @PreAuthorize("hasAuthority('user:manage_roles')")
     @PostMapping("assign")
-    public ResponseEntity<ResponseDto<UserRoleAssignmentDto>> assign(@RequestParam Long userId,
+    public ResponseEntity<ResponseDto<UserRoleAssignmentDto>> assign(@RequestParam Long userClientAssignmentId,
                                                                      @RequestParam Long roleId) {
-        UserRoleAssignmentDto response = userRoleAssignmentService.assign(userId, roleId);
+        UserRoleAssignmentDto response = userRoleAssignmentService.assign(userClientAssignmentId, roleId);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PreAuthorize("hasAuthority('user:manage_roles')")
     @DeleteMapping("unassign")
-    public ResponseEntity<ResponseDto<String>> unassign(@RequestParam Long userId,
+    public ResponseEntity<ResponseDto<String>> unassign(@RequestParam Long userClientAssignmentId,
                                                         @RequestParam Long roleId) {
-        userRoleAssignmentService.unassign(userId, roleId);
+        userRoleAssignmentService.unassign(userClientAssignmentId, roleId);
         String response = MessageResolver.getMessage(Messages.ROLE_UNASSIGNED_SUCCESS.getMessage());
+        return ResponseEntity.ok(ResponseDto.success(response));
+    }
+
+    @PreAuthorize("hasAuthority('role:read')")
+    @GetMapping("findByUserClientAssignmentId/{userClientAssignmentId}")
+    public ResponseEntity<ResponseDto<List<UserRoleAssignmentDto>>> findByUserClientAssignmentId(@PathVariable
+                                                                                                 Long userClientAssignmentId) {
+        List<UserRoleAssignmentDto> response =
+                userRoleAssignmentService.findByUserClientAssignmentId(userClientAssignmentId);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
