@@ -15,7 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Table(name = "role", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "client_id"}))
 @EqualsAndHashCode(callSuper = true)
-public class Role extends BaseEntity implements GrantedAuthority {
+public class Role extends BaseEntity {
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -32,9 +32,4 @@ public class Role extends BaseEntity implements GrantedAuthority {
     )
     @Builder.Default
     private Set<Permission> permissions = new HashSet<>();
-
-    @Override
-    public String getAuthority() {
-        return name;
-    }
 }

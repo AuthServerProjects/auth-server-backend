@@ -11,7 +11,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@Table(name = "user_role_assignment")
+@Table(name = "user_role_assignment",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_client_assignment_id", "role_id"}))
 public class UserRoleAssignment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
