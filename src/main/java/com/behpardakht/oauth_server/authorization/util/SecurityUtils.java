@@ -18,7 +18,14 @@ public class SecurityUtils {
         }
         HttpServletRequest request = attributes.getRequest();
         String clientId = request.getHeader("X-Client-Id");
-        return clientId != null ? Long.parseLong(clientId) : null;
+        if (clientId == null || clientId.isBlank()) {
+            return null;
+        }
+        try {
+            return Long.parseLong(clientId);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     public static boolean isSuperAdmin() {
