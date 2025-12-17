@@ -30,4 +30,6 @@ public interface AuthorizationRepository extends JpaRepository<Authorizations, L
     List<Authorizations> findByPrincipalName(String principalName);
 
     Long countByAccessTokenExpiresAtAfter(Instant time);
+
+    List<Authorizations> findByPrincipalNameAndRegisteredClientId(String principalName, String registeredClientId);
 }

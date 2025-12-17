@@ -14,6 +14,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserMapper {
 
+
     public UsersDto toDto(Users entity) {
         if (entity == null) return null;
         return UsersDto.builder()
@@ -32,6 +33,7 @@ public class UserMapper {
     public Users toEntity(UsersDto dto) {
         if (dto == null) return null;
         return Users.builder()
+                .id(dto.getId())
                 .username(dto.getUsername())
                 .password(dto.getPassword())
                 .phoneNumber(dto.getPhoneNumber())
@@ -40,9 +42,16 @@ public class UserMapper {
     }
 
     public void toEntity(Users entity, UsersDto dto) {
-        entity.setUsername(dto.getUsername());
-        entity.setPhoneNumber(dto.getPhoneNumber());
-        entity.setIsEnabled(dto.getIsEnabled());
+        if (dto == null) return;
+        if (dto.getUsername() != null) {
+            entity.setUsername(dto.getUsername());
+        }
+        if (dto.getPhoneNumber() != null) {
+            entity.setPhoneNumber(dto.getPhoneNumber());
+        }
+        if (dto.getIsEnabled() != null) {
+            entity.setIsEnabled(dto.getIsEnabled());
+        }
     }
 
     public List<Users> toEntityList(List<UsersDto> dtoList) {

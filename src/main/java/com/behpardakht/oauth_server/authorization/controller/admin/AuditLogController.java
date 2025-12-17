@@ -23,7 +23,7 @@ public class AuditLogController {
 
     private final AuditLogService auditLogService;
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'audit:read')")
     @PostMapping("findAll")
     public ResponseEntity<ResponseDto<PageableResponseDto<AuditLogDto>>> findAll(@RequestBody
                                                                                  PageableRequestDto<AuditLogFilterDto> request) {

@@ -21,7 +21,7 @@ public class PermissionController {
 
     private final PermissionService permissionService;
 
-    @PreAuthorize("hasPermission('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'permission:create')")
     @PostMapping(path = "save")
     public ResponseEntity<ResponseDto<String>> save(@RequestBody PermissionDto request) {
         permissionService.save(request);
@@ -30,28 +30,28 @@ public class PermissionController {
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasPermission('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'permission:read')")
     @GetMapping(path = "findAll")
     public ResponseEntity<ResponseDto<List<PermissionDto>>> findAll() {
         List<PermissionDto> response = permissionService.findAllDto();
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasPermission('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'permission:read')")
     @GetMapping(path = "find/{id}")
     public ResponseEntity<ResponseDto<PermissionDto>> findById(@PathVariable Long id) {
         PermissionDto response = permissionService.findDtoById(id);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasPermission('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'permission:update')")
     @PatchMapping(path = "toggleStatus/{id}")
     public ResponseEntity<ResponseDto<Boolean>> toggleStatus(@PathVariable Long id) {
         Boolean response = permissionService.toggleStatus(id);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasPermission('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'permission:delete')")
     @DeleteMapping(path = "delete/{id}")
     public ResponseEntity<ResponseDto<String>> delete(@PathVariable Long id) {
         permissionService.delete(id);

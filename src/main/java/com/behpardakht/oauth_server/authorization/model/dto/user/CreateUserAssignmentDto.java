@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class CreateUserAssignmentDto {
 
     private Long userId;
+    private UsersDto newUser;
 }

@@ -21,7 +21,7 @@ public class RoleController {
 
     private final RoleService roleService;
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'role:create')")
     @PostMapping(path = "save")
     public ResponseEntity<ResponseDto<String>> save(@RequestBody RoleDto request) {
         roleService.save(request);
@@ -30,28 +30,28 @@ public class RoleController {
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasRole('SUPER_ADMIN') || hasAuthority('user:manage_roles')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'role:read')")
     @GetMapping(path = "findAll")
     public ResponseEntity<ResponseDto<List<RoleDto>>> findAll() {
         List<RoleDto> response = roleService.findAll();
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'role:read')")
     @GetMapping(path = "find/{id}")
     public ResponseEntity<ResponseDto<RoleDto>> findById(@PathVariable Long id) {
         RoleDto response = roleService.findDtoById(id);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'role:update')")
     @PatchMapping(path = "toggleStatus/{id}")
     public ResponseEntity<ResponseDto<Boolean>> toggleStatus(@PathVariable Long id) {
         Boolean response = roleService.toggleStatus(id);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'role:delete')")
     @DeleteMapping(path = "delete/{id}")
     public ResponseEntity<ResponseDto<String>> delete(@PathVariable Long id) {
         roleService.delete(id);
@@ -60,7 +60,7 @@ public class RoleController {
         return ResponseEntity.ok().body(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasAuthority('MANAGE_ROLE_PERMISSIONS')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'role:manage_permissions')")
     @PostMapping(path = "{roleId}/addPermission/{permissionId}")
     public ResponseEntity<ResponseDto<String>> addPermission(@PathVariable Long roleId,
                                                              @PathVariable Long permissionId) {
@@ -70,7 +70,7 @@ public class RoleController {
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasAuthority('MANAGE_ROLE_PERMISSIONS')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'role:manage_permissions')")
     @DeleteMapping(path = "{roleId}/removePermission/{permissionId}")
     public ResponseEntity<ResponseDto<String>> removePermission(@PathVariable Long roleId,
                                                                 @PathVariable Long permissionId) {

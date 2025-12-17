@@ -28,6 +28,11 @@ public enum AuditAction {
     USER_DELETED("user_deleted"),
     RESET_PASSWORD("reset_password"),
 
+    USER_ASSIGNED("User assigned to client"),
+    USER_UNASSIGNED("User removed from client"),
+    USER_BANNED("User banned from client"),
+    USER_UNBANNED("User unbanned from client"),
+
     PERMISSION_CREATED("permission_created"),
     PERMISSION_UPDATED("permission_updated"),
     PERMISSION_DELETED("permission_deleted"),

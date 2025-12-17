@@ -22,7 +22,7 @@ public class UserController {
 
     private final AdminUserService adminUserService;
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasPermission(null, 'READ_USER')")
     @PostMapping(path = "findAll")
     public ResponseEntity<ResponseDto<PageableResponseDto<UsersDto>>> findAll(@RequestBody
                                                                               PageableRequestDto<UserFilterDto> request) {

@@ -19,7 +19,7 @@ public class DashboardController {
 
     private final DashboardService dashboardService;
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'dashboard:view')")
     @GetMapping("stats")
     public ResponseEntity<ResponseDto<DashboardStatsDto>> getStats() {
         DashboardStatsDto response = dashboardService.getStats();

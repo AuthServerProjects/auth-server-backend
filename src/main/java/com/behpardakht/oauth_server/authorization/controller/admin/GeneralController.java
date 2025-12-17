@@ -49,6 +49,7 @@ public class GeneralController {
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'audit:read')")
     @GetMapping(path = "loadAuditActions")
     public ResponseEntity<ResponseDto<List<AuditAction>>> loadAuditActions() {
         List<AuditAction> response = generalService.loadAuditActions();

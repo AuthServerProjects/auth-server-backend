@@ -13,6 +13,7 @@ public enum ExceptionMessage {
     INPUTS_ARE_NOT_VALID("inputs_are_not_valid"),
     NOT_FOUND_WITH("not_found_with"),
     IS_ALREADY_EXIST("is_already_exist"),
+    INVALID_REQUEST("invalid_request"),
 
     // SecurityHandler
     ACCESS_DENIED("access_denied"),

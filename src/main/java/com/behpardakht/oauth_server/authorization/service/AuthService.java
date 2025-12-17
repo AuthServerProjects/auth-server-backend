@@ -10,11 +10,14 @@ import com.behpardakht.oauth_server.authorization.model.dto.auth.AuthorizationFi
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Authorizations;
+import com.behpardakht.oauth_server.authorization.model.entity.Client;
 import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.model.mapper.AuthorizationMapper;
 import com.behpardakht.oauth_server.authorization.repository.AuthorizationRepository;
+import com.behpardakht.oauth_server.authorization.repository.UserClientAssignmentRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.AuthorizationFilterSpecification;
 import com.behpardakht.oauth_server.authorization.util.Messages;
+import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -41,6 +44,8 @@ public class AuthService {
     private final OAuth2AuthorizationService authorizationService;
     private final AuthorizationRepository authorizationRepository;
     private final TokenBlacklistService tokenBlacklistService;
+    private final ClientService clientService;
+    private final UserClientAssignmentRepository userClientAssignmentRepository;
 
     @Auditable(action = AuditAction.LOGOUT)
     public void logout(String authHeader) {
@@ -89,6 +94,7 @@ public class AuthService {
     public void revokeSession(String authorizationId) {
         Authorizations authorization = authorizationRepository.findByAuthorizationId(authorizationId)
                 .orElseThrow(() -> new NotFoundException("Session", "authorizationId", authorizationId));
+        validateSessionAccess(authorization);
         removeAndBlacklistToken(authorization);
     }
 
@@ -107,7 +113,8 @@ public class AuthService {
 
     @Auditable(action = AuditAction.ALL_SESSION_REVOKED, username = "#username")
     public String revokeSessionsByUsername(String username) {
-        List<Authorizations> userAuthorizationList = authorizationRepository.findByPrincipalName(username);
+        validateUserAccess(username);
+        List<Authorizations> userAuthorizationList = findSessionsByCurrentClient(username);
         if (userAuthorizationList.isEmpty()) {
             throw new CustomException(ExceptionMessage.NO_ACTIVE_SESSIONS_FOUND);
         }
@@ -154,6 +161,7 @@ public class AuthService {
     }
 
     public PageableResponseDto<AuthorizationDto> findAllSessions(PageableRequestDto<AuthorizationFilterDto> request) {
+        setClientFilter(request);
         Specification<Authorizations> spec = authorizationFilterSpecification.toSpecification(request.getFilters());
         Page<Authorizations> page = authorizationRepository.findAll(spec, request.toPageable());
         List<AuthorizationDto> responses = authorizationMapper.toDtoList(page.getContent());
@@ -161,7 +169,50 @@ public class AuthService {
     }
 
     public List<AuthorizationDto> findSessionsByUsername(String username) {
-        List<Authorizations> sessions = authorizationRepository.findByPrincipalName(username);
+        validateUserAccess(username);
+        List<Authorizations> sessions = findSessionsByCurrentClient(username);
         return authorizationMapper.toDtoList(sessions);
+    }
+
+    // ============ CLIENT FILTER METHODS ============
+
+    private void setClientFilter(PageableRequestDto<AuthorizationFilterDto> request) {
+        if (SecurityUtils.isSuperAdmin()) {
+            return;
+        }
+        if (request.getFilters() == null) {
+            request.setFilters(new AuthorizationFilterDto());
+        }
+        Client client = clientService.findById(SecurityUtils.getCurrentClientId());
+        request.getFilters().setRegisteredClientId(client.getRegisteredClientId());
+    }
+
+    private List<Authorizations> findSessionsByCurrentClient(String username) {
+        if (SecurityUtils.isSuperAdmin()) {
+            return authorizationRepository.findByPrincipalName(username);
+        }
+        Client client = clientService.findById(SecurityUtils.getCurrentClientId());
+        return authorizationRepository.findByPrincipalNameAndRegisteredClientId(username, client.getRegisteredClientId());
+    }
+
+    private void validateSessionAccess(Authorizations authorization) {
+        if (SecurityUtils.isSuperAdmin()) {
+            return;
+        }
+        Client client = clientService.findById(SecurityUtils.getCurrentClientId());
+        if (!authorization.getRegisteredClientId().equals(client.getRegisteredClientId())) {
+            throw new CustomException(ExceptionMessage.ACCESS_DENIED);
+        }
+    }
+
+    private void validateUserAccess(String username) {
+        if (SecurityUtils.isSuperAdmin()) {
+            return;
+        }
+        Long clientId = SecurityUtils.getCurrentClientId();
+        boolean hasAccess = userClientAssignmentRepository.existsByUserUsernameAndClientId(username, clientId);
+        if (!hasAccess) {
+            throw new CustomException(ExceptionMessage.ACCESS_DENIED);
+        }
     }
 }

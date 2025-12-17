@@ -33,6 +33,7 @@ public enum Messages {
     USER_UNBANNED_SUCCESS("user_unbanned_success"),
     USER_ASSIGNMENT_DELETED_SUCCESS("user_assignment_deleted_success"),
     PASSWORD_SENT_SUCCESS("password_sent_success"),
+
     ROLE_ASSIGNED_SUCCESS("role_assigned_success"),
     ROLE_UNASSIGNED_SUCCESS("role_unassigned_success"),
     ROLE_REMOVED_SUCCESS("role_removed_success"),

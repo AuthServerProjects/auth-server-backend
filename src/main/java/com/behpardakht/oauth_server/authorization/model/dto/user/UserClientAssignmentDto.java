@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -13,14 +13,12 @@ import java.time.Instant;
 @AllArgsConstructor
 public class UserClientAssignmentDto {
     private Long id;
-    private Long userId;
-    private String username;
-    private String phoneNumber;
+    private UsersDto user;
     private Long clientId;
     private String clientName;
+    private Boolean isEnabled;
     private Boolean isAccountNonExpired;
     private Boolean isAccountNonLocked;
     private Boolean isCredentialsNonExpired;
-    private Boolean isEnabled;
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 }

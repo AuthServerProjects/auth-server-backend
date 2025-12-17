@@ -24,7 +24,7 @@ public class SessionController {
 
     private final AuthService authService;
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'session:revoke')")
     @DeleteMapping("revoke/{authorizationId}")
     public ResponseEntity<ResponseDto<String>> revokeSession(@PathVariable String authorizationId) {
         authService.revokeSession(authorizationId);
@@ -33,14 +33,14 @@ public class SessionController {
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'session:revoke')")
     @DeleteMapping("revokeByUsername/{username}")
     public ResponseEntity<ResponseDto<String>> revokeSessionsByUsername(@PathVariable String username) {
         String response = authService.revokeSessionsByUsername(username);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'session:read')")
     @PostMapping("findAll")
     public ResponseEntity<ResponseDto<PageableResponseDto<AuthorizationDto>>> findAllSessions(@RequestBody
                                                                                               PageableRequestDto
@@ -50,7 +50,7 @@ public class SessionController {
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'session:read')")
     @GetMapping("findByUsername/{username}")
     public ResponseEntity<ResponseDto<List<AuthorizationDto>>> findSessionsByUsername(@PathVariable String username) {
         List<AuthorizationDto> response = authService.findSessionsByUsername(username);
