@@ -18,8 +18,8 @@ public interface FilterSpecification<F extends BaseFilterDto, T> {
 
     default void addBaseFilters(List<Predicate> predicates, Root<T> root,
                                 CriteriaBuilder cb, BaseFilterDto filter) {
-        if (filter.getDeleted() != null) {
-            addBooleanFilter(predicates, root, cb, "isEnabled", filter.getDeleted());
+        if (filter.getIsEnabled() != null) {
+            addBooleanFilter(predicates, root, cb, "isEnabled", filter.getIsEnabled());
         }
     }
 

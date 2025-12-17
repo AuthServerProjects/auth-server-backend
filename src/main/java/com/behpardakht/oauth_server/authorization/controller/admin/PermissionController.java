@@ -1,16 +1,17 @@
 package com.behpardakht.oauth_server.authorization.controller.admin;
 
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.role.PermissionDto;
+import com.behpardakht.oauth_server.authorization.model.dto.role.PermissionFilterDto;
 import com.behpardakht.oauth_server.authorization.service.PermissionService;
 import com.behpardakht.oauth_server.authorization.util.Messages;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.ADMIN_PREFIX;
 
@@ -31,9 +32,11 @@ public class PermissionController {
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'permission:read')")
-    @GetMapping(path = "findAll")
-    public ResponseEntity<ResponseDto<List<PermissionDto>>> findAll() {
-        List<PermissionDto> response = permissionService.findAllDto();
+    @PostMapping(path = "findAll")
+    public ResponseEntity<ResponseDto<PageableResponseDto<PermissionDto>>> findAll(@RequestBody
+                                                                                   PageableRequestDto
+                                                                                           <PermissionFilterDto> request) {
+        PageableResponseDto<PermissionDto> response = permissionService.findAll(request);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 

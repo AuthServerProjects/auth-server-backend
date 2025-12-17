@@ -5,14 +5,19 @@ import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.AlreadyExistException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.role.PermissionDto;
+import com.behpardakht.oauth_server.authorization.model.dto.role.PermissionFilterDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Permission;
 import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.model.mapper.PermissionMapper;
 import com.behpardakht.oauth_server.authorization.repository.PermissionRepository;
 import com.behpardakht.oauth_server.authorization.repository.RoleRepository;
-import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
+import com.behpardakht.oauth_server.authorization.repository.filter.PermissionFilterSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,7 +29,7 @@ public class PermissionService {
     private final PermissionMapper permissionMapper;
     private final PermissionRepository permissionRepository;
     private final RoleRepository roleRepository;
-
+    private final PermissionFilterSpecification permissionFilterSpecification;
 
     @Auditable(action = AuditAction.PERMISSION_CREATED, details = "#permissionDto.name")
     public void save(PermissionDto permissionDto) {
@@ -39,10 +44,11 @@ public class PermissionService {
         return permissionRepository.existsByNameAndClientId(permissionName, clientId);
     }
 
-    public List<PermissionDto> findAllDto() {
-        Long clientId = SecurityUtils.getCurrentClientId();
-        List<Permission> permissions = permissionRepository.findAllByClientId(clientId);
-        return permissionMapper.toDtoList(permissions);
+    public PageableResponseDto<PermissionDto> findAll(PageableRequestDto<PermissionFilterDto> request) {
+        Specification<Permission> spec = permissionFilterSpecification.toSpecification(request.getFilters());
+        Page<Permission> page = permissionRepository.findAll(spec, request.toPageable());
+        List<PermissionDto> responses = permissionMapper.toDtoList(page.getContent());
+        return PageableResponseDto.build(responses, page);
     }
 
     public Permission findById(Long id) {
