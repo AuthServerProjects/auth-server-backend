@@ -15,6 +15,7 @@ import com.behpardakht.oauth_server.authorization.model.mapper.PermissionMapper;
 import com.behpardakht.oauth_server.authorization.repository.PermissionRepository;
 import com.behpardakht.oauth_server.authorization.repository.RoleRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.PermissionFilterSpecification;
+import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
@@ -43,6 +44,33 @@ public class PermissionService {
     public boolean existsByNameAndClientId(String permissionName, Long clientId) {
         return permissionRepository.existsByNameAndClientId(permissionName, clientId);
     }
+
+    @Auditable(action = AuditAction.PERMISSION_UPDATED, details = "#id")
+    public void update(Long id, PermissionDto request) {
+        Permission permission = findById(id);
+        validateOwnership(permission);
+
+        // Check if name changed and new name already exists
+        if (!permission.getName().equals(request.getName())
+                && existsByNameAndClientId(request.getName(), permission.getClient().getId())) {
+            throw new AlreadyExistException("Permission", request.getName());
+        }
+
+        permission.setName(request.getName());
+        permission.setDescription(request.getDescription());
+        insert(permission);
+    }
+
+    private void validateOwnership(Permission permission) {
+        if (SecurityUtils.isSuperAdmin()) {
+            return;
+        }
+        Long currentClientId = SecurityUtils.getCurrentClientId();
+        if (!permission.getClient().getId().equals(currentClientId)) {
+            throw new CustomException(ExceptionMessage.ACCESS_DENIED);
+        }
+    }
+
 
     public PageableResponseDto<PermissionDto> findAll(PageableRequestDto<PermissionFilterDto> request) {
         Specification<Permission> spec = permissionFilterSpecification.toSpecification(request.getFilters());

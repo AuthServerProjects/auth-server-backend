@@ -45,6 +45,7 @@ public enum Messages {
 
     // Role
     ROLE_ADDED_SUCCESS("role_added_success"),
+    ROLE_UPDATED_SUCCESS("role_updated_success"),
     ROLE_DELETED_SUCCESS("role_deleted_success"),
 
     PERMISSION_ADDED_TO_ROLE("permission_added_to_role"),
@@ -52,7 +53,9 @@ public enum Messages {
 
     // Permission
     PERMISSION_ADDED_SUCCESS("permission_added_success"),
+    PERMISSION_UPDATED_SUCCESS("permission_updated_success"),
     PERMISSION_DELETED_SUCCESS("permission_deleted_success");
+
 
     public final String message;
 }

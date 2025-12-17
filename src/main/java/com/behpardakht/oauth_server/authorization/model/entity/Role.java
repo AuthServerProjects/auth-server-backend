@@ -3,11 +3,11 @@ package com.behpardakht.oauth_server.authorization.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.springframework.security.core.GrantedAuthority;
 
 import java.util.HashSet;
 import java.util.Set;
 
+@Setter
 @Getter
 @Entity
 @SuperBuilder

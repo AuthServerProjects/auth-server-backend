@@ -31,6 +31,16 @@ public class RoleController {
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'role:update')")
+    @PutMapping(path = "update/{id}")
+    public ResponseEntity<ResponseDto<String>> update(@PathVariable Long id, @RequestBody RoleDto request) {
+        roleService.update(id, request);
+        String response = MessageResolver.getMessage(
+                Messages.ROLE_UPDATED_SUCCESS.getMessage(), new Object[]{request.getName()});
+        return ResponseEntity.ok(ResponseDto.success(response));
+    }
+
+
     @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'role:read')")
     @PostMapping(path = "findAll")
     public ResponseEntity<ResponseDto<PageableResponseDto<RoleDto>>> findAll(@RequestBody

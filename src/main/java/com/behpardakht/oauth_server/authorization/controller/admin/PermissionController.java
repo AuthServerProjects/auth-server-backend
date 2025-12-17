@@ -31,6 +31,17 @@ public class PermissionController {
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'permission:update')")
+    @PutMapping(path = "update/{id}")
+    public ResponseEntity<ResponseDto<String>> update(@PathVariable Long id,
+                                                      @RequestBody PermissionDto request) {
+        permissionService.update(id, request);
+        String response = MessageResolver.getMessage(
+                Messages.PERMISSION_UPDATED_SUCCESS.getMessage(), new Object[]{request.getName()});
+        return ResponseEntity.ok(ResponseDto.success(response));
+    }
+
+
     @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'permission:read')")
     @PostMapping(path = "findAll")
     public ResponseEntity<ResponseDto<PageableResponseDto<PermissionDto>>> findAll(@RequestBody

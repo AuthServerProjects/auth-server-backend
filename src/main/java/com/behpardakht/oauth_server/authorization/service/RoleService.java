@@ -16,6 +16,7 @@ import com.behpardakht.oauth_server.authorization.model.mapper.RoleMapper;
 import com.behpardakht.oauth_server.authorization.repository.RoleRepository;
 import com.behpardakht.oauth_server.authorization.repository.UserRoleAssignmentRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.RoleFilterSpecification;
+import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -48,6 +49,32 @@ public class RoleService {
     public boolean existsByNameAndClientId(String roleName, Long clientId) {
         return roleRepository.existsByNameAndClientId(roleName, clientId);
     }
+
+    @Auditable(action = AuditAction.ROLE_UPDATED, details = "#id")
+    public void update(Long id, RoleDto request) {
+        Role role = findById(id);
+        validateOwnership(role);
+
+        // Check if name changed and new name already exists
+        if (!role.getName().equals(request.getName())
+                && existsByNameAndClientId(request.getName(), role.getClient().getId())) {
+            throw new AlreadyExistException("Role", request.getName());
+        }
+
+        role.setName(request.getName());
+        insert(role);
+    }
+
+    private void validateOwnership(Role role) {
+        if (SecurityUtils.isSuperAdmin()) {
+            return;
+        }
+        Long currentClientId = SecurityUtils.getCurrentClientId();
+        if (!role.getClient().getId().equals(currentClientId)) {
+            throw new CustomException(ExceptionMessage.ACCESS_DENIED);
+        }
+    }
+
 
     public PageableResponseDto<RoleDto> findAll(PageableRequestDto<RoleFilterDto> request) {
         Specification<Role> spec = roleFilterSpecification.toSpecification(request.getFilters());
