@@ -1,9 +1,12 @@
 package com.behpardakht.oauth_server.authorization.controller.admin;
 
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.user.CreateUserAssignmentDto;
 import com.behpardakht.oauth_server.authorization.model.dto.user.UserClientAssignmentDto;
+import com.behpardakht.oauth_server.authorization.model.dto.user.UserClientAssignmentFilterDto;
 import com.behpardakht.oauth_server.authorization.service.user.UserClientAssignmentService;
 import com.behpardakht.oauth_server.authorization.util.Messages;
 import jakarta.validation.Valid;
@@ -12,8 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.ADMIN_PREFIX;
 
@@ -24,12 +25,14 @@ public class UserClientAssignmentController {
 
     private final UserClientAssignmentService userClientAssignmentService;
 
-    @GetMapping("findAll")
+    @PostMapping("findAll")
     @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'user_assignment:read')")
-    public ResponseEntity<ResponseDto<List<UserClientAssignmentDto>>> findAll() {
-        List<UserClientAssignmentDto> response = userClientAssignmentService.findAllByCurrentClient();
+    public ResponseEntity<ResponseDto<PageableResponseDto<UserClientAssignmentDto>>> findAll(
+            @RequestBody PageableRequestDto<UserClientAssignmentFilterDto> request) {
+        PageableResponseDto<UserClientAssignmentDto> response = userClientAssignmentService.findAll(request);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
+
 
     @GetMapping("find/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'user_assignment:read')")

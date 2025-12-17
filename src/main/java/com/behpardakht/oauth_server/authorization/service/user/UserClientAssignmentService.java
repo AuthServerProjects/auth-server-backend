@@ -3,8 +3,11 @@ package com.behpardakht.oauth_server.authorization.service.user;
 import com.behpardakht.oauth_server.authorization.aspect.Auditable;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.user.CreateUserAssignmentDto;
 import com.behpardakht.oauth_server.authorization.model.dto.user.UserClientAssignmentDto;
+import com.behpardakht.oauth_server.authorization.model.dto.user.UserClientAssignmentFilterDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Client;
 import com.behpardakht.oauth_server.authorization.model.entity.UserClientAssignment;
 import com.behpardakht.oauth_server.authorization.model.entity.Users;
@@ -13,12 +16,15 @@ import com.behpardakht.oauth_server.authorization.model.mapper.UserClientAssignm
 import com.behpardakht.oauth_server.authorization.model.mapper.UserMapper;
 import com.behpardakht.oauth_server.authorization.repository.UserClientAssignmentRepository;
 import com.behpardakht.oauth_server.authorization.repository.UserRepository;
+import com.behpardakht.oauth_server.authorization.repository.filter.UserClientAssignmentFilterSpecification;
 import com.behpardakht.oauth_server.authorization.service.ClientService;
 import com.behpardakht.oauth_server.authorization.sms.ISmsService;
 import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
 import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,14 +44,16 @@ public class UserClientAssignmentService {
 
     private final UserRepository userRepository;
     private final UserClientAssignmentRepository userClientAssignmentRepository;
+    private final UserClientAssignmentFilterSpecification userClientAssignmentFilterSpecification;
 
     private final ISmsService smsService;
     private final PasswordEncoder passwordEncoder;
 
-    public List<UserClientAssignmentDto> findAllByCurrentClient() {
-        Long clientId = SecurityUtils.getCurrentClientId();
-        List<UserClientAssignment> list = userClientAssignmentRepository.findByClient_Id(clientId);
-        return userClientAssignmentMapper.toDtoList(list);
+    public PageableResponseDto<UserClientAssignmentDto> findAll(PageableRequestDto<UserClientAssignmentFilterDto> request) {
+        Specification<UserClientAssignment> spec = userClientAssignmentFilterSpecification.toSpecification(request.getFilters());
+        Page<UserClientAssignment> page = userClientAssignmentRepository.findAll(spec, request.toPageable());
+        List<UserClientAssignmentDto> responses = userClientAssignmentMapper.toDtoList(page.getContent());
+        return PageableResponseDto.build(responses, page);
     }
 
     public UserClientAssignment findById(Long id) {
