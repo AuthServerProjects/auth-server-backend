@@ -105,7 +105,7 @@ public class ClientService {
             adminClientList = clientRepository.findAll();
         } else {
             String username = SecurityUtils.getCurrentUsername();
-            List<UserClientAssignment> userClientAssignmentList = userClientAssignmentRepository.findByUserUsername(username);
+            List<UserClientAssignment> userClientAssignmentList = userClientAssignmentRepository.findByUserUsernameWithRolesAndPermissions(username);
             adminClientList = userClientAssignmentList.stream().map(UserClientAssignment::getClient).toList();
         }
         return clientMapper.entityToDropdownDtoList(adminClientList);

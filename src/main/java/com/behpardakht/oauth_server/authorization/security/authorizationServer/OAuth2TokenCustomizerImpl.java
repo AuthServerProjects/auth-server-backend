@@ -71,7 +71,7 @@ public class OAuth2TokenCustomizerImpl implements OAuth2TokenCustomizer<JwtEncod
 
     private void customizeForAdmin(JwtEncodingContext context, String username, Set<String> roles, Set<String> authorities) {
         Set<Long> assignedClientIds = new HashSet<>();
-        List<UserClientAssignment> userClientAssignmentList = userClientAssignmentRepository.findByUserUsername(username);
+        List<UserClientAssignment> userClientAssignmentList = userClientAssignmentRepository.findByUserUsernameWithRolesAndPermissions(username);
         for (UserClientAssignment userClientAssignment : userClientAssignmentList) {
             Long assignedClientId = userClientAssignment.getClient().getId();
             assignedClientIds.add(assignedClientId);
