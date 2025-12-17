@@ -1,5 +1,6 @@
 package com.behpardakht.oauth_server.authorization.model.mapper;
 
+import com.behpardakht.oauth_server.authorization.model.dto.client.ClientDropdownDto;
 import com.behpardakht.oauth_server.authorization.model.dto.client.ClientDto;
 import com.behpardakht.oauth_server.authorization.model.dto.client.TokenAndClientSettingDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Client;
@@ -188,6 +189,22 @@ public class ClientMapper {
                 .deviceCodeTimeToLive(tokenSettings.getDeviceCodeTimeToLive().toMinutes())
                 .build();
     }
+
+    // -----------------------------------------------------------------------
+
+    public ClientDropdownDto entityToDropdownDto(Client entity) {
+        if (entity == null) return null;
+        return ClientDropdownDto.builder()
+                .clientId(entity.getId())
+                .clientName(entity.getClientId())
+                .build();
+    }
+
+    public List<ClientDropdownDto> entityToDropdownDtoList(List<Client> entities) {
+        return Optional.ofNullable(entities).orElse(Collections.emptyList())
+                .stream().filter(Objects::nonNull).map(this::entityToDropdownDto).toList();
+    }
+
 
     // -----------------------------------------------------------------------
 

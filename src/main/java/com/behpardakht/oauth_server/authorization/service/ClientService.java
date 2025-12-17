@@ -5,14 +5,18 @@ import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.Alr
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
+import com.behpardakht.oauth_server.authorization.model.dto.client.ClientDropdownDto;
 import com.behpardakht.oauth_server.authorization.model.dto.client.ClientDto;
 import com.behpardakht.oauth_server.authorization.model.dto.client.ClientFilterDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Client;
+import com.behpardakht.oauth_server.authorization.model.entity.UserClientAssignment;
 import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.model.mapper.ClientMapper;
 import com.behpardakht.oauth_server.authorization.repository.ClientRepository;
+import com.behpardakht.oauth_server.authorization.repository.UserClientAssignmentRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.ClientFilterSpecification;
 import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
+import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
@@ -34,6 +38,7 @@ public class ClientService {
     private final ClientRepository clientRepository;
     private final RegisteredClientRepository registeredClientRepository;
     private final ClientFilterSpecification clientFilterSpecification;
+    private final UserClientAssignmentRepository userClientAssignmentRepository;
 
     @Auditable(action = AuditAction.CLIENT_CREATED, clientId = "#clientDto.clientId")
     public String save(ClientDto clientDto) {
@@ -92,6 +97,18 @@ public class ClientService {
         Page<Client> page = clientRepository.findAll(spec, request.toPageable());
         List<ClientDto> responses = clientMapper.entityToDtoList(page.getContent());
         return PageableResponseDto.build(responses, page);
+    }
+
+    public List<ClientDropdownDto> getMyClients() {
+        List<Client> adminClientList;
+        if (SecurityUtils.isSuperAdmin()) {
+            adminClientList = clientRepository.findAll();
+        } else {
+            String username = SecurityUtils.getCurrentUsername();
+            List<UserClientAssignment> userClientAssignmentList = userClientAssignmentRepository.findByUserUsername(username);
+            adminClientList = userClientAssignmentList.stream().map(UserClientAssignment::getClient).toList();
+        }
+        return clientMapper.entityToDropdownDtoList(adminClientList);
     }
 
     @Auditable(action = AuditAction.SECRET_REGENERATED, clientId = "#clientId")

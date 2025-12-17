@@ -30,6 +30,14 @@ public class SecurityUtils {
                 .anyMatch(a -> a.getAuthority().equals("ROLE_SUPER_ADMIN"));
     }
 
+    public static String getCurrentUsername() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            return null;
+        }
+        return auth.getName();
+    }
+
     public static <T extends BaseFilterDto> void setClientContext(PageableRequestDto<T> request,
                                                                   Supplier<T> filterSupplier) {
         if (request.getFilters() == null) {

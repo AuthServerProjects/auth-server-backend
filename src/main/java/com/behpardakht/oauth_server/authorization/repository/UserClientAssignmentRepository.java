@@ -20,4 +20,6 @@ public interface UserClientAssignmentRepository extends JpaRepository<UserClient
     boolean existsByUserAndClient(Users user, Client client);
 
     boolean existsByUserUsernameAndClientId(String username, Long clientId);
+
+    List<UserClientAssignment> findByUserUsername(String username);
 }

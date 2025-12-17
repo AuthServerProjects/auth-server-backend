@@ -4,6 +4,7 @@ import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
+import com.behpardakht.oauth_server.authorization.model.dto.client.ClientDropdownDto;
 import com.behpardakht.oauth_server.authorization.model.dto.client.ClientDto;
 import com.behpardakht.oauth_server.authorization.model.dto.client.ClientFilterDto;
 import com.behpardakht.oauth_server.authorization.model.dto.client.TokenAndClientSettingDto;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.ADMIN_PREFIX;
@@ -59,6 +61,13 @@ public class ClientController {
     public ResponseEntity<ResponseDto<PageableResponseDto<ClientDto>>> findAll(@RequestBody
                                                                                PageableRequestDto<ClientFilterDto> request) {
         PageableResponseDto<ClientDto> response = clientService.findAll(request);
+        return ResponseEntity.ok(ResponseDto.success(response));
+    }
+
+    @GetMapping("my-clients")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ResponseDto<List<ClientDropdownDto>>> getMyClients() {
+        List<ClientDropdownDto> response = clientService.getMyClients();
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
