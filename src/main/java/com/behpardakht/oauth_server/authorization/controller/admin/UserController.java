@@ -83,11 +83,4 @@ public class UserController {
         String response = MessageResolver.getMessage(Messages.PASSWORD_SENT_SUCCESS.getMessage());
         return ResponseEntity.ok(ResponseDto.success(response));
     }
-
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @PatchMapping(path = "toggleStatus/{id}")
-    public ResponseEntity<ResponseDto<Boolean>> toggleStatus(@PathVariable Long id) {
-        Boolean response = adminUserService.toggleStatus(id);
-        return ResponseEntity.ok(ResponseDto.success(response));
-    }
 }

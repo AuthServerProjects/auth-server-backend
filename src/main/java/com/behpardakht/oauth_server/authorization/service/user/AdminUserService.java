@@ -122,14 +122,6 @@ public class AdminUserService {
         return userRepository.existsByPhoneNumber(phoneNumber);
     }
 
-    @Auditable(action = AuditAction.STATUS_CHANGED, details = "#id")
-    public Boolean toggleStatus(Long id) {
-        Users user = findById(id);
-        user.setIsEnabled(!Boolean.TRUE.equals(user.getIsEnabled()));
-        insert(user);
-        return user.getIsEnabled();
-    }
-
     public Users insert(Users user) {
         return userRepository.save(user);
     }
