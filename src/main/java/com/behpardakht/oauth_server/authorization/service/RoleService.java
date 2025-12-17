@@ -5,16 +5,21 @@ import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.AlreadyExistException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.role.RoleDto;
+import com.behpardakht.oauth_server.authorization.model.dto.role.RoleFilterDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Permission;
 import com.behpardakht.oauth_server.authorization.model.entity.Role;
 import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.model.mapper.RoleMapper;
-import com.behpardakht.oauth_server.authorization.repository.UserRoleAssignmentRepository;
 import com.behpardakht.oauth_server.authorization.repository.RoleRepository;
-import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
+import com.behpardakht.oauth_server.authorization.repository.UserRoleAssignmentRepository;
+import com.behpardakht.oauth_server.authorization.repository.filter.RoleFilterSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,6 +34,7 @@ public class RoleService {
     private final RoleMapper roleMapper;
     private final RoleRepository roleRepository;
     private final UserRoleAssignmentRepository userRoleAssignmentRepository;
+    private final RoleFilterSpecification roleFilterSpecification;
 
     @Auditable(action = AuditAction.ROLE_CREATED, details = "#roleDto.name")
     public void save(RoleDto roleDto) {
@@ -43,10 +49,11 @@ public class RoleService {
         return roleRepository.existsByNameAndClientId(roleName, clientId);
     }
 
-    public List<RoleDto> findAll() {
-        Long clientId = SecurityUtils.getCurrentClientId();
-        List<Role> roles = roleRepository.findAllByClientId(clientId);
-        return roleMapper.toDtoList(roles);
+    public PageableResponseDto<RoleDto> findAll(PageableRequestDto<RoleFilterDto> request) {
+        Specification<Role> spec = roleFilterSpecification.toSpecification(request.getFilters());
+        Page<Role> page = roleRepository.findAll(spec, request.toPageable());
+        List<RoleDto> responses = roleMapper.toDtoList(page.getContent());
+        return PageableResponseDto.build(responses, page);
     }
 
     public Optional<Role> findByNameAndClient(String name, Long clientId) {
