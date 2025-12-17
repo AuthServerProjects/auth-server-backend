@@ -1,8 +1,11 @@
 package com.behpardakht.oauth_server.authorization.controller.admin;
 
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.role.UserRoleAssignmentDto;
+import com.behpardakht.oauth_server.authorization.model.dto.role.UserRoleAssignmentFilterDto;
 import com.behpardakht.oauth_server.authorization.service.user.UserRoleAssignmentService;
 import com.behpardakht.oauth_server.authorization.util.Messages;
 import lombok.RequiredArgsConstructor;
@@ -55,11 +58,15 @@ public class UserRoleAssignmentController {
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'user_role:read')")
-    @GetMapping("findAll")
-    public ResponseEntity<ResponseDto<List<UserRoleAssignmentDto>>> findAll() {
-        List<UserRoleAssignmentDto> response = userRoleAssignmentService.findAll();
+    @PostMapping("findAll")
+    public ResponseEntity<ResponseDto<PageableResponseDto<UserRoleAssignmentDto>>> findAll(@RequestBody
+                                                                                           PageableRequestDto
+                                                                                                   <UserRoleAssignmentFilterDto>
+                                                                                                   request) {
+        PageableResponseDto<UserRoleAssignmentDto> response = userRoleAssignmentService.findAll(request);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
+
 
     @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'user_role:read')")
     @GetMapping("find/{id}")

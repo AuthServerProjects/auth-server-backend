@@ -2,6 +2,7 @@ package com.behpardakht.oauth_server.authorization.repository;
 
 import com.behpardakht.oauth_server.authorization.model.entity.UserRoleAssignment;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -10,7 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRoleAssignmentRepository extends JpaRepository<UserRoleAssignment, Long> {
+public interface UserRoleAssignmentRepository extends JpaRepository<UserRoleAssignment, Long>, JpaSpecificationExecutor<UserRoleAssignment> {
+
     boolean existsByUserClientAssignmentIdAndRoleId(Long userClientAssignmentId, Long roleId);
 
     boolean existsByRoleId(Long roleId);

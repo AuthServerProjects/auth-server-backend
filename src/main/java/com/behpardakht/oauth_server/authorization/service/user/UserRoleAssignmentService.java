@@ -15,6 +15,12 @@ import com.behpardakht.oauth_server.authorization.repository.UserClientAssignmen
 import com.behpardakht.oauth_server.authorization.repository.UserRoleAssignmentRepository;
 import com.behpardakht.oauth_server.authorization.service.RoleService;
 import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
+import com.behpardakht.oauth_server.authorization.model.dto.role.UserRoleAssignmentFilterDto;
+import com.behpardakht.oauth_server.authorization.repository.filter.UserRoleAssignmentFilterSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,6 +36,7 @@ public class UserRoleAssignmentService {
     private final RoleService roleService;
     private final UserRoleAssignmentRepository userRoleAssignmentRepository;
     private final UserClientAssignmentRepository userClientAssignmentRepository;
+    private final UserRoleAssignmentFilterSpecification userRoleAssignmentFilterSpecification;
 
     @Transactional
     @Auditable(action = AuditAction.ROLE_ASSIGNED, details = "#userClientAssignmentId + ':' + #roleId")
@@ -99,10 +106,11 @@ public class UserRoleAssignmentService {
         return userRoleAssignmentMapper.toDtoList(assignments);
     }
 
-    public List<UserRoleAssignmentDto> findAll() {
-        Long clientId = SecurityUtils.getCurrentClientId();
-        List<UserRoleAssignment> assignments = userRoleAssignmentRepository.findByClientId(clientId);
-        return userRoleAssignmentMapper.toDtoList(assignments);
+    public PageableResponseDto<UserRoleAssignmentDto> findAll(PageableRequestDto<UserRoleAssignmentFilterDto> request) {
+        Specification<UserRoleAssignment> spec = userRoleAssignmentFilterSpecification.toSpecification(request.getFilters());
+        Page<UserRoleAssignment> page = userRoleAssignmentRepository.findAll(spec, request.toPageable());
+        List<UserRoleAssignmentDto> responses = userRoleAssignmentMapper.toDtoList(page.getContent());
+        return PageableResponseDto.build(responses, page);
     }
 
     public UserRoleAssignmentDto findDtoById(Long id) {
