@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserRoleAssignmentDto {
+public class UserRoleDto {
     private Long id;
-    private Long userClientAssignmentId;
+    private Long userClientId;
     private Long userId;
     private String username;
     private Long roleId;

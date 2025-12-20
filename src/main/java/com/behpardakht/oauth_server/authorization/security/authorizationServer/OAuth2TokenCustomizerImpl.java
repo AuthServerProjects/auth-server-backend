@@ -3,12 +3,12 @@ package com.behpardakht.oauth_server.authorization.security.authorizationServer;
 import com.behpardakht.oauth_server.authorization.config.Properties;
 import com.behpardakht.oauth_server.authorization.model.entity.Client;
 import com.behpardakht.oauth_server.authorization.model.entity.Permission;
-import com.behpardakht.oauth_server.authorization.model.entity.UserClientAssignment;
-import com.behpardakht.oauth_server.authorization.model.entity.UserRoleAssignment;
-import com.behpardakht.oauth_server.authorization.repository.UserClientAssignmentRepository;
+import com.behpardakht.oauth_server.authorization.model.entity.UserClient;
+import com.behpardakht.oauth_server.authorization.model.entity.UserRole;
+import com.behpardakht.oauth_server.authorization.repository.UserClientRepository;
 import com.behpardakht.oauth_server.authorization.service.ClientService;
 import com.behpardakht.oauth_server.authorization.service.MetricsService;
-import com.behpardakht.oauth_server.authorization.service.user.UserRoleAssignmentService;
+import com.behpardakht.oauth_server.authorization.service.user.UserRoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
@@ -34,8 +34,8 @@ public class OAuth2TokenCustomizerImpl implements OAuth2TokenCustomizer<JwtEncod
     private final Properties properties;
     private final ClientService clientService;
     private final MetricsService metricsService;
-    private final UserRoleAssignmentService userRoleAssignmentService;
-    private final UserClientAssignmentRepository userClientAssignmentRepository;
+    private final UserRoleService userRoleService;
+    private final UserClientRepository userClientRepository;
 
     @Override
     public void customize(JwtEncodingContext context) {
@@ -72,15 +72,15 @@ public class OAuth2TokenCustomizerImpl implements OAuth2TokenCustomizer<JwtEncod
 
     private void customizeForAdmin(JwtEncodingContext context, String username, Set<String> roles, Set<String> authorities) {
         Set<Long> assignedClientIds = new HashSet<>();
-        List<UserClientAssignment> userClientAssignmentList = userClientAssignmentRepository.findByUserUsernameWithRolesAndPermissions(username);
-        for (UserClientAssignment userClientAssignment : userClientAssignmentList) {
-            Long assignedClientId = userClientAssignment.getClient().getId();
+        List<UserClient> userClientList = userClientRepository.findByUserUsernameWithRolesAndPermissions(username);
+        for (UserClient userClient : userClientList) {
+            Long assignedClientId = userClient.getClient().getId();
             assignedClientIds.add(assignedClientId);
 
-            for (UserRoleAssignment userRoleAssignment : userClientAssignment.getUserRoleAssignments()) {
-                roles.add(userRoleAssignment.getRole().getName());
+            for (UserRole userRole : userClient.getUserRoles()) {
+                roles.add(userRole.getRole().getName());
 
-                for (Permission permission : userRoleAssignment.getRole().getPermissions()) {
+                for (Permission permission : userRole.getRole().getPermissions()) {
                     authorities.add(assignedClientId + ":" + permission.getName());
                 }
             }
@@ -89,10 +89,10 @@ public class OAuth2TokenCustomizerImpl implements OAuth2TokenCustomizer<JwtEncod
     }
 
     private void customizeForUser(String username, Client client, Set<String> roles, Set<String> authorities) {
-        List<UserRoleAssignment> userRoleAssignmentList = userRoleAssignmentService.findByUsernameAndClientId(username, client.getId());
-        for (UserRoleAssignment userRoleAssignment : userRoleAssignmentList) {
-            roles.add(userRoleAssignment.getRole().getName());
-            for (Permission permission : userRoleAssignment.getRole().getPermissions()) {
+        List<UserRole> userRoleList = userRoleService.findByUsernameAndClientId(username, client.getId());
+        for (UserRole userRole : userRoleList) {
+            roles.add(userRole.getRole().getName());
+            for (Permission permission : userRole.getRole().getPermissions()) {
                 authorities.add(permission.getName());
             }
         }

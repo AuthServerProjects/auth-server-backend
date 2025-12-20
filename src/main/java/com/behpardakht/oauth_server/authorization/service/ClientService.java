@@ -9,11 +9,11 @@ import com.behpardakht.oauth_server.authorization.model.dto.client.ClientDropdow
 import com.behpardakht.oauth_server.authorization.model.dto.client.ClientDto;
 import com.behpardakht.oauth_server.authorization.model.dto.client.ClientFilterDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Client;
-import com.behpardakht.oauth_server.authorization.model.entity.UserClientAssignment;
+import com.behpardakht.oauth_server.authorization.model.entity.UserClient;
 import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.model.mapper.ClientMapper;
 import com.behpardakht.oauth_server.authorization.repository.ClientRepository;
-import com.behpardakht.oauth_server.authorization.repository.UserClientAssignmentRepository;
+import com.behpardakht.oauth_server.authorization.repository.UserClientRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.ClientFilterSpecification;
 import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
 import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
@@ -38,7 +38,7 @@ public class ClientService {
     private final ClientRepository clientRepository;
     private final RegisteredClientRepository registeredClientRepository;
     private final ClientFilterSpecification clientFilterSpecification;
-    private final UserClientAssignmentRepository userClientAssignmentRepository;
+    private final UserClientRepository userClientRepository;
 
     @Auditable(action = AuditAction.CLIENT_CREATED, clientId = "#clientDto.clientId")
     public String save(ClientDto clientDto) {
@@ -105,8 +105,8 @@ public class ClientService {
             adminClientList = clientRepository.findAll();
         } else {
             String username = SecurityUtils.getCurrentUsername();
-            List<UserClientAssignment> userClientAssignmentList = userClientAssignmentRepository.findByUserUsernameWithRolesAndPermissions(username);
-            adminClientList = userClientAssignmentList.stream().map(UserClientAssignment::getClient).toList();
+            List<UserClient> userClientList = userClientRepository.findByUserUsernameWithRolesAndPermissions(username);
+            adminClientList = userClientList.stream().map(UserClient::getClient).toList();
         }
         return clientMapper.entityToDropdownDtoList(adminClientList);
     }

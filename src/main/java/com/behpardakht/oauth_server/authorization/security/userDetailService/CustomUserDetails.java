@@ -1,6 +1,6 @@
 package com.behpardakht.oauth_server.authorization.security.userDetailService;
 
-import com.behpardakht.oauth_server.authorization.model.entity.UserClientAssignment;
+import com.behpardakht.oauth_server.authorization.model.entity.UserClient;
 import com.behpardakht.oauth_server.authorization.model.entity.Users;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class CustomUserDetails implements UserDetails {
 
 
     private final Users user;
-    private final UserClientAssignment assignment;
+    private final UserClient assignment;
 
     @Override
     public String getUsername() {
@@ -52,8 +52,8 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (assignment.getUserRoleAssignments() == null) return Collections.emptySet();
-        return assignment.getUserRoleAssignments().stream()
+        if (assignment.getUserRoles() == null) return Collections.emptySet();
+        return assignment.getUserRoles().stream()
                 .map(ra -> new SimpleGrantedAuthority("ROLE_" + ra.getRole().getName()))
                 .collect(Collectors.toSet());
     }

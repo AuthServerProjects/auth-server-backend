@@ -60,7 +60,7 @@ public enum ExceptionMessage {
     USERNAME_INCORRECT("username_incorrect"),
     PASSWORD_SAME_AS_OLD("password_same_as_old"),
     PASSWORD_INCORRECT("password_incorrect"),
-    USER_ASSIGNMENT_NOT_FOUND("user_assignment_not_found"),
+    USER_CLIENT_NOT_FOUND("user_client_not_found"),
     USER_ALREADY_ASSIGNED("user_already_assigned"),
     USER_BANNED("user_banned"),
 

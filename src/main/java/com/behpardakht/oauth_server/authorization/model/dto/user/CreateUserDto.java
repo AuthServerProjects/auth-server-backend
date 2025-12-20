@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateUserAssignmentDto {
+public class CreateUserDto {
 
     private Long userId;
     private UsersDto newUser;

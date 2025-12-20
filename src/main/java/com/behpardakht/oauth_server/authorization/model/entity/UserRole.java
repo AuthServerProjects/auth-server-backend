@@ -15,11 +15,11 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @Table(name = "user_role_assignment",
         uniqueConstraints = @UniqueConstraint(columnNames = {"user_client_assignment_id", "role_id"}))
-public class UserRoleAssignment extends BaseEntity {
+public class UserRole extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_client_assignment_id", nullable = false)
-    private UserClientAssignment userClientAssignment;
+    private UserClient userClient;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", nullable = false)

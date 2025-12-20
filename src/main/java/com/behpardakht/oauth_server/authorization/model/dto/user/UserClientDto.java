@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserClientAssignmentDto {
+public class UserClientDto {
     private Long id;
     private UsersDto user;
     private Long clientId;

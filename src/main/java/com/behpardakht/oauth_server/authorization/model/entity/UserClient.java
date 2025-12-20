@@ -13,7 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "user_client_assignment", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "client_id"}))
-public class UserClientAssignment extends BaseEntity {
+public class UserClient extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -35,6 +35,6 @@ public class UserClientAssignment extends BaseEntity {
     @Column(name = "is_credentials_non_expired")
     private Boolean isCredentialsNonExpired = true;
 
-    @OneToMany(mappedBy = "userClientAssignment", fetch = FetchType.LAZY)
-    private Set<UserRoleAssignment> userRoleAssignments;
+    @OneToMany(mappedBy = "userClient", fetch = FetchType.LAZY)
+    private Set<UserRole> userRoles;
 }

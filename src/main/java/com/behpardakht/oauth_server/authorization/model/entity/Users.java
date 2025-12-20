@@ -28,5 +28,5 @@ public class Users extends BaseEntity {
     private String phoneNumber;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private Set<UserClientAssignment> clientAssignments;
+    private Set<UserClient> clientAssignments;
 }

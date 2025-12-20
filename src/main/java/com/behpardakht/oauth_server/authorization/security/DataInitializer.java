@@ -2,13 +2,14 @@ package com.behpardakht.oauth_server.authorization.security;
 
 import com.behpardakht.oauth_server.authorization.config.Properties;
 import com.behpardakht.oauth_server.authorization.model.entity.*;
+import com.behpardakht.oauth_server.authorization.model.entity.UserRole;
 import com.behpardakht.oauth_server.authorization.model.enums.*;
 import com.behpardakht.oauth_server.authorization.service.ClientService;
 import com.behpardakht.oauth_server.authorization.service.PermissionService;
 import com.behpardakht.oauth_server.authorization.service.RoleService;
 import com.behpardakht.oauth_server.authorization.service.user.AdminUserService;
-import com.behpardakht.oauth_server.authorization.service.user.UserClientAssignmentService;
-import com.behpardakht.oauth_server.authorization.service.user.UserRoleAssignmentService;
+import com.behpardakht.oauth_server.authorization.service.user.UserClientService;
+import com.behpardakht.oauth_server.authorization.service.user.UserRoleService;
 import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,8 +33,8 @@ public class DataInitializer implements CommandLineRunner {
     private final AdminUserService adminUserService;
     private final RoleService roleService;
     private final PermissionService permissionService;
-    private final UserRoleAssignmentService userRoleAssignmentService;
-    private final UserClientAssignmentService userClientAssignmentService;
+    private final UserRoleService userRoleService;
+    private final UserClientService userClientService;
 
     @Override
     @Transactional
@@ -42,8 +43,8 @@ public class DataInitializer implements CommandLineRunner {
         initPermissions(adminPanelClient);
         Role superAdminRole = initSuperAdminRole(adminPanelClient);
         Users superAdminUser = initSuperAdminUser();
-        UserClientAssignment userClientAssignment = assignUserToClient(superAdminUser, adminPanelClient);
-        assignRoleToUser(superAdminRole, userClientAssignment);
+        UserClient userClient = assignUserToClient(superAdminUser, adminPanelClient);
+        assignRoleToUser(superAdminRole, userClient);
     }
 
     private Client initAdminPanelClient() {
@@ -94,7 +95,7 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private Role initSuperAdminRole(Client adminPanelClient) {
-        String roleName = UserRole.SUPER_ADMIN.getValue();
+        String roleName = com.behpardakht.oauth_server.authorization.model.enums.UserRole.SUPER_ADMIN.getValue();
         return roleService.findByNameAndClient(roleName, adminPanelClient.getId()).orElseGet(() -> {
 
             Role superAdminRole = Role.builder()
@@ -122,25 +123,25 @@ public class DataInitializer implements CommandLineRunner {
                 });
     }
 
-    private UserClientAssignment assignUserToClient(Users user, Client client) {
-        return userClientAssignmentService.findByUserAndClient(user, client)
+    private UserClient assignUserToClient(Users user, Client client) {
+        return userClientService.findByUserAndClient(user, client)
                 .orElseGet(() -> {
-                    UserClientAssignment userClientAssignment = userClientAssignmentService.create(user, client);
+                    UserClient userClient = userClientService.create(user, client);
                     log.info("User {} assigned to client {}", user.getUsername(), client.getClientId());
-                    return userClientAssignment;
+                    return userClient;
                 });
     }
 
-    private void assignRoleToUser(Role superAdminRole, UserClientAssignment userClientAssignment) {
-        if (!userRoleAssignmentService.existsByUserClientAssignmentIdAndRoleId(
-                userClientAssignment.getId(), superAdminRole.getId())) {
+    private void assignRoleToUser(Role superAdminRole, UserClient userClient) {
+        if (!userRoleService.existsByUserClientIdAndRoleId(
+                userClient.getId(), superAdminRole.getId())) {
 
-            UserRoleAssignment userRoleAssignment = UserRoleAssignment.builder()
-                    .userClientAssignment(userClientAssignment)
+            UserRole userRole = UserRole.builder()
+                    .userClient(userClient)
                     .role(superAdminRole)
                     .build();
-            userRoleAssignmentService.insert(userRoleAssignment);
-            log.info("{} role assigned to {}", superAdminRole.getName(), userClientAssignment.getUser().getUsername());
+            userRoleService.insert(userRole);
+            log.info("{} role assigned to {}", superAdminRole.getName(), userClient.getUser().getUsername());
         }
     }
 }

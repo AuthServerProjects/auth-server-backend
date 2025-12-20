@@ -6,9 +6,9 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class UserRoleAssignmentFilterDto extends BaseFilterDto {
+public class UserRoleFilterDto extends BaseFilterDto {
     private String username;
     private String roleName;
     private Long roleId;
-    private Long userClientAssignmentId;
+    private Long userClientId;
 }

@@ -5,18 +5,18 @@ import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
-import com.behpardakht.oauth_server.authorization.model.dto.user.CreateUserAssignmentDto;
-import com.behpardakht.oauth_server.authorization.model.dto.user.UserClientAssignmentDto;
-import com.behpardakht.oauth_server.authorization.model.dto.user.UserClientAssignmentFilterDto;
+import com.behpardakht.oauth_server.authorization.model.dto.user.CreateUserDto;
+import com.behpardakht.oauth_server.authorization.model.dto.user.UserClientDto;
+import com.behpardakht.oauth_server.authorization.model.dto.user.UserClientFilterDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Client;
-import com.behpardakht.oauth_server.authorization.model.entity.UserClientAssignment;
+import com.behpardakht.oauth_server.authorization.model.entity.UserClient;
 import com.behpardakht.oauth_server.authorization.model.entity.Users;
 import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
-import com.behpardakht.oauth_server.authorization.model.mapper.UserClientAssignmentMapper;
+import com.behpardakht.oauth_server.authorization.model.mapper.UserClientMapper;
 import com.behpardakht.oauth_server.authorization.model.mapper.UserMapper;
-import com.behpardakht.oauth_server.authorization.repository.UserClientAssignmentRepository;
+import com.behpardakht.oauth_server.authorization.repository.UserClientRepository;
 import com.behpardakht.oauth_server.authorization.repository.UserRepository;
-import com.behpardakht.oauth_server.authorization.repository.filter.UserClientAssignmentFilterSpecification;
+import com.behpardakht.oauth_server.authorization.repository.filter.UserClientFilterSpecification;
 import com.behpardakht.oauth_server.authorization.service.ClientService;
 import com.behpardakht.oauth_server.authorization.sms.ISmsService;
 import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
@@ -34,41 +34,41 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserClientAssignmentService {
+public class UserClientService {
 
     private final ClientService clientService;
     private final AdminUserService adminUserService;
 
     private final UserMapper userMapper;
-    private final UserClientAssignmentMapper userClientAssignmentMapper;
+    private final UserClientMapper userClientMapper;
 
     private final UserRepository userRepository;
-    private final UserClientAssignmentRepository userClientAssignmentRepository;
-    private final UserClientAssignmentFilterSpecification userClientAssignmentFilterSpecification;
+    private final UserClientRepository userClientRepository;
+    private final UserClientFilterSpecification userClientFilterSpecification;
 
     private final ISmsService smsService;
     private final PasswordEncoder passwordEncoder;
 
-    public PageableResponseDto<UserClientAssignmentDto> findAll(PageableRequestDto<UserClientAssignmentFilterDto> request) {
-        Specification<UserClientAssignment> spec = userClientAssignmentFilterSpecification.toSpecification(request.getFilters());
-        Page<UserClientAssignment> page = userClientAssignmentRepository.findAll(spec, request.toPageable());
-        List<UserClientAssignmentDto> responses = userClientAssignmentMapper.toDtoList(page.getContent());
+    public PageableResponseDto<UserClientDto> findAll(PageableRequestDto<UserClientFilterDto> request) {
+        Specification<UserClient> spec = userClientFilterSpecification.toSpecification(request.getFilters());
+        Page<UserClient> page = userClientRepository.findAll(spec, request.toPageable());
+        List<UserClientDto> responses = userClientMapper.toDtoList(page.getContent());
         return PageableResponseDto.build(responses, page);
     }
 
-    public UserClientAssignment findById(Long id) {
-        return userClientAssignmentRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ExceptionMessage.USER_ASSIGNMENT_NOT_FOUND));
+    public UserClient findById(Long id) {
+        return userClientRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ExceptionMessage.USER_CLIENT_NOT_FOUND));
     }
 
-    public UserClientAssignmentDto findDtoById(Long id) {
-        UserClientAssignment assignment = findById(id);
-        validateOwnership(assignment);
-        return userClientAssignmentMapper.toDto(assignment);
+    public UserClientDto findDtoById(Long id) {
+        UserClient userClient = findById(id);
+        validateOwnership(userClient);
+        return userClientMapper.toDto(userClient);
     }
 
     @Auditable(action = AuditAction.USER_ASSIGNED)
-    public UserClientAssignmentDto save(CreateUserAssignmentDto request) {
+    public UserClientDto save(CreateUserDto request) {
         Long clientId = SecurityUtils.getCurrentClientId();
         Client client = clientService.findById(clientId);
         Users user;
@@ -79,15 +79,15 @@ public class UserClientAssignmentService {
         } else {
             throw new CustomException(ExceptionMessage.INVALID_REQUEST);
         }
-        if (userClientAssignmentRepository.existsByUserAndClient(user, client)) {
+        if (userClientRepository.existsByUserAndClient(user, client)) {
             throw new CustomException(ExceptionMessage.USER_ALREADY_ASSIGNED);
         }
-        UserClientAssignment assignment = create(user, client);
-        return userClientAssignmentMapper.toDto(assignment);
+        UserClient userClient = create(user, client);
+        return userClientMapper.toDto(userClient);
     }
 
-    public UserClientAssignment create(Users user, Client client) {
-        UserClientAssignment assignment = UserClientAssignment.builder()
+    public UserClient create(Users user, Client client) {
+        UserClient userClient = UserClient.builder()
                 .user(user)
                 .client(client)
                 .isEnabled(true)
@@ -95,27 +95,27 @@ public class UserClientAssignmentService {
                 .isAccountNonLocked(true)
                 .isCredentialsNonExpired(true)
                 .build();
-        return userClientAssignmentRepository.save(assignment);
+        return userClientRepository.save(userClient);
     }
 
     @Auditable(action = AuditAction.USER_UPDATED, details = "#id")
-    public void update(Long id, UserClientAssignmentDto request) {
-        UserClientAssignment assignment = findById(id);
-        validateOwnership(assignment);
+    public void update(Long id, UserClientDto request) {
+        UserClient userClient = findById(id);
+        validateOwnership(userClient);
         if (request.getUser() != null) {
-            Users user = assignment.getUser();
+            Users user = userClient.getUser();
             userMapper.toEntity(user, request.getUser());
             userRepository.save(user);
         }
-        userClientAssignmentMapper.updateEntity(assignment, request);
-        userClientAssignmentRepository.save(assignment);
+        userClientMapper.updateEntity(userClient, request);
+        userClientRepository.save(userClient);
     }
 
     @Auditable(action = AuditAction.RESET_PASSWORD, details = "#id")
     public void resetPassword(Long id) {
-        UserClientAssignment assignment = findById(id);
-        validateOwnership(assignment);
-        Users user = assignment.getUser();
+        UserClient userClient = findById(id);
+        validateOwnership(userClient);
+        Users user = userClient.getUser();
         String newPassword = GeneralUtil.generateRandomPassword();
         smsService.send(user.getPhoneNumber(), newPassword);
         user.setPassword(passwordEncoder.encode(newPassword));
@@ -124,48 +124,48 @@ public class UserClientAssignmentService {
 
     @Auditable(action = AuditAction.USER_BANNED, details = "#id")
     public void banUser(Long id) {
-        UserClientAssignment assignment = findById(id);
-        validateOwnership(assignment);
-        assignment.setIsEnabled(false);
-        assignment.setIsAccountNonLocked(false);
-        userClientAssignmentRepository.save(assignment);
+        UserClient userClient = findById(id);
+        validateOwnership(userClient);
+        userClient.setIsEnabled(false);
+        userClient.setIsAccountNonLocked(false);
+        userClientRepository.save(userClient);
     }
 
     @Auditable(action = AuditAction.USER_UNBANNED, details = "#id")
     public void unbanUser(Long id) {
-        UserClientAssignment assignment = findById(id);
-        validateOwnership(assignment);
-        assignment.setIsEnabled(true);
-        assignment.setIsAccountNonLocked(true);
-        userClientAssignmentRepository.save(assignment);
+        UserClient userClient = findById(id);
+        validateOwnership(userClient);
+        userClient.setIsEnabled(true);
+        userClient.setIsAccountNonLocked(true);
+        userClientRepository.save(userClient);
     }
 
     @Auditable(action = AuditAction.USER_UNASSIGNED, details = "#id")
     public void delete(Long id) {
-        UserClientAssignment assignment = findById(id);
-        validateOwnership(assignment);
-        userClientAssignmentRepository.delete(assignment);
+        UserClient userClient = findById(id);
+        validateOwnership(userClient);
+        userClientRepository.delete(userClient);
     }
 
-    private void validateOwnership(UserClientAssignment assignment) {
+    private void validateOwnership(UserClient userClient) {
         if (SecurityUtils.isSuperAdmin()) {
             return;
         }
         Long currentClientId = SecurityUtils.getCurrentClientId();
-        if (!assignment.getClient().getId().equals(currentClientId)) {
+        if (!userClient.getClient().getId().equals(currentClientId)) {
             throw new CustomException(ExceptionMessage.ACCESS_DENIED);
         }
     }
 
-    public UserClientAssignment findOrCreateAssignment(Users user, String clientId) {
-        return userClientAssignmentRepository.findByUserAndClientClientId(user, clientId)
+    public UserClient findOrCreateUserClient(Users user, String clientId) {
+        return userClientRepository.findByUserAndClientClientId(user, clientId)
                 .orElseGet(() -> {
                     Client client = clientService.findByClientId(clientId);
                     return create(user, client);
                 });
     }
 
-    public Optional<UserClientAssignment> findByUserAndClient(Users user, Client client) {
-        return userClientAssignmentRepository.findByUserAndClient(user, client);
+    public Optional<UserClient> findByUserAndClient(Users user, Client client) {
+        return userClientRepository.findByUserAndClient(user, client);
     }
 }

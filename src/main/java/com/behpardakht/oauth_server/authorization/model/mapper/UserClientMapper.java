@@ -1,7 +1,7 @@
 package com.behpardakht.oauth_server.authorization.model.mapper;
 
-import com.behpardakht.oauth_server.authorization.model.dto.user.UserClientAssignmentDto;
-import com.behpardakht.oauth_server.authorization.model.entity.UserClientAssignment;
+import com.behpardakht.oauth_server.authorization.model.dto.user.UserClientDto;
+import com.behpardakht.oauth_server.authorization.model.entity.UserClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,13 +12,13 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class UserClientAssignmentMapper {
+public class UserClientMapper {
 
     private final UserMapper userMapper;
 
-    public UserClientAssignmentDto toDto(UserClientAssignment entity) {
+    public UserClientDto toDto(UserClient entity) {
         if (entity == null) return null;
-        return UserClientAssignmentDto.builder()
+        return UserClientDto.builder()
                 .id(entity.getId())
                 .user(userMapper.toDto(entity.getUser()))
                 .clientId(entity.getClient() != null ? entity.getClient().getId() : null)
@@ -31,11 +31,11 @@ public class UserClientAssignmentMapper {
                 .build();
     }
 
-    public List<UserClientAssignmentDto> toDtoList(List<UserClientAssignment> entities) {
+    public List<UserClientDto> toDtoList(List<UserClient> entities) {
         return Optional.ofNullable(entities).orElse(Collections.emptyList()).stream().map(this::toDto).toList();
     }
 
-    public void updateEntity(UserClientAssignment entity, UserClientAssignmentDto dto) {
+    public void updateEntity(UserClient entity, UserClientDto dto) {
         if (dto == null) return;
         if (dto.getIsEnabled() != null) {
             entity.setIsEnabled(dto.getIsEnabled());

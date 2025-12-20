@@ -7,7 +7,7 @@ import com.behpardakht.oauth_server.authorization.model.dto.dashboard.TopFailedI
 import com.behpardakht.oauth_server.authorization.model.entity.AuditLog;
 import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.repository.AuditLogRepository;
-import com.behpardakht.oauth_server.authorization.repository.UserClientAssignmentRepository;
+import com.behpardakht.oauth_server.authorization.repository.UserClientRepository;
 import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ import java.util.List;
 public class DashboardService {
 
     private final AuditLogRepository auditLogRepository;
-    private final UserClientAssignmentRepository userClientAssignmentRepository;
+    private final UserClientRepository userClientRepository;
 
     public DashboardStatsDto getStats() {
         Instant oneHourAgo = Instant.now().minus(1, ChronoUnit.HOURS);
@@ -83,7 +83,7 @@ public class DashboardService {
         Instant todayStart = Instant.now().truncatedTo(ChronoUnit.DAYS);
 
         return ClientDashboardStatsDto.builder()
-                .activeUsers(userClientAssignmentRepository.countByClientIdAndIsEnabledTrue(clientId))
+                .activeUsers(userClientRepository.countByClientIdAndIsEnabledTrue(clientId))
                 .loginsToday(countSuccessfulLoginsByClient(clientId, todayStart))
                 .failedLoginsToday(countFailedLoginsByClient(clientId, todayStart))
                 .sessionsRevokedToday(countSessionsRevokedByClient(clientId, todayStart))

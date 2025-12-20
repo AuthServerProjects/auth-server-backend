@@ -1,7 +1,7 @@
 package com.behpardakht.oauth_server.authorization.repository.filter;
 
-import com.behpardakht.oauth_server.authorization.model.dto.user.UserClientAssignmentFilterDto;
-import com.behpardakht.oauth_server.authorization.model.entity.UserClientAssignment;
+import com.behpardakht.oauth_server.authorization.model.dto.user.UserClientFilterDto;
+import com.behpardakht.oauth_server.authorization.model.entity.UserClient;
 import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
@@ -15,10 +15,10 @@ import java.util.List;
 
 @Component
 @AllArgsConstructor
-public class UserClientAssignmentFilterSpecification implements FilterSpecification<UserClientAssignmentFilterDto, UserClientAssignment> {
+public class UserClientFilterSpecification implements FilterSpecification<UserClientFilterDto, UserClient> {
 
     @Override
-    public Specification<UserClientAssignment> toSpecification(UserClientAssignmentFilterDto filter) {
+    public Specification<UserClient> toSpecification(UserClientFilterDto filter) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -28,15 +28,15 @@ public class UserClientAssignmentFilterSpecification implements FilterSpecificat
             }
             if (filter != null) {
                 addBaseFilters(predicates, root, cb, filter);
-                addUserClientAssignmentFilters(predicates, root, cb, filter);
+                addUserClientFilters(predicates, root, cb, filter);
             }
             return predicates.isEmpty() ?
                     cb.conjunction() : cb.and(predicates.toArray(new Predicate[0]));
         };
     }
 
-    private void addUserClientAssignmentFilters(List<Predicate> predicates, Root<UserClientAssignment> root,
-                                                CriteriaBuilder cb, UserClientAssignmentFilterDto filter) {
+    private void addUserClientFilters(List<Predicate> predicates, Root<UserClient> root,
+                                      CriteriaBuilder cb, UserClientFilterDto filter) {
         if (filter.getUsername() != null && !filter.getUsername().isBlank()) {
             predicates.add(cb.like(
                     cb.lower(root.get("user").get("username")),

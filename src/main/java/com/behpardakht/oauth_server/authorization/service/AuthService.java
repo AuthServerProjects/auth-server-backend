@@ -14,7 +14,7 @@ import com.behpardakht.oauth_server.authorization.model.entity.Client;
 import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.model.mapper.AuthorizationMapper;
 import com.behpardakht.oauth_server.authorization.repository.AuthorizationRepository;
-import com.behpardakht.oauth_server.authorization.repository.UserClientAssignmentRepository;
+import com.behpardakht.oauth_server.authorization.repository.UserClientRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.AuthorizationFilterSpecification;
 import com.behpardakht.oauth_server.authorization.util.Messages;
 import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
@@ -45,7 +45,7 @@ public class AuthService {
     private final AuthorizationRepository authorizationRepository;
     private final TokenBlacklistService tokenBlacklistService;
     private final ClientService clientService;
-    private final UserClientAssignmentRepository userClientAssignmentRepository;
+    private final UserClientRepository userClientRepository;
 
     @Auditable(action = AuditAction.LOGOUT)
     public void logout(String authHeader) {
@@ -210,7 +210,7 @@ public class AuthService {
             return;
         }
         Long clientId = SecurityUtils.getCurrentClientId();
-        boolean hasAccess = userClientAssignmentRepository.existsByUserUsernameAndClientId(username, clientId);
+        boolean hasAccess = userClientRepository.existsByUserUsernameAndClientId(username, clientId);
         if (!hasAccess) {
             throw new CustomException(ExceptionMessage.ACCESS_DENIED);
         }

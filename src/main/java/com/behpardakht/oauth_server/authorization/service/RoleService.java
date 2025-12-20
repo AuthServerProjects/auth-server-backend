@@ -14,7 +14,7 @@ import com.behpardakht.oauth_server.authorization.model.entity.Role;
 import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.model.mapper.RoleMapper;
 import com.behpardakht.oauth_server.authorization.repository.RoleRepository;
-import com.behpardakht.oauth_server.authorization.repository.UserRoleAssignmentRepository;
+import com.behpardakht.oauth_server.authorization.repository.UserRoleRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.RoleFilterSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class RoleService {
 
     private final RoleMapper roleMapper;
     private final RoleRepository roleRepository;
-    private final UserRoleAssignmentRepository userRoleAssignmentRepository;
+    private final UserRoleRepository userRoleRepository;
     private final RoleFilterSpecification roleFilterSpecification;
 
     @Auditable(action = AuditAction.ROLE_CREATED, details = "#roleDto.name")
@@ -104,7 +104,7 @@ public class RoleService {
     public void delete(Long id) {
         Role role = findById(id);
         validateOwnership(role.getClient().getId());
-        if (userRoleAssignmentRepository.existsByRoleId(role.getId())) {
+        if (userRoleRepository.existsByRoleId(role.getId())) {
             throw new CustomException(ExceptionMessage.ROLE_ASSIGNED_TO_USERS, role.getName());
         }
         roleRepository.delete(role);

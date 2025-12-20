@@ -4,10 +4,10 @@ import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
-import com.behpardakht.oauth_server.authorization.model.dto.user.CreateUserAssignmentDto;
-import com.behpardakht.oauth_server.authorization.model.dto.user.UserClientAssignmentDto;
-import com.behpardakht.oauth_server.authorization.model.dto.user.UserClientAssignmentFilterDto;
-import com.behpardakht.oauth_server.authorization.service.user.UserClientAssignmentService;
+import com.behpardakht.oauth_server.authorization.model.dto.user.CreateUserDto;
+import com.behpardakht.oauth_server.authorization.model.dto.user.UserClientDto;
+import com.behpardakht.oauth_server.authorization.model.dto.user.UserClientFilterDto;
+import com.behpardakht.oauth_server.authorization.service.user.UserClientService;
 import com.behpardakht.oauth_server.authorization.util.Messages;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,38 +21,38 @@ import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.ADMIN_
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(ADMIN_PREFIX + "/user-assignment/")
-public class UserClientAssignmentController {
+public class UserClientController {
 
-    private final UserClientAssignmentService userClientAssignmentService;
+    private final UserClientService userClientService;
 
     @PostMapping("findAll")
     @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'user_assignment:read')")
-    public ResponseEntity<ResponseDto<PageableResponseDto<UserClientAssignmentDto>>> findAll(
-            @RequestBody PageableRequestDto<UserClientAssignmentFilterDto> request) {
-        PageableResponseDto<UserClientAssignmentDto> response = userClientAssignmentService.findAll(request);
+    public ResponseEntity<ResponseDto<PageableResponseDto<UserClientDto>>> findAll(
+            @RequestBody PageableRequestDto<UserClientFilterDto> request) {
+        PageableResponseDto<UserClientDto> response = userClientService.findAll(request);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
 
     @GetMapping("find/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'user_assignment:read')")
-    public ResponseEntity<ResponseDto<UserClientAssignmentDto>> findById(@PathVariable Long id) {
-        UserClientAssignmentDto response = userClientAssignmentService.findDtoById(id);
+    public ResponseEntity<ResponseDto<UserClientDto>> findById(@PathVariable Long id) {
+        UserClientDto response = userClientService.findDtoById(id);
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
     @PostMapping("save")
     @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'user_assignment:create')")
-    public ResponseEntity<ResponseDto<UserClientAssignmentDto>> save(@RequestBody @Valid CreateUserAssignmentDto request) {
-        UserClientAssignmentDto response = userClientAssignmentService.save(request);
+    public ResponseEntity<ResponseDto<UserClientDto>> save(@RequestBody @Valid CreateUserDto request) {
+        UserClientDto response = userClientService.save(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ResponseDto.success(response));
     }
 
     @PutMapping("update/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'user_assignment:update')")
     public ResponseEntity<ResponseDto<String>> update(@PathVariable Long id,
-                                                      @RequestBody @Valid UserClientAssignmentDto request) {
-        userClientAssignmentService.update(id, request);
+                                                      @RequestBody @Valid UserClientDto request) {
+        userClientService.update(id, request);
         String response = MessageResolver.getMessage(
                 Messages.USER_UPDATED_SUCCESS.getMessage(), new Object[]{id});
         return ResponseEntity.ok(ResponseDto.success(response));
@@ -61,7 +61,7 @@ public class UserClientAssignmentController {
     @PostMapping("resetPassword/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'user_assignment:reset_password')")
     public ResponseEntity<ResponseDto<String>> resetPassword(@PathVariable Long id) {
-        userClientAssignmentService.resetPassword(id);
+        userClientService.resetPassword(id);
         String response = MessageResolver.getMessage(
                 Messages.PASSWORD_SENT_SUCCESS.getMessage(), new Object[]{id});
         return ResponseEntity.ok(ResponseDto.success(response));
@@ -70,7 +70,7 @@ public class UserClientAssignmentController {
     @PatchMapping("ban/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'user_assignment:ban')")
     public ResponseEntity<ResponseDto<String>> banUser(@PathVariable Long id) {
-        userClientAssignmentService.banUser(id);
+        userClientService.banUser(id);
         String response = MessageResolver.getMessage(
                 Messages.USER_BANNED_SUCCESS.getMessage(), new Object[]{id});
         return ResponseEntity.ok(ResponseDto.success(response));
@@ -79,7 +79,7 @@ public class UserClientAssignmentController {
     @PatchMapping("unban/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'user_assignment:unban')")
     public ResponseEntity<ResponseDto<String>> unbanUser(@PathVariable Long id) {
-        userClientAssignmentService.unbanUser(id);
+        userClientService.unbanUser(id);
         String response = MessageResolver.getMessage(
                 Messages.USER_UNBANNED_SUCCESS.getMessage(), new Object[]{id});
         return ResponseEntity.ok(ResponseDto.success(response));
@@ -88,9 +88,9 @@ public class UserClientAssignmentController {
     @DeleteMapping("delete/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'user_assignment:delete')")
     public ResponseEntity<ResponseDto<String>> delete(@PathVariable Long id) {
-        userClientAssignmentService.delete(id);
+        userClientService.delete(id);
         String response = MessageResolver.getMessage(
-                Messages.USER_ASSIGNMENT_DELETED_SUCCESS.getMessage(), new Object[]{id});
+                Messages.USER_CLIENT_DELETED_SUCCESS.getMessage(), new Object[]{id});
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 }

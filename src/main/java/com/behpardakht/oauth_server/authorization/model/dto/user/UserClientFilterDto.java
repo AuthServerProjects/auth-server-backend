@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class UserClientAssignmentFilterDto extends BaseFilterDto {
+public class UserClientFilterDto extends BaseFilterDto {
     private String username;
     private String phoneNumber;
     private Boolean isEnabled;
