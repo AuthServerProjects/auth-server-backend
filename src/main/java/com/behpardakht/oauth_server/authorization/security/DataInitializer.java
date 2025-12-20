@@ -3,7 +3,9 @@ package com.behpardakht.oauth_server.authorization.security;
 import com.behpardakht.oauth_server.authorization.config.Properties;
 import com.behpardakht.oauth_server.authorization.model.entity.*;
 import com.behpardakht.oauth_server.authorization.model.enums.*;
-import com.behpardakht.oauth_server.authorization.service.*;
+import com.behpardakht.oauth_server.authorization.service.ClientService;
+import com.behpardakht.oauth_server.authorization.service.PermissionService;
+import com.behpardakht.oauth_server.authorization.service.RoleService;
 import com.behpardakht.oauth_server.authorization.service.user.AdminUserService;
 import com.behpardakht.oauth_server.authorization.service.user.UserClientAssignmentService;
 import com.behpardakht.oauth_server.authorization.service.user.UserRoleAssignmentService;
@@ -128,16 +130,9 @@ public class DataInitializer implements CommandLineRunner {
     private UserClientAssignment assignUserToClient(Users user, Client client) {
         return userClientAssignmentService.findByUserAndClient(user, client)
                 .orElseGet(() -> {
-                    UserClientAssignment userClientAssignment = UserClientAssignment.builder()
-                            .user(user)
-                            .client(client)
-                            .isAccountNonExpired(true)
-                            .isAccountNonLocked(true)
-                            .isCredentialsNonExpired(true)
-                            .build();
-                    UserClientAssignment clientAssignment = userClientAssignmentService.insert(userClientAssignment);
+                    UserClientAssignment userClientAssignment = userClientAssignmentService.create(user, client);
                     log.info("User {} assigned to client {}", user.getUsername(), client.getClientId());
-                    return clientAssignment;
+                    return userClientAssignment;
                 });
     }
 

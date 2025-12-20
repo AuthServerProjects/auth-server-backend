@@ -86,7 +86,7 @@ public class UserClientAssignmentService {
         return userClientAssignmentMapper.toDto(assignment);
     }
 
-    private UserClientAssignment create(Users user, Client client) {
+    public UserClientAssignment create(Users user, Client client) {
         UserClientAssignment assignment = UserClientAssignment.builder()
                 .user(user)
                 .client(client)
