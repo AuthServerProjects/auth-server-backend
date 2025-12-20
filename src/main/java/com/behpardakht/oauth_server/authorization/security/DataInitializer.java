@@ -17,7 +17,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -98,11 +97,8 @@ public class DataInitializer implements CommandLineRunner {
         String roleName = UserRole.SUPER_ADMIN.getValue();
         return roleService.findByNameAndClient(roleName, adminPanelClient.getId()).orElseGet(() -> {
 
-            Set<Permission> allPermissions = new HashSet<>(permissionService.findAllByClientId(adminPanelClient.getId()));
-
             Role superAdminRole = Role.builder()
                     .name(roleName)
-                    .permissions(allPermissions)
                     .client(adminPanelClient)
                     .build();
             Role role = roleService.insert(superAdminRole);
