@@ -120,9 +120,13 @@ management:
 app:
 
   # Admin
-  super-admin:
-    username: superAdmin
-    phone-number: 989331782513
+  adminPanel:
+    clientId: AdminPanel
+    clientSecret: kh3nd9as8
+    redirectUri: http://localhost:9090/callback
+    super-admin:
+      username: superAdmin
+      phone-number: 989331782513
 
   # Vault Configuration
   vault:

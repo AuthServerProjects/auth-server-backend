@@ -21,8 +21,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.DEFAULT_CLIENT_ID;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -41,20 +39,21 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        Client defaultClient = initDefaultClient();
-        initPermissions(defaultClient);
-        Role superAdminRole = initSuperAdminRole(defaultClient);
+        Client adminPanelClient = initAdminPanelClient();
+        initPermissions(adminPanelClient);
+        Role superAdminRole = initSuperAdminRole(adminPanelClient);
         Users superAdminUser = initSuperAdminUser();
-        UserClientAssignment userClientAssignment = assignUserToClient(superAdminUser, defaultClient);
+        UserClientAssignment userClientAssignment = assignUserToClient(superAdminUser, adminPanelClient);
         assignRoleToUser(superAdminRole, userClientAssignment);
     }
 
-    private Client initDefaultClient() {
-        return clientService.findByClientIdOptional(DEFAULT_CLIENT_ID).orElseGet(() -> {
+    private Client initAdminPanelClient() {
+        String clientId = properties.getAdminPanel().getClientId();
+        return clientService.findByClientIdOptional(clientId).orElseGet(() -> {
 
-            Client systemClient = Client.builder()
-                    .clientId(DEFAULT_CLIENT_ID)
-                    .clientSecret(passwordEncoder.encode(GeneralUtil.generateRandomPassword()))
+            Client adminPanelClient = Client.builder()
+                    .clientId(clientId)
+                    .clientSecret(passwordEncoder.encode(properties.getAdminPanel().getClientSecret()))
                     .registeredClientId(UUID.randomUUID().toString())
                     .clientAuthenticationMethods(Set.of(
                             AuthenticationMethodTypes.NONE,
@@ -66,7 +65,7 @@ public class DataInitializer implements CommandLineRunner {
                             AuthorizationGrantTypes.REFRESH_TOKEN))
                     .scopes(Set.of(
                             ScopeTypes.OPENID))
-                    .redirectUris(Set.of("http://localhost:9090/callback"))
+                    .redirectUris(Set.of(properties.getAdminPanel().getRedirectUri()))
                     .setting(TokenAndClientSetting.builder()
                             .requireProofKey(true)
                             .authorizationCodeTimeToLive(5L)
@@ -75,19 +74,19 @@ public class DataInitializer implements CommandLineRunner {
                             .reuseRefreshTokens(false)
                             .build())
                     .build();
-            Client client = clientService.insert(systemClient);
+            Client client = clientService.insert(adminPanelClient);
             log.info("SYSTEM client created");
             return client;
         });
     }
 
-    private void initPermissions(Client defaultClient) {
+    private void initPermissions(Client adminPanelClient) {
         for (UserPermission userPermission : UserPermission.values()) {
-            if (!permissionService.existsByNameAndClient(userPermission.getValue(), defaultClient.getId())) {
+            if (!permissionService.existsByNameAndClient(userPermission.getValue(), adminPanelClient.getId())) {
                 Permission permission = Permission.builder()
                         .name(userPermission.getValue())
                         .description(userPermission.getDescription())
-                        .client(defaultClient)
+                        .client(adminPanelClient)
                         .build();
                 permissionService.insert(permission);
                 log.info("Created permission: {}", userPermission.getValue());
@@ -95,16 +94,16 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
-    private Role initSuperAdminRole(Client defaultClient) {
+    private Role initSuperAdminRole(Client adminPanelClient) {
         String roleName = UserRole.SUPER_ADMIN.getValue();
-        return roleService.findByNameAndClient(roleName, defaultClient.getId()).orElseGet(() -> {
+        return roleService.findByNameAndClient(roleName, adminPanelClient.getId()).orElseGet(() -> {
 
-            Set<Permission> allPermissions = new HashSet<>(permissionService.findAllByClientId(defaultClient.getId()));
+            Set<Permission> allPermissions = new HashSet<>(permissionService.findAllByClientId(adminPanelClient.getId()));
 
             Role superAdminRole = Role.builder()
                     .name(roleName)
                     .permissions(allPermissions)
-                    .client(defaultClient)
+                    .client(adminPanelClient)
                     .build();
             Role role = roleService.insert(superAdminRole);
             log.info("Created role: {} with all permissions", roleName);
@@ -113,11 +112,11 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private Users initSuperAdminUser() {
-        String phoneNumber = properties.getSuperAdmin().getPhoneNumber();
+        String phoneNumber = properties.getAdminPanel().getSuperAdmin().getPhoneNumber();
         return adminUserService.findByPhoneNumberOptional(phoneNumber)
                 .orElseGet(() -> {
                     Users superAdmin = Users.builder()
-                            .username(properties.getSuperAdmin().getUsername())
+                            .username(properties.getAdminPanel().getSuperAdmin().getUsername())
                             .password(passwordEncoder.encode(GeneralUtil.generateRandomPassword()))
                             .phoneNumber(phoneNumber)
                             .build();
