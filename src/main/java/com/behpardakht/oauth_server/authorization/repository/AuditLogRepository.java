@@ -24,4 +24,12 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Long>, JpaSp
     List<Object[]> findTopFailedIps(@Param("after") Instant after);
 
     List<AuditLog> findTop20ByOrderByCreatedAtDesc();
+
+    Long countByActionAndSuccessAndClientIdAndCreatedAtAfter(
+            AuditAction action, Boolean success, Long clientId, Instant after);
+
+    Long countByActionInAndClientIdAndCreatedAtAfter(
+            List<AuditAction> actions, Long clientId, Instant after);
+
+    List<AuditLog> findTop20ByClientIdOrderByCreatedAtDesc(Long clientId);
 }

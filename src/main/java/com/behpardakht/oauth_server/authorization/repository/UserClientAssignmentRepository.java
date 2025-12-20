@@ -32,4 +32,5 @@ public interface UserClientAssignmentRepository extends JpaRepository<UserClient
             "WHERE uca.user.username = :username")
     List<UserClientAssignment> findByUserUsernameWithRolesAndPermissions(@Param("username") String username);
 
+    Long countByClientIdAndIsEnabledTrue(Long clientId);
 }

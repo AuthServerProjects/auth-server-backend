@@ -1,7 +1,8 @@
 package com.behpardakht.oauth_server.authorization.controller.admin;
 
-import com.behpardakht.oauth_server.authorization.model.dto.dashboard.DashboardStatsDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
+import com.behpardakht.oauth_server.authorization.model.dto.dashboard.ClientDashboardStatsDto;
+import com.behpardakht.oauth_server.authorization.model.dto.dashboard.DashboardStatsDto;
 import com.behpardakht.oauth_server.authorization.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +20,17 @@ public class DashboardController {
 
     private final DashboardService dashboardService;
 
-    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'dashboard:view')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping("stats")
     public ResponseEntity<ResponseDto<DashboardStatsDto>> getStats() {
         DashboardStatsDto response = dashboardService.getStats();
+        return ResponseEntity.ok(ResponseDto.success(response));
+    }
+
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'dashboard:view')")
+    @GetMapping("client-stats")
+    public ResponseEntity<ResponseDto<ClientDashboardStatsDto>> getClientStats() {
+        ClientDashboardStatsDto response = dashboardService.getClientStats();
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 }
