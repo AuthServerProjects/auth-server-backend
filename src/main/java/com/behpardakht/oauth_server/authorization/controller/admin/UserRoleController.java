@@ -19,7 +19,7 @@ import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.ADMIN_
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = ADMIN_PREFIX + "/user-role-/")
+@RequestMapping(path = ADMIN_PREFIX + "/user-role/")
 public class UserRoleController {
 
     private final UserRoleService userRoleService;

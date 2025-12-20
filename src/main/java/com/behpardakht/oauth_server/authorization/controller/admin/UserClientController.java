@@ -20,7 +20,7 @@ import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.ADMIN_
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(ADMIN_PREFIX + "/user-assignment/")
+@RequestMapping(ADMIN_PREFIX + "/user-client/")
 public class UserClientController {
 
     private final UserClientService userClientService;
