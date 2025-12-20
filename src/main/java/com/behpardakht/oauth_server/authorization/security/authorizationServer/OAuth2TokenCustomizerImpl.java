@@ -1,5 +1,6 @@
 package com.behpardakht.oauth_server.authorization.security.authorizationServer;
 
+import com.behpardakht.oauth_server.authorization.config.Properties;
 import com.behpardakht.oauth_server.authorization.model.entity.Client;
 import com.behpardakht.oauth_server.authorization.model.entity.Permission;
 import com.behpardakht.oauth_server.authorization.model.entity.UserClientAssignment;
@@ -17,7 +18,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.DEFAULT_CLIENT_ID;
 
 @Component
 @RequiredArgsConstructor
@@ -31,6 +31,7 @@ public class OAuth2TokenCustomizerImpl implements OAuth2TokenCustomizer<JwtEncod
     private static final String AUTHORITIES_CLAIM = "authorities";
     private static final String ASSIGNED_CLIENT_IDS_CLAIM = "assignedClientIds";
 
+    private final Properties properties;
     private final ClientService clientService;
     private final MetricsService metricsService;
     private final UserRoleAssignmentService userRoleAssignmentService;
@@ -66,7 +67,7 @@ public class OAuth2TokenCustomizerImpl implements OAuth2TokenCustomizer<JwtEncod
     }
 
     private boolean isAdminPanel(String clientId) {
-        return DEFAULT_CLIENT_ID.equals(clientId);
+        return properties.getAdminPanel().getClientId().equals(clientId);
     }
 
     private void customizeForAdmin(JwtEncodingContext context, String username, Set<String> roles, Set<String> authorities) {
