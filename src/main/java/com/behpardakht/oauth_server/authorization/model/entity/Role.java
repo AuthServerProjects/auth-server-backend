@@ -14,7 +14,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "role", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "client_id"}))
-@EqualsAndHashCode(callSuper = true)
 public class Role extends BaseEntity {
 
     @Column(name = "name", nullable = false)

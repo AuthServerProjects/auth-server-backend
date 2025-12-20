@@ -4,7 +4,10 @@ import com.behpardakht.oauth_server.authorization.model.enums.AuthenticationMeth
 import com.behpardakht.oauth_server.authorization.model.enums.AuthorizationGrantTypes;
 import com.behpardakht.oauth_server.authorization.model.enums.ScopeTypes;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Set;
@@ -16,7 +19,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "client")
-@EqualsAndHashCode(callSuper = true)
 public class Client extends BaseEntity {
 
     @Column(name = "registered_client_id")

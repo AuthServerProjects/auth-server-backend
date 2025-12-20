@@ -1,7 +1,10 @@
 package com.behpardakht.oauth_server.authorization.model.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Set;
@@ -13,7 +16,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
-@EqualsAndHashCode(callSuper = true)
 public class Users extends BaseEntity {
 
     @Column(name = "username", unique = true, nullable = false)

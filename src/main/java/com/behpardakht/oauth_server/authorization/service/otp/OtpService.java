@@ -64,7 +64,7 @@ public class OtpService {
         OtpResponse otpResponse = sendOtp(phoneNumber, ipAddress);
         if (!otpResponse.isSuccess()) {
             log.warn("Failed to send OTP for phone: {}", maskPhoneNumber(phoneNumber));
-            throw new CustomException(ExceptionMessage.OTP_SEND_FAILED);
+            return otpResponse.getMessage();
         }
         otpStorageService.storePhoneNumber(state, phoneNumber);
         log.info("OTP sent successfully for phone: {}", maskPhoneNumber(phoneNumber));

@@ -12,7 +12,6 @@ import java.util.Set;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
 @Table(name = "user_client_assignment", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "client_id"}))
 public class UserClientAssignment extends BaseEntity {
 

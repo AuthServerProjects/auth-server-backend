@@ -1,7 +1,10 @@
 package com.behpardakht.oauth_server.authorization.model.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Getter
@@ -10,7 +13,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
 @Table(name = "user_role_assignment",
         uniqueConstraints = @UniqueConstraint(columnNames = {"user_client_assignment_id", "role_id"}))
 public class UserRoleAssignment extends BaseEntity {
