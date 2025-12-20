@@ -16,7 +16,6 @@ import com.behpardakht.oauth_server.authorization.model.mapper.RoleMapper;
 import com.behpardakht.oauth_server.authorization.repository.RoleRepository;
 import com.behpardakht.oauth_server.authorization.repository.UserRoleAssignmentRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.RoleFilterSpecification;
-import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +24,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
+import static com.behpardakht.oauth_server.authorization.util.SecurityUtils.validateOwnership;
 
 @Service
 @RequiredArgsConstructor
@@ -53,9 +54,7 @@ public class RoleService {
     @Auditable(action = AuditAction.ROLE_UPDATED, details = "#id")
     public void update(Long id, RoleDto request) {
         Role role = findById(id);
-        validateOwnership(role);
-
-        // Check if name changed and new name already exists
+        validateOwnership(role.getClient().getId());
         if (!role.getName().equals(request.getName())
                 && existsByNameAndClientId(request.getName(), role.getClient().getId())) {
             throw new AlreadyExistException("Role", request.getName());
@@ -63,16 +62,6 @@ public class RoleService {
 
         role.setName(request.getName());
         insert(role);
-    }
-
-    private void validateOwnership(Role role) {
-        if (SecurityUtils.isSuperAdmin()) {
-            return;
-        }
-        Long currentClientId = SecurityUtils.getCurrentClientId();
-        if (!role.getClient().getId().equals(currentClientId)) {
-            throw new CustomException(ExceptionMessage.ACCESS_DENIED);
-        }
     }
 
 
@@ -94,12 +83,14 @@ public class RoleService {
 
     public RoleDto findDtoById(Long id) {
         Role role = findById(id);
+        validateOwnership(role.getClient().getId());
         return roleMapper.toDto(role);
     }
 
     @Auditable(action = AuditAction.STATUS_CHANGED, details = "#id")
     public Boolean toggleStatus(Long id) {
         Role role = findById(id);
+        validateOwnership(role.getClient().getId());
         role.setIsEnabled(!Boolean.TRUE.equals(role.getIsEnabled()));
         insert(role);
         return role.getIsEnabled();
@@ -112,6 +103,7 @@ public class RoleService {
     @Auditable(action = AuditAction.ROLE_DELETED, details = "#id")
     public void delete(Long id) {
         Role role = findById(id);
+        validateOwnership(role.getClient().getId());
         if (userRoleAssignmentRepository.existsByRoleId(role.getId())) {
             throw new CustomException(ExceptionMessage.ROLE_ASSIGNED_TO_USERS, role.getName());
         }
@@ -122,6 +114,7 @@ public class RoleService {
     @Auditable(action = AuditAction.PERMISSION_ADDED_TO_ROLE, details = "#roleId + ':' + #permissionId")
     public void addPermission(Long roleId, Long permissionId) {
         Role role = findById(roleId);
+        validateOwnership(role.getClient().getId());
         Permission permission = permissionService.findById(permissionId);
         if (!role.getClient().getId().equals(permission.getClient().getId())) {
             throw new CustomException(ExceptionMessage.PERMISSION_CLIENT_MISMATCH);
@@ -137,6 +130,7 @@ public class RoleService {
     @Auditable(action = AuditAction.PERMISSION_REMOVED_FROM_ROLE, details = "#roleId + ':' + #permissionId")
     public void removePermission(Long roleId, Long permissionId) {
         Role role = findById(roleId);
+        validateOwnership(role.getClient().getId());
         Permission permission = permissionService.findById(permissionId);
         if (!role.getPermissions().contains(permission)) {
             throw new NotFoundException("Permission", "id", permissionId.toString());

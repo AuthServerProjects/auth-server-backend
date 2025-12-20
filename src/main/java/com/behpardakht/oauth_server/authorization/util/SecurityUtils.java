@@ -1,5 +1,7 @@
 package com.behpardakht.oauth_server.authorization.util;
 
+import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper;
 import com.behpardakht.oauth_server.authorization.model.dto.base.BaseFilterDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,6 +37,16 @@ public class SecurityUtils {
         }
         return auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_SUPER_ADMIN"));
+    }
+
+    public static void validateOwnership(Long clientId) {
+        if (SecurityUtils.isSuperAdmin()) {
+            return;
+        }
+        Long currentClientId = SecurityUtils.getCurrentClientId();
+        if (!clientId.equals(currentClientId)) {
+            throw new ExceptionWrapper.CustomException(ExceptionMessage.ACCESS_DENIED);
+        }
     }
 
     public static String getCurrentUsername() {

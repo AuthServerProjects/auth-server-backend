@@ -15,13 +15,14 @@ import com.behpardakht.oauth_server.authorization.model.mapper.PermissionMapper;
 import com.behpardakht.oauth_server.authorization.repository.PermissionRepository;
 import com.behpardakht.oauth_server.authorization.repository.RoleRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.PermissionFilterSpecification;
-import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.behpardakht.oauth_server.authorization.util.SecurityUtils.validateOwnership;
 
 @Service
 @RequiredArgsConstructor
@@ -48,9 +49,7 @@ public class PermissionService {
     @Auditable(action = AuditAction.PERMISSION_UPDATED, details = "#id")
     public void update(Long id, PermissionDto request) {
         Permission permission = findById(id);
-        validateOwnership(permission);
-
-        // Check if name changed and new name already exists
+        validateOwnership(permission.getClient().getId());
         if (!permission.getName().equals(request.getName())
                 && existsByNameAndClientId(request.getName(), permission.getClient().getId())) {
             throw new AlreadyExistException("Permission", request.getName());
@@ -59,16 +58,6 @@ public class PermissionService {
         permission.setName(request.getName());
         permission.setDescription(request.getDescription());
         insert(permission);
-    }
-
-    private void validateOwnership(Permission permission) {
-        if (SecurityUtils.isSuperAdmin()) {
-            return;
-        }
-        Long currentClientId = SecurityUtils.getCurrentClientId();
-        if (!permission.getClient().getId().equals(currentClientId)) {
-            throw new CustomException(ExceptionMessage.ACCESS_DENIED);
-        }
     }
 
 
@@ -86,12 +75,14 @@ public class PermissionService {
 
     public PermissionDto findDtoById(Long id) {
         Permission permission = findById(id);
+        validateOwnership(permission.getClient().getId());
         return permissionMapper.toDto(permission);
     }
 
     @Auditable(action = AuditAction.STATUS_CHANGED, details = "#id")
     public Boolean toggleStatus(Long id) {
         Permission permission = findById(id);
+        validateOwnership(permission.getClient().getId());
         permission.setIsEnabled(!Boolean.TRUE.equals(permission.getIsEnabled()));
         insert(permission);
         return permission.getIsEnabled();
@@ -104,6 +95,7 @@ public class PermissionService {
     @Auditable(action = AuditAction.PERMISSION_DELETED, details = "#id")
     public void delete(Long id) {
         Permission permission = findById(id);
+        validateOwnership(permission.getClient().getId());
         if (roleRepository.existsByPermissions_id(id)) {
             throw new CustomException(ExceptionMessage.PERMISSION_ASSIGNED_TO_ROLE, permission.getName());
         }
