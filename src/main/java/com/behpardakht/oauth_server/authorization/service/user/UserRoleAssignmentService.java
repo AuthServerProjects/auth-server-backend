@@ -5,7 +5,10 @@ import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.AlreadyExistException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.NotFoundException;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
+import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
 import com.behpardakht.oauth_server.authorization.model.dto.role.UserRoleAssignmentDto;
+import com.behpardakht.oauth_server.authorization.model.dto.role.UserRoleAssignmentFilterDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Role;
 import com.behpardakht.oauth_server.authorization.model.entity.UserClientAssignment;
 import com.behpardakht.oauth_server.authorization.model.entity.UserRoleAssignment;
@@ -13,20 +16,18 @@ import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.model.mapper.UserRoleAssignmentMapper;
 import com.behpardakht.oauth_server.authorization.repository.UserClientAssignmentRepository;
 import com.behpardakht.oauth_server.authorization.repository.UserRoleAssignmentRepository;
-import com.behpardakht.oauth_server.authorization.service.RoleService;
-import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
-import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
-import com.behpardakht.oauth_server.authorization.model.dto.base.PageableResponseDto;
-import com.behpardakht.oauth_server.authorization.model.dto.role.UserRoleAssignmentFilterDto;
 import com.behpardakht.oauth_server.authorization.repository.filter.UserRoleAssignmentFilterSpecification;
-import org.springframework.data.domain.Page;
-import org.springframework.data.jpa.domain.Specification;
+import com.behpardakht.oauth_server.authorization.service.RoleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static com.behpardakht.oauth_server.authorization.util.SecurityUtils.validateOwnership;
 
 @Slf4j
 @Service
@@ -46,6 +47,7 @@ public class UserRoleAssignmentService {
         UserClientAssignment userClientAssignment = userClientAssignmentRepository.findById(userClientAssignmentId)
                 .orElseThrow(() -> new NotFoundException("UserClientAssignment", "id", userClientAssignmentId.toString()));
         Role role = roleService.findById(roleId);
+        validateOwnership(userClientAssignment.getClient().getId());
         validateSameClient(userClientAssignment, role);
         UserRoleAssignment assignment = UserRoleAssignment.builder()
                 .userClientAssignment(userClientAssignment)
@@ -85,7 +87,7 @@ public class UserRoleAssignmentService {
                 .findByUserClientAssignmentIdAndRoleId(userClientAssignmentId, roleId)
                 .orElseThrow(() -> new NotFoundException(
                         "UserRoleAssignment", "userClientAssignmentId:roleId", userClientAssignmentId + ":" + roleId));
-
+        validateOwnership(assignment.getUserClientAssignment().getClient().getId());
         userRoleAssignmentRepository.delete(assignment);
         log.info("Role assignment removed for userClientAssignment {} role {}", userClientAssignmentId, roleId);
     }
@@ -127,6 +129,7 @@ public class UserRoleAssignmentService {
     @Auditable(action = AuditAction.ROLE_ASSIGNMENT_DELETED, details = "#id")
     public void delete(Long id) {
         UserRoleAssignment assignment = findById(id);
+        validateOwnership(assignment.getUserClientAssignment().getClient().getId());
         userRoleAssignmentRepository.delete(assignment);
         log.info("Role assignment {} removed", id);
     }
