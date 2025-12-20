@@ -1,9 +1,6 @@
 package com.behpardakht.oauth_server.authorization.controller;
 
-import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
-import com.behpardakht.oauth_server.authorization.util.Messages;
 import com.behpardakht.oauth_server.authorization.model.dto.base.ResponseDto;
-import com.behpardakht.oauth_server.authorization.model.dto.otp.InitOtpRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.SendOtpRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.VerifyOtpRequestDto;
 import com.behpardakht.oauth_server.authorization.model.dto.otp.VerifyOtpResponseDto;
@@ -26,13 +23,6 @@ import static com.behpardakht.oauth_server.authorization.util.GeneralUtil.getCli
 public class OtpController {
 
     private final OtpService otpService;
-
-    @PostMapping("initialize")
-    public ResponseEntity<ResponseDto<String>> initializeOtpSession(@RequestBody @Valid InitOtpRequestDto request) {
-        otpService.initializeOtpSession(request);
-        String response = MessageResolver.getMessage(Messages.OTP_SESSION_INITIALIZED_SUCCESS.getMessage());
-        return ResponseEntity.ok(ResponseDto.success(response));
-    }
 
     @PostMapping("send")
     public ResponseEntity<ResponseDto<String>> sendOtp(@RequestBody @Valid SendOtpRequestDto request,

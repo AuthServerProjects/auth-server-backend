@@ -4,7 +4,10 @@ import com.behpardakht.oauth_server.authorization.aspect.Auditable;
 import com.behpardakht.oauth_server.authorization.config.bundle.MessageResolver;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
 import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
-import com.behpardakht.oauth_server.authorization.model.dto.otp.*;
+import com.behpardakht.oauth_server.authorization.model.dto.otp.OtpResponse;
+import com.behpardakht.oauth_server.authorization.model.dto.otp.SendOtpRequestDto;
+import com.behpardakht.oauth_server.authorization.model.dto.otp.VerifyOtpRequestDto;
+import com.behpardakht.oauth_server.authorization.model.dto.otp.VerifyOtpResponseDto;
 import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.service.MetricsService;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService.SessionDto;
@@ -41,26 +44,15 @@ public class OtpService {
         }
     });
 
-    public void initializeOtpSession(InitOtpRequestDto request) {
-        String state = request.getState();
-        validateStateNotExists(state);
-        otpStorageService.storeOAuth2Parameters(request.getClientId(), state, request.getRedirectUri(),
-                request.getCodeChallenge(), request.getCodeChallengeMethod().getValue(), request.getScope());
-        log.info("OTP session initialized for client: {} with state: {}", request.getClientId(), state);
-    }
-
-    private void validateStateNotExists(String state) {
-        if (otpStorageService.stateExists(state)) {
-            log.warn("Duplicate state parameter detected: {}", state);
-            throw new CustomException(ExceptionMessage.INVALID_STATE);
-        }
-    }
-
     @Auditable(action = AuditAction.OTP_SENT, username = "#request.phoneNumber")
     public String sendOtp(SendOtpRequestDto request, String ipAddress) {
         String state = request.getState();
         String phoneNumber = request.getPhoneNumber();
-        validateStateExists(state);
+        validateStateNotExists(state);
+        otpStorageService.storeOAuth2Parameters(request.getClientId(), state, request.getRedirectUri(),
+                request.getCodeChallenge(), request.getCodeChallengeMethod().getValue(), request.getScope());
+        log.info("OTP session initialized for client: {} with state: {}", request.getClientId(), state);
+
         OtpResponse otpResponse = sendOtp(phoneNumber, ipAddress);
         if (!otpResponse.isSuccess()) {
             log.warn("Failed to send OTP for phone: {}", maskPhoneNumber(phoneNumber));
@@ -69,6 +61,13 @@ public class OtpService {
         otpStorageService.storePhoneNumber(state, phoneNumber);
         log.info("OTP sent successfully for phone: {}", maskPhoneNumber(phoneNumber));
         return otpResponse.getMessage();
+    }
+
+    private void validateStateNotExists(String state) {
+        if (otpStorageService.stateExists(state)) {
+            log.warn("Duplicate state parameter detected: {}", state);
+            throw new CustomException(ExceptionMessage.INVALID_STATE);
+        }
     }
 
     public OtpResponse sendOtp(String phoneNumber, String ipAddress) {
