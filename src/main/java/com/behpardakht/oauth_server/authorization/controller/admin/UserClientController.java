@@ -27,8 +27,9 @@ public class UserClientController {
 
     @PostMapping("findAll")
     @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'user_assignment:read')")
-    public ResponseEntity<ResponseDto<PageableResponseDto<UserClientDto>>> findAll(
-            @RequestBody PageableRequestDto<UserClientFilterDto> request) {
+    public ResponseEntity<ResponseDto<PageableResponseDto<UserClientDto>>> findAll(@RequestBody
+                                                                                   PageableRequestDto
+                                                                                           <UserClientFilterDto> request) {
         PageableResponseDto<UserClientDto> response = userClientService.findAll(request);
         return ResponseEntity.ok(ResponseDto.success(response));
     }

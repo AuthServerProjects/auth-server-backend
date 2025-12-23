@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
         @Index(name = "idx_audit_client", columnList = "client_id"),
         @Index(name = "idx_audit_created_at", columnList = "created_at")
 })
-public class AuditLog extends BaseEntity{
+public class AuditLog extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "action", nullable = false)

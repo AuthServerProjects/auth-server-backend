@@ -13,12 +13,12 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "user_role_assignment",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"user_client_assignment_id", "role_id"}))
+@Table(name = "user_role",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_client_id", "role_id"}))
 public class UserRole extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_client_assignment_id", nullable = false)
+    @JoinColumn(name = "user_client_id", nullable = false)
     private UserClient userClient;
 
     @ManyToOne(fetch = FetchType.LAZY)

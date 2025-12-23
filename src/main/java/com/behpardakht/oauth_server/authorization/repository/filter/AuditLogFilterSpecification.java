@@ -20,6 +20,7 @@ public class AuditLogFilterSpecification implements FilterSpecification<AuditLog
             List<Predicate> predicates = new ArrayList<>();
 
             if (filter != null) {
+                addBaseFilters(predicates, root, cb, filter);
                 addAuditFilters(predicates, root, cb, filter);
             }
             return predicates.isEmpty() ?
@@ -33,6 +34,6 @@ public class AuditLogFilterSpecification implements FilterSpecification<AuditLog
         addStringFilter(predicates, root, cb, "username", filter.getUsername());
         addBooleanFilter(predicates, root, cb, "success", filter.getSuccess());
         addInstantRangeFilter(predicates, root, cb, "createdAt", filter.getFromDate(), filter.getToDate());
-        addEntityIdFilter(predicates, root, cb, "client", filter.getClientId());
+        addEntityFilter(predicates, root, cb, "client", "id", filter.getClientId());
     }
 }

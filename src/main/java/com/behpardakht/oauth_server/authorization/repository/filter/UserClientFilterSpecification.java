@@ -2,7 +2,6 @@ package com.behpardakht.oauth_server.authorization.repository.filter;
 
 import com.behpardakht.oauth_server.authorization.model.dto.user.UserClientFilterDto;
 import com.behpardakht.oauth_server.authorization.model.entity.UserClient;
-import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
@@ -22,10 +21,6 @@ public class UserClientFilterSpecification implements FilterSpecification<UserCl
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            Long clientId = SecurityUtils.getCurrentClientId();
-            if (clientId != null) {
-                predicates.add(cb.equal(root.get("client").get("id"), clientId));
-            }
             if (filter != null) {
                 addBaseFilters(predicates, root, cb, filter);
                 addUserClientFilters(predicates, root, cb, filter);
@@ -52,5 +47,6 @@ public class UserClientFilterSpecification implements FilterSpecification<UserCl
         addBooleanFilter(predicates, root, cb, "isAccountNonLocked", filter.getIsAccountNonLocked());
         addBooleanFilter(predicates, root, cb, "isAccountNonExpired", filter.getIsAccountNonExpired());
         addBooleanFilter(predicates, root, cb, "isCredentialsNonExpired", filter.getIsCredentialsNonExpired());
+        addEntityFilter(predicates, root, cb, "client", "id", filter.getClientId());
     }
 }

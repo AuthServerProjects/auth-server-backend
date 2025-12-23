@@ -36,23 +36,11 @@ public class UserRoleFilterSpecification implements FilterSpecification<UserRole
 
     private void addUserRoleFilters(List<Predicate> predicates, Root<UserRole> root,
                                     CriteriaBuilder cb, UserRoleFilterDto filter) {
-        if (filter.getUsername() != null && !filter.getUsername().isBlank()) {
-            predicates.add(cb.like(
-                    cb.lower(root.get("userClient").get("user").get("username")),
-                    "%" + filter.getUsername().toLowerCase().trim() + "%"
-            ));
-        }
-        if (filter.getRoleName() != null && !filter.getRoleName().isBlank()) {
-            predicates.add(cb.like(
-                    cb.lower(root.get("role").get("name")),
-                    "%" + filter.getRoleName().toLowerCase().trim() + "%"
-            ));
-        }
-        if (filter.getRoleId() != null) {
-            predicates.add(cb.equal(root.get("role").get("id"), filter.getRoleId()));
-        }
-        if (filter.getUserClientId() != null) {
-            predicates.add(cb.equal(root.get("userClient").get("id"), filter.getUserClientId()));
-        }
+        addEntityFilter(predicates, root, cb, "role", "id", filter.getRoleId());
+        addEntityFilter(predicates, root, cb, "role", "name", filter.getRoleName());
+        addJoinFilter(predicates, root, cb, "role", "user", "username", filter.getUsername());
+        addEntityFilter(predicates, root, cb, "userClient", "id", filter.getUserClientId());
+        addJoinFilter(predicates, root, cb, "userClient", "client", "id", filter.getClientId());
+        addJoinFilter(predicates, root, cb, "userClient", "user", "username", filter.getUsername());
     }
 }

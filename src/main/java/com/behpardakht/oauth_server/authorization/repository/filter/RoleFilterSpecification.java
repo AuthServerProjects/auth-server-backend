@@ -2,7 +2,6 @@ package com.behpardakht.oauth_server.authorization.repository.filter;
 
 import com.behpardakht.oauth_server.authorization.model.dto.role.RoleFilterDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Role;
-import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
@@ -22,11 +21,6 @@ public class RoleFilterSpecification implements FilterSpecification<RoleFilterDt
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            Long clientId = SecurityUtils.getCurrentClientId();
-            if (clientId != null) {
-                predicates.add(cb.equal(root.get("client").get("id"), clientId));
-            }
-
             if (filter != null) {
                 addBaseFilters(predicates, root, cb, filter);
                 addRoleFilters(predicates, root, cb, filter);
@@ -40,5 +34,6 @@ public class RoleFilterSpecification implements FilterSpecification<RoleFilterDt
     private void addRoleFilters(List<Predicate> predicates, Root<Role> root,
                                 CriteriaBuilder cb, RoleFilterDto filter) {
         addStringFilter(predicates, root, cb, "name", filter.getName());
+        addEntityFilter(predicates, root, cb, "client", "id", filter.getClientId());
     }
 }

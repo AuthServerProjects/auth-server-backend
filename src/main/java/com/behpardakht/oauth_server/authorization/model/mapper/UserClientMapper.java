@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +28,7 @@ public class UserClientMapper {
                 .isAccountNonExpired(entity.getIsAccountNonExpired())
                 .isAccountNonLocked(entity.getIsAccountNonLocked())
                 .isCredentialsNonExpired(entity.getIsCredentialsNonExpired())
-                .createdAt(LocalDateTime.from(entity.getCreatedAt()))
+                .createdAt(LocalDateTime.ofInstant(entity.getCreatedAt(), ZoneId.systemDefault()))
                 .build();
     }
 

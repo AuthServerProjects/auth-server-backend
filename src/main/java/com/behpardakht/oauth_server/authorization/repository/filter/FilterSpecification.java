@@ -23,12 +23,21 @@ public interface FilterSpecification<F extends BaseFilterDto, T> {
         }
     }
 
-    default void addClientFilter(List<Predicate> predicates, Root<T> root,
-                                 CriteriaBuilder cb, Long clientId, String joinField) {
-        if (clientId != null) {
-            Join<Object, Object> assignmentJoin = root.join(joinField);
-            predicates.add(cb.equal(assignmentJoin.get("client").get("id"), clientId));
-            predicates.add(cb.isTrue(assignmentJoin.get("isActive")));
+    default void addJoinFilter(List<Predicate> predicates, Root<T> root,
+                               CriteriaBuilder cb, String joinField,
+                               String entityName, String fieldName, Long value) {
+        if (value != null) {
+            Join<Object, Object> join = root.join(joinField);
+            predicates.add(cb.equal(join.get(entityName).get(fieldName), value));
+        }
+    }
+
+    default void addJoinFilter(List<Predicate> predicates, Root<T> root,
+                               CriteriaBuilder cb, String joinField,
+                               String entityName, String fieldName, String value) {
+        if (value != null) {
+            Join<Object, Object> join = root.join(joinField);
+            predicates.add(cb.equal(join.get(entityName).get(fieldName), value));
         }
     }
 
@@ -46,10 +55,17 @@ public interface FilterSpecification<F extends BaseFilterDto, T> {
         }
     }
 
-    default void addEntityIdFilter(List<Predicate> predicates, Root<T> root,
-                                   CriteriaBuilder cb, String fieldName, Long id) {
-        if (id != null) {
-            predicates.add(cb.equal(root.get(fieldName).get("id"), id));
+    default void addEntityFilter(List<Predicate> predicates, Root<T> root,
+                                 CriteriaBuilder cb, String className, String fieldName, Long value) {
+        if (value != null) {
+            predicates.add(cb.equal(root.get(className).get(fieldName), value));
+        }
+    }
+
+    default void addEntityFilter(List<Predicate> predicates, Root<T> root,
+                                 CriteriaBuilder cb, String className, String fieldName, String value) {
+        if (value != null) {
+            predicates.add(cb.equal(root.get(className).get(fieldName), value));
         }
     }
 
@@ -105,18 +121,18 @@ public interface FilterSpecification<F extends BaseFilterDto, T> {
     }
 
 
-    default void addEntityFilter(List<Predicate> predicates, Root<T> root,
-                                 CriteriaBuilder cb, String fieldName, Object dto) {
-        if (dto != null) {
-            try {
-                Method getIdMethod = dto.getClass().getMethod("getId");
-                Object id = getIdMethod.invoke(dto);
-                if (id != null) {
-                    predicates.add(cb.equal(root.get(fieldName).get("id"), id));
-                }
-            } catch (Exception e) {
-                System.err.println("Error accessing ID field for " + fieldName + ": " + e.getMessage());
-            }
-        }
-    }
+//    default void addEntityFilter(List<Predicate> predicates, Root<T> root,
+//                                 CriteriaBuilder cb, String fieldName, Object dto) {
+//        if (dto != null) {
+//            try {
+//                Method getIdMethod = dto.getClass().getMethod("getId");
+//                Object id = getIdMethod.invoke(dto);
+//                if (id != null) {
+//                    predicates.add(cb.equal(root.get(fieldName).get("id"), id));
+//                }
+//            } catch (Exception e) {
+//                System.err.println("Error accessing ID field for " + fieldName + ": " + e.getMessage());
+//            }
+//        }
+//    }
 }

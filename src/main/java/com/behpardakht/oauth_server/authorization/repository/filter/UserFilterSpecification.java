@@ -20,7 +20,6 @@ public class UserFilterSpecification implements FilterSpecification<UserFilterDt
             List<Predicate> predicates = new ArrayList<>();
             if (filter != null) {
                 addBaseFilters(predicates, root, cb, filter);
-                addClientFilter(predicates, root, cb, filter.getClientId(), "clientAssignments");
                 addUserFilters(predicates, root, cb, filter);
             }
             return predicates.isEmpty() ? cb.conjunction() : cb.and(predicates.toArray(new Predicate[0]));
@@ -31,5 +30,6 @@ public class UserFilterSpecification implements FilterSpecification<UserFilterDt
                                 CriteriaBuilder cb, UserFilterDto filter) {
         addStringFilter(predicates, root, cb, "username", filter.getUsername());
         addStringFilter(predicates, root, cb, "phoneNumber", filter.getPhoneNumber());
+        addJoinFilter(predicates, root, cb, "userClients", "client", "id", filter.getClientId());
     }
 }

@@ -36,6 +36,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserClientService {
 
+    private final SecurityUtils securityUtils;
+
     private final ClientService clientService;
     private final AdminUserService adminUserService;
 
@@ -50,6 +52,7 @@ public class UserClientService {
     private final PasswordEncoder passwordEncoder;
 
     public PageableResponseDto<UserClientDto> findAll(PageableRequestDto<UserClientFilterDto> request) {
+        SecurityUtils.setClientContext(request, UserClientFilterDto::new);
         Specification<UserClient> spec = userClientFilterSpecification.toSpecification(request.getFilters());
         Page<UserClient> page = userClientRepository.findAll(spec, request.toPageable());
         List<UserClientDto> responses = userClientMapper.toDtoList(page.getContent());
@@ -69,8 +72,7 @@ public class UserClientService {
 
     @Auditable(action = AuditAction.USER_ASSIGNED)
     public UserClientDto save(CreateUserDto request) {
-        Long clientId = SecurityUtils.getCurrentClientId();
-        Client client = clientService.findById(clientId);
+        Client client = securityUtils.getCurrentClient();
         Users user;
         if (request.getUserId() != null) {
             user = adminUserService.findById(request.getUserId());

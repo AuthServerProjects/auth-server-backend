@@ -2,7 +2,6 @@ package com.behpardakht.oauth_server.authorization.repository.filter;
 
 import com.behpardakht.oauth_server.authorization.model.dto.role.PermissionFilterDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Permission;
-import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
@@ -22,11 +21,6 @@ public class PermissionFilterSpecification implements FilterSpecification<Permis
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            Long clientId = SecurityUtils.getCurrentClientId();
-            if (clientId != null) {
-                predicates.add(cb.equal(root.get("client").get("id"), clientId));
-            }
-
             if (filter != null) {
                 addBaseFilters(predicates, root, cb, filter);
                 addPermissionFilters(predicates, root, cb, filter);
@@ -41,5 +35,6 @@ public class PermissionFilterSpecification implements FilterSpecification<Permis
                                       CriteriaBuilder cb, PermissionFilterDto filter) {
         addStringFilter(predicates, root, cb, "name", filter.getName());
         addStringFilter(predicates, root, cb, "description", filter.getDescription());
+        addEntityFilter(predicates, root, cb, "client","id", filter.getClientId());
     }
 }
