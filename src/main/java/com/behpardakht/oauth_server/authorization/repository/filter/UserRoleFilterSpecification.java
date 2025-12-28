@@ -2,7 +2,6 @@ package com.behpardakht.oauth_server.authorization.repository.filter;
 
 import com.behpardakht.oauth_server.authorization.model.dto.role.UserRoleFilterDto;
 import com.behpardakht.oauth_server.authorization.model.entity.UserRole;
-import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
@@ -21,10 +20,6 @@ public class UserRoleFilterSpecification implements FilterSpecification<UserRole
     public Specification<UserRole> toSpecification(UserRoleFilterDto filter) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            Long clientId = SecurityUtils.getCurrentClientId();
-            if (clientId != null) {
-                predicates.add(cb.equal(root.get("userClient").get("client").get("id"), clientId));
-            }
             if (filter != null) {
                 addBaseFilters(predicates, root, cb, filter);
                 addUserRoleFilters(predicates, root, cb, filter);

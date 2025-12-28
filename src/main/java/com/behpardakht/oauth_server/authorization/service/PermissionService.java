@@ -15,7 +15,7 @@ import com.behpardakht.oauth_server.authorization.model.mapper.PermissionMapper;
 import com.behpardakht.oauth_server.authorization.repository.PermissionRepository;
 import com.behpardakht.oauth_server.authorization.repository.RoleRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.PermissionFilterSpecification;
-import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
+import com.behpardakht.oauth_server.authorization.security.ClientContextHolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
@@ -63,7 +63,6 @@ public class PermissionService {
 
 
     public PageableResponseDto<PermissionDto> findAll(PageableRequestDto<PermissionFilterDto> request) {
-        SecurityUtils.setClientContext(request, PermissionFilterDto::new);
         Specification<Permission> spec = permissionFilterSpecification.toSpecification(request.getFilters());
         Page<Permission> page = permissionRepository.findAll(spec, request.toPageable());
         List<PermissionDto> responses = permissionMapper.toDtoList(page.getContent());

@@ -3,9 +3,9 @@ package com.behpardakht.oauth_server.authorization.aspect;
 import com.behpardakht.oauth_server.authorization.model.entity.AuditLog;
 import com.behpardakht.oauth_server.authorization.model.entity.Client;
 import com.behpardakht.oauth_server.authorization.repository.AuditLogRepository;
+import com.behpardakht.oauth_server.authorization.security.ClientContextHolder;
 import com.behpardakht.oauth_server.authorization.service.ClientService;
 import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
-import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -82,18 +82,23 @@ public class AuditAspect {
 
     private Client resolveClient(String clientIdExpression, EvaluationContext context) {
         try {
+            Long clientDbId = null;
+            String clientId = null;
             if (clientIdExpression != null && !clientIdExpression.isEmpty()) {
                 Object value = parser.parseExpression(clientIdExpression).getValue(context);
-                if (value instanceof Long clientDbId) {
-                    return clientService.findById(clientDbId);
-                } else if (value instanceof String clientId) {
-                    return clientService.findByClientId(clientId);
+                if (value instanceof Long val) {
+                    clientDbId = val;
+                } else if (value instanceof String val) {
+                    clientId = val;
                 }
             }
-            Long clientDbId = SecurityUtils.getCurrentClientId();
             if (clientDbId != null) {
-                return clientService.findById(clientDbId);
+                clientDbId = ClientContextHolder.getClientDbId();
             }
+            if (clientDbId != null) {
+                clientId = ClientContextHolder.getClientId();
+            }
+            return clientService.findClient(clientDbId, clientId);
         } catch (Exception e) {
             log.warn("Failed to resolve client: {}", e.getMessage());
         }

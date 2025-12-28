@@ -16,7 +16,7 @@ import com.behpardakht.oauth_server.authorization.model.mapper.RoleMapper;
 import com.behpardakht.oauth_server.authorization.repository.RoleRepository;
 import com.behpardakht.oauth_server.authorization.repository.UserRoleRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.RoleFilterSpecification;
-import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
+import com.behpardakht.oauth_server.authorization.security.ClientContextHolder;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -67,7 +67,6 @@ public class RoleService {
 
 
     public PageableResponseDto<RoleDto> findAll(PageableRequestDto<RoleFilterDto> request) {
-        SecurityUtils.setClientContext(request, RoleFilterDto::new);
         Specification<Role> spec = roleFilterSpecification.toSpecification(request.getFilters());
         Page<Role> page = roleRepository.findAll(spec, request.toPageable());
         List<RoleDto> responses = roleMapper.toDtoList(page.getContent());

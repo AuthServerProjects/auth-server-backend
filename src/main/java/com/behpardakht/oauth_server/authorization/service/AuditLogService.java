@@ -10,6 +10,7 @@ import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.model.mapper.AuditLogMapper;
 import com.behpardakht.oauth_server.authorization.repository.AuditLogRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.AuditLogFilterSpecification;
+import com.behpardakht.oauth_server.authorization.security.ClientContextHolder;
 import com.behpardakht.oauth_server.authorization.service.otp.OtpStorageService;
 import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,8 +19,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import static com.behpardakht.oauth_server.authorization.util.SecurityUtils.setClientContext;
 
 @Service
 @RequiredArgsConstructor
@@ -64,7 +63,6 @@ public class AuditLogService {
     }
 
     public PageableResponseDto<AuditLogDto> findAll(PageableRequestDto<AuditLogFilterDto> request) {
-        setClientContext(request, AuditLogFilterDto::new);
         Specification<AuditLog> spec = auditLogFilterSpecification.toSpecification(request.getFilters());
         Page<AuditLog> page = auditLogRepository.findAll(spec, request.toPageable());
         return PageableResponseDto.build(auditLogMapper.toDtoList(page.getContent()), page);

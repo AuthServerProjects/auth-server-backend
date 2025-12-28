@@ -17,6 +17,7 @@ import com.behpardakht.oauth_server.authorization.model.mapper.UserMapper;
 import com.behpardakht.oauth_server.authorization.repository.UserClientRepository;
 import com.behpardakht.oauth_server.authorization.repository.UserRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.UserClientFilterSpecification;
+import com.behpardakht.oauth_server.authorization.security.ClientContextHolder;
 import com.behpardakht.oauth_server.authorization.service.ClientService;
 import com.behpardakht.oauth_server.authorization.sms.ISmsService;
 import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
@@ -36,8 +37,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserClientService {
 
-    private final SecurityUtils securityUtils;
-
     private final ClientService clientService;
     private final AdminUserService adminUserService;
 
@@ -52,7 +51,6 @@ public class UserClientService {
     private final PasswordEncoder passwordEncoder;
 
     public PageableResponseDto<UserClientDto> findAll(PageableRequestDto<UserClientFilterDto> request) {
-        SecurityUtils.setClientContext(request, UserClientFilterDto::new);
         Specification<UserClient> spec = userClientFilterSpecification.toSpecification(request.getFilters());
         Page<UserClient> page = userClientRepository.findAll(spec, request.toPageable());
         List<UserClientDto> responses = userClientMapper.toDtoList(page.getContent());
@@ -72,7 +70,7 @@ public class UserClientService {
 
     @Auditable(action = AuditAction.USER_ASSIGNED)
     public UserClientDto save(CreateUserDto request) {
-        Client client = securityUtils.getCurrentClient();
+        Client client = getCurrentClient();
         Users user;
         if (request.getUserId() != null) {
             user = adminUserService.findById(request.getUserId());
@@ -86,6 +84,12 @@ public class UserClientService {
         }
         UserClient userClient = create(user, client);
         return userClientMapper.toDto(userClient);
+    }
+
+    private Client getCurrentClient() {
+        Long clientDbId = ClientContextHolder.getClientDbId();
+        String clientId = ClientContextHolder.getClientId();
+        return clientService.findClient(clientDbId, clientId);
     }
 
     public UserClient create(Users user, Client client) {
@@ -153,7 +157,7 @@ public class UserClientService {
         if (SecurityUtils.isSuperAdmin()) {
             return;
         }
-        Long currentClientId = SecurityUtils.getCurrentClientId();
+        Long currentClientId = ClientContextHolder.getClientDbId();
         if (!userClient.getClient().getId().equals(currentClientId)) {
             throw new CustomException(ExceptionMessage.ACCESS_DENIED);
         }

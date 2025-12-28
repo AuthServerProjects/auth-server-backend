@@ -8,7 +8,7 @@ import com.behpardakht.oauth_server.authorization.model.entity.AuditLog;
 import com.behpardakht.oauth_server.authorization.model.enums.AuditAction;
 import com.behpardakht.oauth_server.authorization.repository.AuditLogRepository;
 import com.behpardakht.oauth_server.authorization.repository.UserClientRepository;
-import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
+import com.behpardakht.oauth_server.authorization.security.ClientContextHolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -79,7 +79,7 @@ public class DashboardService {
     }
 
     public ClientDashboardStatsDto getClientStats() {
-        Long clientId = SecurityUtils.getCurrentClientId();
+        Long clientId = ClientContextHolder.getClientDbId();
         Instant todayStart = Instant.now().truncatedTo(ChronoUnit.DAYS);
 
         return ClientDashboardStatsDto.builder()

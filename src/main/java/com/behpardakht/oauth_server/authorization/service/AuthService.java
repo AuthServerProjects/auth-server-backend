@@ -16,6 +16,7 @@ import com.behpardakht.oauth_server.authorization.model.mapper.AuthorizationMapp
 import com.behpardakht.oauth_server.authorization.repository.AuthorizationRepository;
 import com.behpardakht.oauth_server.authorization.repository.UserClientRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.AuthorizationFilterSpecification;
+import com.behpardakht.oauth_server.authorization.security.ClientContextHolder;
 import com.behpardakht.oauth_server.authorization.util.Messages;
 import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -183,7 +184,7 @@ public class AuthService {
         if (request.getFilters() == null) {
             request.setFilters(new AuthorizationFilterDto());
         }
-        Client client = clientService.findById(SecurityUtils.getCurrentClientId());
+        Client client = clientService.findById(ClientContextHolder.getClientDbId());
         request.getFilters().setRegisteredClientId(client.getRegisteredClientId());
     }
 
@@ -191,7 +192,7 @@ public class AuthService {
         if (SecurityUtils.isSuperAdmin()) {
             return authorizationRepository.findByPrincipalName(username);
         }
-        Client client = clientService.findById(SecurityUtils.getCurrentClientId());
+        Client client = clientService.findById(ClientContextHolder.getClientDbId());
         return authorizationRepository.findByPrincipalNameAndRegisteredClientId(username, client.getRegisteredClientId());
     }
 
@@ -199,7 +200,7 @@ public class AuthService {
         if (SecurityUtils.isSuperAdmin()) {
             return;
         }
-        Client client = clientService.findById(SecurityUtils.getCurrentClientId());
+        Client client = clientService.findById(ClientContextHolder.getClientDbId());
         if (!authorization.getRegisteredClientId().equals(client.getRegisteredClientId())) {
             throw new CustomException(ExceptionMessage.ACCESS_DENIED);
         }
@@ -209,7 +210,7 @@ public class AuthService {
         if (SecurityUtils.isSuperAdmin()) {
             return;
         }
-        Long clientId = SecurityUtils.getCurrentClientId();
+        Long clientId = ClientContextHolder.getClientDbId();
         boolean hasAccess = userClientRepository.existsByUserUsernameAndClientId(username, clientId);
         if (!hasAccess) {
             throw new CustomException(ExceptionMessage.ACCESS_DENIED);

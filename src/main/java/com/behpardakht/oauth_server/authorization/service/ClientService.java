@@ -78,6 +78,16 @@ public class ClientService {
                 .orElseThrow(() -> new NotFoundException("Client", "id", id.toString()));
     }
 
+    public Client findClient(Long clientDbId, String clientId) {
+        if (clientDbId != null) {
+            return findById(clientDbId);
+        }
+        if (clientId != null) {
+            return findByClientId(clientId);
+        }
+        return null;
+    }
+
     public RegisteredClient findRegisteredClientByClientId(String clientId) {
         RegisteredClient registeredClient = registeredClientRepository.findByClientId(clientId);
         if (registeredClient == null) {
