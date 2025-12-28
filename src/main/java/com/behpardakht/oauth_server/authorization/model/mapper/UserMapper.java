@@ -3,6 +3,7 @@ package com.behpardakht.oauth_server.authorization.model.mapper;
 import com.behpardakht.oauth_server.authorization.model.dto.user.UsersDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Users;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -43,10 +44,10 @@ public class UserMapper {
 
     public void toEntity(Users entity, UsersDto dto) {
         if (dto == null) return;
-        if (dto.getUsername() != null) {
+        if (Strings.isNotBlank(dto.getUsername())) {
             entity.setUsername(dto.getUsername());
         }
-        if (dto.getPhoneNumber() != null) {
+        if (Strings.isNotBlank(dto.getPhoneNumber())) {
             entity.setPhoneNumber(dto.getPhoneNumber());
         }
         if (dto.getIsEnabled() != null) {

@@ -14,7 +14,6 @@ import com.behpardakht.oauth_server.authorization.repository.UserRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.UserFilterSpecification;
 import com.behpardakht.oauth_server.authorization.sms.ISmsService;
 import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
-import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -40,7 +39,6 @@ public class AdminUserService {
     private final PasswordEncoder passwordEncoder;
 
     public PageableResponseDto<UsersDto> findAll(PageableRequestDto<UserFilterDto> request) {
-        SecurityUtils.setClientContext(request, UserFilterDto::new);
         Specification<Users> spec = userFilterSpecification.toSpecification(request.getFilters());
         Page<Users> page = userRepository.findAll(spec, request.toPageable());
         List<UsersDto> responses = userMapper.toDtoList(page.getContent());
@@ -87,7 +85,7 @@ public class AdminUserService {
         if (existUserWithUsername(usersDto.getUsername())) {
             throw new AlreadyExistException("Username", usersDto.getUsername());
         }
-        if (!usersDto.getPassword().isBlank()) {
+        if (usersDto.getPassword().isBlank()) {
             usersDto.setPassword(passwordEncoder.encode(usersDto.getPassword()));
         }
         return insert(userMapper.toEntity(usersDto));
