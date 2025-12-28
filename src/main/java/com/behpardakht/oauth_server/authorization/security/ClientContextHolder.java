@@ -4,6 +4,10 @@ public class ClientContextHolder {
     private static final ThreadLocal<Long> clientDbIdHolder = new ThreadLocal<>();
     private static final ThreadLocal<String> clientIdHolder = new ThreadLocal<>();
 
+    private ClientContextHolder() {
+        // Utility class
+    }
+
     public static void setClientDbId(Long clientDbId) {
         clientDbIdHolder.set(clientDbId);
     }

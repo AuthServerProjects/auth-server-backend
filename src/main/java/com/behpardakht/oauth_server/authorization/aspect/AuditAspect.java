@@ -3,7 +3,6 @@ package com.behpardakht.oauth_server.authorization.aspect;
 import com.behpardakht.oauth_server.authorization.model.entity.AuditLog;
 import com.behpardakht.oauth_server.authorization.model.entity.Client;
 import com.behpardakht.oauth_server.authorization.repository.AuditLogRepository;
-import com.behpardakht.oauth_server.authorization.security.ClientContextHolder;
 import com.behpardakht.oauth_server.authorization.service.ClientService;
 import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -56,7 +55,7 @@ public class AuditAspect {
             String username = parseSpel(auditable.username(), context);
             String details = parseSpel(auditable.details(), context);
 
-            Client client = resolveClient(auditable.clientId(), context);
+            Client client = clientService.findClientFromContext();
 
             if (!success && errorDetails != null) {
                 details = details != null ? details + " | Error: " + errorDetails : errorDetails;
@@ -67,7 +66,7 @@ public class AuditAspect {
             AuditLog auditLog = AuditLog.builder()
                     .action(auditable.action())
                     .username(username)
-                    .client(client)  // Changed from clientId
+                    .client(client)
                     .ipAddress(GeneralUtil.getClientIpAddress(request))
                     .userAgent(request != null ? request.getHeader("User-Agent") : null)
                     .details(details)
@@ -80,25 +79,9 @@ public class AuditAspect {
         }
     }
 
-    private Client resolveClient(String clientIdExpression, EvaluationContext context) {
+    private Client resolveClient() {
         try {
-            Long clientDbId = null;
-            String clientId = null;
-            if (clientIdExpression != null && !clientIdExpression.isEmpty()) {
-                Object value = parser.parseExpression(clientIdExpression).getValue(context);
-                if (value instanceof Long val) {
-                    clientDbId = val;
-                } else if (value instanceof String val) {
-                    clientId = val;
-                }
-            }
-            if (clientDbId != null) {
-                clientDbId = ClientContextHolder.getClientDbId();
-            }
-            if (clientDbId != null) {
-                clientId = ClientContextHolder.getClientId();
-            }
-            return clientService.findClient(clientDbId, clientId);
+
         } catch (Exception e) {
             log.warn("Failed to resolve client: {}", e.getMessage());
         }

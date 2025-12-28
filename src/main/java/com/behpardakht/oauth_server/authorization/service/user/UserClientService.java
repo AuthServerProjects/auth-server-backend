@@ -70,7 +70,7 @@ public class UserClientService {
 
     @Auditable(action = AuditAction.USER_ASSIGNED)
     public UserClientDto save(CreateUserDto request) {
-        Client client = getCurrentClient();
+        Client client = clientService.findClientFromContext();
         Users user;
         if (request.getUserId() != null) {
             user = adminUserService.findById(request.getUserId());
@@ -84,12 +84,6 @@ public class UserClientService {
         }
         UserClient userClient = create(user, client);
         return userClientMapper.toDto(userClient);
-    }
-
-    private Client getCurrentClient() {
-        Long clientDbId = ClientContextHolder.getClientDbId();
-        String clientId = ClientContextHolder.getClientId();
-        return clientService.findClient(clientDbId, clientId);
     }
 
     public UserClient create(Users user, Client client) {

@@ -15,6 +15,7 @@ import com.behpardakht.oauth_server.authorization.model.mapper.ClientMapper;
 import com.behpardakht.oauth_server.authorization.repository.ClientRepository;
 import com.behpardakht.oauth_server.authorization.repository.UserClientRepository;
 import com.behpardakht.oauth_server.authorization.repository.filter.ClientFilterSpecification;
+import com.behpardakht.oauth_server.authorization.security.ClientContextHolder;
 import com.behpardakht.oauth_server.authorization.util.GeneralUtil;
 import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -78,14 +79,16 @@ public class ClientService {
                 .orElseThrow(() -> new NotFoundException("Client", "id", id.toString()));
     }
 
-    public Client findClient(Long clientDbId, String clientId) {
+    public Client findClientFromContext() {
+        Long clientDbId = ClientContextHolder.getClientDbId();
         if (clientDbId != null) {
             return findById(clientDbId);
         }
+        String clientId = ClientContextHolder.getClientId();
         if (clientId != null) {
             return findByClientId(clientId);
         }
-        return null;
+        throw new NotFoundException("Client", "ClientId", "");
     }
 
     public RegisteredClient findRegisteredClientByClientId(String clientId) {
