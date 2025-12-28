@@ -26,6 +26,6 @@ public class BundleConfig {
 
     @Bean
     public LocaleResolver localeResolver() {
-        return new FixedLocaleResolver(new Locale(properties.getConfig().getLanguage()));
+        return new FixedLocaleResolver(new Locale(properties.getLocalization().getLanguage()));
     }
 }

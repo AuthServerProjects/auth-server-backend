@@ -14,7 +14,7 @@ public class Properties {
     private final Storage storage = new Storage();
     private final Cleanup cleanup = new Cleanup();
     private final Cors cors = new Cors();
-    private final Config config = new Config();
+    private final Localization localization = new Localization();
 
     @Data
     public static class AdminPanel {
@@ -86,7 +86,7 @@ public class Properties {
     }
 
     @Data
-    public static class Config {
+    public static class Localization {
         private String language;
     }
 }

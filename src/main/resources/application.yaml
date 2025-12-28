@@ -166,5 +166,5 @@ app:
     max-age: 3600
 
   # Bundle Configuration
-  config:
+  localization:
     language: fa
