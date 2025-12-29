@@ -63,6 +63,8 @@ public enum ExceptionMessage {
     USER_CLIENT_NOT_FOUND("user_client_not_found"),
     USER_ALREADY_ASSIGNED("user_already_assigned"),
     USER_BANNED("user_banned"),
+    USER_ALREADY_BANNED("user_already_banned"),
+    USER_NOT_BANNED("user_not_banned"),
 
     // Role
     ROLE_ASSIGNED_TO_USERS("role_assigned_to_users"),

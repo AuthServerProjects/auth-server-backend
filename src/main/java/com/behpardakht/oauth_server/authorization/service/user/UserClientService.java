@@ -126,6 +126,9 @@ public class UserClientService {
     public void banUser(Long id) {
         UserClient userClient = findById(id);
         validateOwnership(userClient);
+        if (!userClient.getIsEnabled() && !userClient.getIsAccountNonLocked()) {
+            throw new CustomException(ExceptionMessage.USER_ALREADY_BANNED);
+        }
         userClient.setIsEnabled(false);
         userClient.setIsAccountNonLocked(false);
         userClientRepository.save(userClient);
@@ -135,6 +138,9 @@ public class UserClientService {
     public void unbanUser(Long id) {
         UserClient userClient = findById(id);
         validateOwnership(userClient);
+        if (userClient.getIsEnabled() && userClient.getIsAccountNonLocked()) {
+            throw new CustomException(ExceptionMessage.USER_NOT_BANNED);
+        }
         userClient.setIsEnabled(true);
         userClient.setIsAccountNonLocked(true);
         userClientRepository.save(userClient);
