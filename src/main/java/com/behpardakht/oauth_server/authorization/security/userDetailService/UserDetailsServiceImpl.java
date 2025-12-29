@@ -26,12 +26,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Users user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        Long clientId = ClientContextHolder.getClientId();
-        if (clientId == null) {
+        Long clientDbId = ClientContextHolder.getClientDbId();
+        if (clientDbId == null) {
             return new User(user.getUsername(), user.getPassword(),
                     true, true, true, true, Collections.emptyList());
         }
-        UserClient assignment = assignmentRepository.findByUserAndClient_Id(user, clientId)
+        UserClient assignment = assignmentRepository.findByUserAndClient_Id(user, clientDbId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not assigned to client"));
 
         return new CustomUserDetails(user, assignment);
