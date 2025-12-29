@@ -33,7 +33,7 @@ public class ClientContextAspect {
                 }
             }
 
-            if (request.getFilters() != null) {
+            if (request.getFilters() != null && request.getFilters().getClientId() == null) {
                 request.getFilters().setClientId(ClientContextHolder.getClientDbId());
             }
         } catch (Exception e) {
