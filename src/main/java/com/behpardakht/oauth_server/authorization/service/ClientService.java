@@ -88,7 +88,7 @@ public class ClientService {
         if (clientId != null) {
             return findByClientId(clientId);
         }
-        throw new NotFoundException("Client", "ClientId", "");
+        return null;
     }
 
     public RegisteredClient findRegisteredClientByClientId(String clientId) {
