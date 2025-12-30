@@ -9,8 +9,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.i18n.FixedLocaleResolver;
+import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
+import java.util.List;
 import java.util.Locale;
 
 @Configuration
@@ -28,13 +29,20 @@ public class BundleConfig {
 
     @Bean
     public LocaleResolver localeResolver() {
-        return new FixedLocaleResolver(new Locale(properties.getLocalization().getLanguage()));
+        AcceptHeaderLocaleResolver resolver = new AcceptHeaderLocaleResolver();
+        resolver.setDefaultLocale(Locale.forLanguageTag(properties.getLocalization().getLanguage()));
+        resolver.setSupportedLocales(List.of(
+                Locale.forLanguageTag("fa"),
+                Locale.forLanguageTag("en")
+        ));
+        return resolver;
     }
 
     @PostConstruct
     public void init() {
         // Set the default locale for the entire application
-        Locale locale = new Locale(properties.getLocalization().getLanguage());
+        // This is used for async methods, scheduled tasks, etc.
+        Locale locale = Locale.forLanguageTag(properties.getLocalization().getLanguage());
         Locale.setDefault(locale);
         LocaleContextHolder.setDefaultLocale(locale);
     }
