@@ -3,6 +3,7 @@ package com.behpardakht.oauth_server.authorization.model.mapper;
 import com.behpardakht.oauth_server.authorization.model.dto.role.RoleDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Role;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -57,7 +58,7 @@ public class RoleMapper {
 
     public void updateEntity(Role entity, RoleDto dto) {
         if (dto == null) return;
-        if (dto.getName() != null) {
+        if (Strings.isNotBlank(dto.getName())) {
             entity.setName(dto.getName());
         }
         if (dto.getIsEnabled() != null) {

@@ -4,6 +4,7 @@ import com.behpardakht.oauth_server.authorization.model.dto.role.PermissionDto;
 import com.behpardakht.oauth_server.authorization.model.entity.Permission;
 import com.behpardakht.oauth_server.authorization.repository.PermissionRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -66,10 +67,10 @@ public class PermissionMapper {
 
     public void updateEntity(Permission entity, PermissionDto dto) {
         if (dto == null) return;
-        if (dto.getName() != null) {
+        if (Strings.isNotBlank(dto.getName())) {
             entity.setName(dto.getName());
         }
-        if (dto.getDescription() != null) {
+        if (Strings.isNotBlank(dto.getDescription())) {
             entity.setDescription(dto.getDescription());
         }
         if (dto.getIsEnabled() != null) {
