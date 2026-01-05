@@ -64,8 +64,5 @@ public class RoleMapper {
         if (dto.getIsEnabled() != null) {
             entity.setIsEnabled(dto.getIsEnabled());
         }
-        if (dto.getPermissions() != null) {
-            entity.setPermissions(permissionMapper.loadEntitySet(dto.getPermissions()));
-        }
     }
 }
