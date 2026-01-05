@@ -25,6 +25,7 @@ public class UserRoleMapper {
                 .username(entity.getUserClient().getUser().getUsername())
                 .roleId(entity.getRole().getId())
                 .roleName(entity.getRole().getName())
+                .isEnabled(entity.getIsEnabled())
                 .build();
     }
 

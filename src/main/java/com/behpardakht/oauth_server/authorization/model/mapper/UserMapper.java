@@ -38,7 +38,7 @@ public class UserMapper {
                 .username(dto.getUsername())
                 .password(dto.getPassword())
                 .phoneNumber(dto.getPhoneNumber())
-                .isEnabled(dto.getIsEnabled())
+                .isEnabled(dto.getIsEnabled() != null ? dto.getIsEnabled() : true)
                 .build();
     }
 

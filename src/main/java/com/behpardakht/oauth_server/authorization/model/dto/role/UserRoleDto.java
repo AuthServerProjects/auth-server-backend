@@ -16,4 +16,5 @@ public class UserRoleDto {
     private String username;
     private Long roleId;
     private String roleName;
+    private Boolean isEnabled;
 }

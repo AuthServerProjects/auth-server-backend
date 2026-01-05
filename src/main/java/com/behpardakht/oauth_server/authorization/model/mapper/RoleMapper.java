@@ -21,6 +21,7 @@ public class RoleMapper {
                     .id(entity.getId())
                     .name(entity.getName())
                     .clientId(entity.getClient() != null ? entity.getClient().getId() : null)
+                    .isEnabled(entity.getIsEnabled())
                     .permissions(permissionMapper.toDtoSet(entity.getPermissions()))
                     .build();
         }
@@ -42,6 +43,7 @@ public class RoleMapper {
             return Role.builder()
                     .name(dto.getName())
                     .client(clientMapper.loadEntity(dto.getClientId()))
+                    .isEnabled(dto.getIsEnabled() != null ? dto.getIsEnabled() : true)
                     .permissions(permissionMapper.loadEntitySet(dto.getPermissions()))
                     .build();
         }

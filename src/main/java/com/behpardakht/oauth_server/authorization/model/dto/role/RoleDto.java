@@ -15,5 +15,6 @@ public class RoleDto {
     private Long id;
     private String name;
     private Long clientId;
+    private Boolean isEnabled;
     private Set<PermissionDto> permissions;
 }

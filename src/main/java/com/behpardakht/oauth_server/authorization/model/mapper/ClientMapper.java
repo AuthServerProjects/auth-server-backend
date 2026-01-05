@@ -127,12 +127,25 @@ public class ClientMapper {
     }
 
     public void dtoToEntity(Client entity, ClientDto dto) {
-        entity.setClientAuthenticationMethods(dto.getClientAuthenticationMethods());
-        entity.setAuthorizationGrantTypes(dto.getAuthorizationGrantTypes());
-        entity.setRedirectUris(dto.getRedirectUris());
-        entity.setScopes(dto.getScopes());
-        entity.setSetting(toSettingEntity(dto.getSetting()));
-        entity.setIsEnabled(dto.getIsEnabled());
+        if (dto == null) return;
+        if (dto.getClientAuthenticationMethods() != null) {
+            entity.setClientAuthenticationMethods(dto.getClientAuthenticationMethods());
+        }
+        if (dto.getAuthorizationGrantTypes() != null) {
+            entity.setAuthorizationGrantTypes(dto.getAuthorizationGrantTypes());
+        }
+        if (dto.getRedirectUris() != null) {
+            entity.setRedirectUris(dto.getRedirectUris());
+        }
+        if (dto.getScopes() != null) {
+            entity.setScopes(dto.getScopes());
+        }
+        if (dto.getSetting() != null) {
+            entity.setSetting(toSettingEntity(dto.getSetting()));
+        }
+        if (dto.getIsEnabled() != null) {
+            entity.setIsEnabled(dto.getIsEnabled());
+        }
     }
 
     // -----------------------------------------------------------------------

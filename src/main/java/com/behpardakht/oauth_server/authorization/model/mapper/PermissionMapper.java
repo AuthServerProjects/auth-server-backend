@@ -23,6 +23,7 @@ public class PermissionMapper {
                 .name(entity.getName())
                 .description(entity.getDescription())
                 .clientId(entity.getClient() != null ? entity.getClient().getId() : null)
+                .isEnabled(entity.getIsEnabled())
                 .build();
     }
 
@@ -33,6 +34,7 @@ public class PermissionMapper {
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .client(clientMapper.loadEntity(dto.getClientId()))
+                .isEnabled(dto.getIsEnabled() != null ? dto.getIsEnabled() : true)
                 .build();
     }
 

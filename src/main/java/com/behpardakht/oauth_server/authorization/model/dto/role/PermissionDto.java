@@ -14,4 +14,5 @@ public class PermissionDto {
     private String name;
     private String description;
     private Long clientId;
+    private Boolean isEnabled;
 }
