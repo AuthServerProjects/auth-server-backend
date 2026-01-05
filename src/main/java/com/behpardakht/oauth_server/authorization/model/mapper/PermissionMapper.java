@@ -57,7 +57,8 @@ public class PermissionMapper {
     }
 
     public Set<Permission> loadEntitySet(Set<PermissionDto> dtoSet) {
-        Set<Long> ids = dtoSet.stream().map(PermissionDto::getId).collect(Collectors.toSet());
-        return permissionRepository.findByIdIn(ids);
+        Set<Long> ids = Optional.ofNullable(dtoSet).orElse(Collections.emptySet())
+                .stream().filter(Objects::nonNull).map(PermissionDto::getId).collect(Collectors.toSet());
+        return ids.isEmpty() ? Collections.emptySet() : permissionRepository.findByIdIn(ids);
     }
 }

@@ -42,8 +42,7 @@ public class RoleMapper {
             return Role.builder()
                     .name(dto.getName())
                     .client(clientMapper.loadEntity(dto.getClientId()))
-                    .permissions(Optional.ofNullable(permissionMapper.loadEntitySet(dto.getPermissions()))
-                            .orElse(Collections.emptySet()))
+                    .permissions(permissionMapper.loadEntitySet(dto.getPermissions()))
                     .build();
         }
         return null;
