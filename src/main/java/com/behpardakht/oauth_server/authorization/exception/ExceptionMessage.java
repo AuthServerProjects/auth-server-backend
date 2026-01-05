@@ -25,6 +25,7 @@ public enum ExceptionMessage {
     TOKEN_INVALID_ISSUER("token_invalid_issuer"),
     TOKEN_INVALID_AUDIENCE("token_invalid_audience"),
     AUTHENTICATION_FAILED("authentication_failed"),
+    CLIENT_CONTEXT_REQUIRED("client_context_required"),
 
     // AuthorizationService
     SERIALIZATION_ERROR("serialization_error"),

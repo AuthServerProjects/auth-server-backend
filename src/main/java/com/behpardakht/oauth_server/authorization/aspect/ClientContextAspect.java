@@ -1,8 +1,11 @@
 package com.behpardakht.oauth_server.authorization.aspect;
 
+import com.behpardakht.oauth_server.authorization.exception.ExceptionMessage;
+import com.behpardakht.oauth_server.authorization.exception.ExceptionWrapper.CustomException;
 import com.behpardakht.oauth_server.authorization.model.dto.base.BaseFilterDto;
 import com.behpardakht.oauth_server.authorization.model.dto.base.PageableRequestDto;
 import com.behpardakht.oauth_server.authorization.security.ClientContextHolder;
+import com.behpardakht.oauth_server.authorization.util.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -34,8 +37,14 @@ public class ClientContextAspect {
             }
 
             if (request.getFilters() != null && request.getFilters().getClientId() == null) {
-                request.getFilters().setClientId(ClientContextHolder.getClientDbId());
+                Long clientDbId = ClientContextHolder.getClientDbId();
+                if (clientDbId == null && !SecurityUtils.isSuperAdmin()) {
+                    throw new CustomException(ExceptionMessage.CLIENT_CONTEXT_REQUIRED);
+                }
+                request.getFilters().setClientId(clientDbId);
             }
+        } catch (CustomException e) {
+            throw e;
         } catch (Exception e) {
             log.warn("Failed to set client context: {}", e.getMessage());
         }
