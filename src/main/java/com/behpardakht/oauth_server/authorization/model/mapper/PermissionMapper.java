@@ -63,4 +63,17 @@ public class PermissionMapper {
                 .stream().filter(Objects::nonNull).map(PermissionDto::getId).collect(Collectors.toSet());
         return ids.isEmpty() ? Collections.emptySet() : permissionRepository.findByIdIn(ids);
     }
+
+    public void updateEntity(Permission entity, PermissionDto dto) {
+        if (dto == null) return;
+        if (dto.getName() != null) {
+            entity.setName(dto.getName());
+        }
+        if (dto.getDescription() != null) {
+            entity.setDescription(dto.getDescription());
+        }
+        if (dto.getIsEnabled() != null) {
+            entity.setIsEnabled(dto.getIsEnabled());
+        }
+    }
 }

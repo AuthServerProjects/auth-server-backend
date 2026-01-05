@@ -56,12 +56,11 @@ public class RoleService {
     public void update(Long id, RoleDto request) {
         Role role = findById(id);
         validateOwnership(role.getClient().getId());
-        if (!role.getName().equals(request.getName())
+        if (request.getName() != null && !request.getName().equals(role.getName())
                 && existsByNameAndClientId(request.getName(), role.getClient().getId())) {
             throw new AlreadyExistException("Role", request.getName());
         }
-
-        role.setName(request.getName());
+        roleMapper.updateEntity(role, request);
         insert(role);
     }
 

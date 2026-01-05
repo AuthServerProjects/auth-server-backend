@@ -51,13 +51,11 @@ public class PermissionService {
     public void update(Long id, PermissionDto request) {
         Permission permission = findById(id);
         validateOwnership(permission.getClient().getId());
-        if (!permission.getName().equals(request.getName())
+        if (request.getName() != null && !request.getName().equals(permission.getName())
                 && existsByNameAndClientId(request.getName(), permission.getClient().getId())) {
             throw new AlreadyExistException("Permission", request.getName());
         }
-
-        permission.setName(request.getName());
-        permission.setDescription(request.getDescription());
+        permissionMapper.updateEntity(permission, request);
         insert(permission);
     }
 

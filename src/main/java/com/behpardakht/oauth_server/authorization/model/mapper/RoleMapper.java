@@ -54,4 +54,17 @@ public class RoleMapper {
         return Optional.ofNullable(dtoList).orElse(Collections.emptyList())
                 .stream().filter(Objects::nonNull).map(this::toEntity).toList();
     }
+
+    public void updateEntity(Role entity, RoleDto dto) {
+        if (dto == null) return;
+        if (dto.getName() != null) {
+            entity.setName(dto.getName());
+        }
+        if (dto.getIsEnabled() != null) {
+            entity.setIsEnabled(dto.getIsEnabled());
+        }
+        if (dto.getPermissions() != null) {
+            entity.setPermissions(permissionMapper.loadEntitySet(dto.getPermissions()));
+        }
+    }
 }
