@@ -128,20 +128,20 @@ public class ClientMapper {
 
     public void dtoToEntity(Client entity, ClientDto dto) {
         if (dto == null) return;
-        if (dto.getClientAuthenticationMethods() != null) {
+        if (dto.getClientAuthenticationMethods() != null && !dto.getClientAuthenticationMethods().isEmpty()) {
             entity.setClientAuthenticationMethods(dto.getClientAuthenticationMethods());
         }
-        if (dto.getAuthorizationGrantTypes() != null) {
+        if (dto.getAuthorizationGrantTypes() != null && !dto.getAuthorizationGrantTypes().isEmpty()) {
             entity.setAuthorizationGrantTypes(dto.getAuthorizationGrantTypes());
         }
-        if (dto.getRedirectUris() != null) {
+        if (dto.getRedirectUris() != null && !dto.getRedirectUris().isEmpty()) {
             entity.setRedirectUris(dto.getRedirectUris());
         }
-        if (dto.getScopes() != null) {
+        if (dto.getScopes() != null && !dto.getScopes().isEmpty()) {
             entity.setScopes(dto.getScopes());
         }
         if (dto.getSetting() != null) {
-            entity.setSetting(toSettingEntity(dto.getSetting()));
+            updateSettingEntity(entity.getSetting(), dto.getSetting());
         }
         if (dto.getIsEnabled() != null) {
             entity.setIsEnabled(dto.getIsEnabled());
@@ -362,5 +362,36 @@ public class ClientMapper {
                 .authorizationCodeTimeToLive(dto.getAuthorizationCodeTimeToLive())
                 .deviceCodeTimeToLive(dto.getDeviceCodeTimeToLive())
                 .build();
+    }
+
+    private void updateSettingEntity(TokenAndClientSetting entity, TokenAndClientSettingDto dto) {
+        if (dto == null || entity == null) return;
+        if (dto.getRequireProofKey() != null) {
+            entity.setRequireProofKey(dto.getRequireProofKey());
+        }
+        if (dto.getRequireAuthorizationConsent() != null) {
+            entity.setRequireAuthorizationConsent(dto.getRequireAuthorizationConsent());
+        }
+        if (dto.getAccessTokenTimeToLive() != null) {
+            entity.setAccessTokenTimeToLive(dto.getAccessTokenTimeToLive());
+        }
+        if (dto.getX509CertificateBoundAccessTokens() != null) {
+            entity.setX509CertificateBoundAccessTokens(dto.getX509CertificateBoundAccessTokens());
+        }
+        if (dto.getRefreshTokenTimeToLive() != null) {
+            entity.setRefreshTokenTimeToLive(dto.getRefreshTokenTimeToLive());
+        }
+        if (dto.getReuseRefreshTokens() != null) {
+            entity.setReuseRefreshTokens(dto.getReuseRefreshTokens());
+        }
+        if (dto.getIdTokenSignatureAlgorithm() != null) {
+            entity.setIdTokenSignatureAlgorithm(dto.getIdTokenSignatureAlgorithm());
+        }
+        if (dto.getAuthorizationCodeTimeToLive() != null) {
+            entity.setAuthorizationCodeTimeToLive(dto.getAuthorizationCodeTimeToLive());
+        }
+        if (dto.getDeviceCodeTimeToLive() != null) {
+            entity.setDeviceCodeTimeToLive(dto.getDeviceCodeTimeToLive());
+        }
     }
 }
