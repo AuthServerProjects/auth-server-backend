@@ -33,7 +33,7 @@ public class UserRoleFilterSpecification implements FilterSpecification<UserRole
                                     CriteriaBuilder cb, UserRoleFilterDto filter) {
         addEntityFilter(predicates, root, cb, "role", "id", filter.getRoleId());
         addEntityFilter(predicates, root, cb, "role", "name", filter.getRoleName());
-        addJoinFilter(predicates, root, cb, "role", "user", "username", filter.getUsername());
+        addJoinFilter(predicates, root, cb, "role", "client", "id", filter.getClientId());
         addEntityFilter(predicates, root, cb, "userClient", "id", filter.getUserClientId());
         addJoinFilter(predicates, root, cb, "userClient", "client", "id", filter.getClientId());
         addJoinFilter(predicates, root, cb, "userClient", "user", "username", filter.getUsername());

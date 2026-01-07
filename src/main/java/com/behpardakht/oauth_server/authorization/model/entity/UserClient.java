@@ -12,7 +12,7 @@ import java.util.Set;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "user_client_assignment", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "client_id"}))
+@Table(name = "user_client", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "client_id"}))
 public class UserClient extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
