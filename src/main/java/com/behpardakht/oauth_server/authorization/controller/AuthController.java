@@ -37,7 +37,7 @@ public class AuthController {
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("#oldUsername == authentication.principal.username")
+    @PreAuthorize("#oldUsername == authentication.name")
     @PostMapping(path = "changeUsername")
     public ResponseEntity<ResponseDto<String>> changeUsername(@RequestParam String oldUsername,
                                                               @RequestParam String newUsername) {
@@ -46,7 +46,7 @@ public class AuthController {
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-    @PreAuthorize("#username == authentication.principal.username")
+    @PreAuthorize("#username == authentication.name")
     @PostMapping(path = "changePassword")
     public ResponseEntity<ResponseDto<String>> changePassword(@RequestParam String username,
                                                               @RequestParam String oldPassword,
